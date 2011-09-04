@@ -2,10 +2,10 @@
 
 <img alt="Octocat" src="./examples/octocat/octocat.png" style="width: 256px; vertical-align: middle;"/>
 <span style="font-size: 128px; vertical-align: middle;">&rarr;</span>
-<img alt="Octocat Folder" src="./examples/octocat/octocat_folder_256.png" style="width: 256px; vertical-align: middle;"/>
-<img alt="Octocat Folder" src="./examples/octocat/octocat_folder_128.png" style="width: 128px; vertical-align: middle;"/>
-<img alt="Octocat Folder" src="./examples/octocat/octocat_folder_32.png" style="width: 32px; vertical-align: middle;"/>
-<img alt="Octocat Folder" src="./examples/octocat/octocat_folder_16.png" style="width: 16px; vertical-align: middle;"/>
+<img alt="Octocat Folder" src="https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_256.png" style="width: 256px; vertical-align: middle;"/>
+<img alt="Octocat Folder" src="https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_128.png" style="width: 128px; vertical-align: middle;"/>
+<img alt="Octocat Folder" src="https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_32.png" style="width: 32px; vertical-align: middle;"/>
+<img alt="Octocat Folder" src="https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_16.png" style="width: 16px; vertical-align: middle;"/>
 
 
 ## Usage
