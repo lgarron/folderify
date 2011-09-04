@@ -1,12 +1,10 @@
 # folderify
 
-![Apple Folde](https://github.com/lgarron/folderify/raw/master/examples/apple/apple_folder_256.png)
-![Cube Folde](https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_256.png)
+![Apple Folder](https://github.com/lgarron/folderify/raw/master/examples/apple/apple_folder_256.png)
+![Cube Folder](https://github.com/lgarron/folderify/raw/master/examples/cube/cube_folder_256.png)
 ![Octocat Folder](https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_256.png)
-![Rhombic Hexecontrahedron Folder](https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_256.png)
-![Octocat Folder](https://github.com/lgarron/folderify/raw/master/examples/octocat/octocat_folder_256.png)
-
-(Octocat from [github/media](https://github.com/github/media/blob/master/octocats/octocat.png))
+![Rhombic Hexecontrahedron Folder](https://github.com/lgarron/folderify/raw/master/examples/rhombic_hexecontahedron/rhombic_hexecontahedron_folder_256.png)
+![Octocat Folder](https://github.com/lgarron/folderify/raw/master/examples/sysprefs/sysprefs_folder_256.png)
 
 ## Usage
 
