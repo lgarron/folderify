@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# TODO: Handle automatic positive/negative detection
+# TODO: Resize to fit in actual folder region
+# TODO: use variable in folderify
+
+SCRIPT_NAME="`basename $0`"
+
+FOLDER_ICONS_FOLDER="`dirname $0`/scaled_folders"
+FILE="$1"
+OUT_FILE_NAME="${FILE%.*}_folder"
+
+
+
+function show_help {
+cat <<HEREDOC
+
+Usage: $SCRIPT_NAME <file.png>
+
+- The file should be an image with a transparent background (i.e. the corners should be transparent).
+- $SCRIPT_NAME will produce 5 folder icon images at different resolutions.
+  - These can be combined into a .icns file using a tool like "Icon Composer" or png2icns.
+  - The .icns file can be assigned as the icon of a file a tool like IconDroplet (another alternative is to assign the icon to an XCode OSX application project and build)
+  - The icon can be copied to a folder using the "Get Info" pane in the Finder.
+
+HEREDOC
+}
+
+
+
+function echocol {
+ echo -e "\033[1;$1m$2\033[0m"
+}
+
+
+
+if [ $# -ne 1 ]
+then
+	echo ""
+	echocol 31 "ERROR - Incorrect number of arguments: $#"
+	show_help
+	exit 1
+fi
+
+
+
+
+if [ ! -f "$FILE" ]
+then
+	echo ""
+	echocol 31 "ERROR - Not a file: $FILE"
+	show_help
+	exit 1
+fi
+
+
+
+function folderify {
+
+	FILE="$1"
+	scale="$2"
+	main_opacity="$3"
+	offset_white="$4"
+	opacity_white="$5"
+	offset_black="$6"
+	width="$7"
+	height="$8"
+	offset_center="$9"
+
+	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "$FILE" -trim -resize "$widthx$height>" -negate -colorize 3,23,40 -negate \) \
+	\( \
+		\( \
+			\( \
+				"$FILE" -trim -resize "$widthx$height>" \
+				\( \
+					"$FILE" -trim -resize "$widthx$height>" -negate -shadow 100x1+10+0 -geometry -2-2 \
+				\) \
+				-compose dst-out -composite +repage \
+			\) \
+			\( \
+				"$FILE" -trim -resize "$widthx$height>" \
+				\( \
+					"$FILE" -trim -resize "$widthx$height>" -negate -geometry +0-1 \
+				\) \
+				-compose dst-out -composite +repage -negate -geometry +0+$offset_white \
+			\) \
+			-compose dissolve -define compose:args=$opacity_whitex50 -composite +repage \
+		\) \
+		\( \
+			"$FILE" -trim -resize "$widthx$height>" \
+			\( \
+				"$FILE" -trim -resize "$widthx$height>" -negate -geometry +0+1 \
+			\) \
+			-compose dst-out -composite +repage \
+		\) \
+		-compose dissolve -define compose:args=50x80 -composite \
+	\) \
+	-compose dissolve -define compose:args=60x$main_opacity -composite +repage \
+	-gravity Center -geometry +0+$offset_center \
+	+repage \
+	\) \
+	-compose over -composite  "${OUT_FILE_NAME}_$scale.png"
+ }
+
+
+
+folderify "$FILE" 16 24   1 0   1    12 9 1
+folderify "$FILE" 32 20   1 50   1    28 17 2
+folderify "$FILE" 128 16   2 100   1    111 68 9
+folderify "$FILE" 256 12   2 100   1    222 137 18
+folderify "$FILE" 512 12   2 100   1    444 274 36
+
+# png2icns "${OUT_FILE_NAME}.icns" "${OUT_FILE_NAME}_16.png" "${OUT_FILE_NAME}_32.png" "${OUT_FILE_NAME}_128.png" "${OUT_FILE_NAME}_256.png" "${OUT_FILE_NAME}_512.png"
+# sips -i "${OUT_FILE_NAME}.icns"
+# assignIcon "$FILE.icns" "$FILE.icns"
+# Rez, DeRez, ...
