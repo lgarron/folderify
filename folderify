@@ -4,6 +4,7 @@
 # TODO: Resize to fit in actual folder region
 # TODO: use variable in folderify
 
+SCRIPT_DIR="`dirname $0`"
 SCRIPT_NAME="`basename $0`"
 
 FOLDER_ICONS_FOLDER="`dirname $0`/scaled_folders"
@@ -45,10 +46,10 @@ fi
 
 
 
-if [ ! -f "$FILE" ]
+if [ ! -f "${FILE}" ]
 then
 	echo ""
-	echocol 31 "ERROR - Not a file: $FILE"
+	echocol 31 "ERROR - Not a file: ${FILE}"
 	show_help
 	exit 1
 fi
@@ -58,72 +59,90 @@ fi
 function folderify {
 
 	FILE="$1"
+	TEMP_FILE_OUT="$2"
 	TEMP_FILE="`mktemp /tmp/folderify.XXXXXX`"
-	scale="$2"
-	main_opacity="$3"
-	offset_white="$4"
-	opacity_white="$5"
-	offset_black="$6"
-	width="$7"
-	height="$8"
-	offset_center="$9"
+	scale="$3"
+	main_opacity="$4"
+	offset_white="$5"
+	opacity_white="$6"
+	offset_black="$7"
+	width="$8"
+	height="$9"
+	offset_center="${10}"
 
-	convert "$FILE" -trim -resize "${width}x${height}>" -bordercolor none -border 10 "$TEMP_FILE"
+	convert "${FILE}" -trim -resize "${width}x${height}>" -bordercolor none -border 10 "${TEMP_FILE}"
 
-	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "$TEMP_FILE" -negate -colorize 3,23,40 -negate \) \
+	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
 	\( \
 		\( \
 			\( \
-				"$TEMP_FILE" \
+				"${TEMP_FILE}" \
 				\( \
-					"$TEMP_FILE" -negate -shadow 100x1+10+0 -geometry -2-2 \
+					"${TEMP_FILE}" -negate -shadow 100x1+10+0 -geometry -2-2 \
 				\) \
 				-compose dst-out -composite +repage \
 			\) \
 			\( \
-				"$TEMP_FILE" \
+				"${TEMP_FILE}" \
 				\( \
-					"$TEMP_FILE" -negate -geometry +0-1 \
+					"${TEMP_FILE}" -negate -geometry +0-1 \
 				\) \
 				-compose dst-out -composite +repage -negate -geometry +0+${offset_white} \
 			\) \
 			-compose dissolve -define compose:args=${opacity_white}x50 -composite +repage \
 		\) \
 		\( \
-			"$TEMP_FILE" \
+			"${TEMP_FILE}" \
 			\( \
-				"$TEMP_FILE" -negate -geometry +0+1 \
+				"${TEMP_FILE}" -negate -geometry +0+1 \
 			\) \
 			-compose dst-out -composite +repage \
 		\) \
 		-compose dissolve -define compose:args=50x80 -composite \
 	\) \
 	-compose dissolve -define compose:args=60x$main_opacity -composite +repage \
-	-gravity Center -geometry +0+$offset_center \
+	-gravity Center -geometry +0+${offset_center} \
 	+repage \
 	\) \
-	-compose over -composite  "${OUT_FILE_NAME}_$scale.png"
+	-compose over -composite  "${TEMP_FILE_OUT}"
 
-	rm "$TEMP_FILE"
+	rm "${TEMP_FILE}"
  }
 
 
 echo "16x16..."
-folderify "$FILE" 16 24   1 50   1    12 8 1
+TEMP_FILE_16="`mktemp /tmp/folderify_16.XXXXXX`"
+folderify "$FILE" "${TEMP_FILE_16}" 16 24   1 50   1    12 8 1
 
 echo "32x32..."
-folderify "$FILE" 32 20   1 75   1    26 14 2
+TEMP_FILE_32="`mktemp /tmp/folderify_32.XXXXXX`"
+folderify "$FILE" "${TEMP_FILE_32}" 32 20   1 75   1    26 14 2
 
 echo "128x128..."
-folderify "$FILE" 128 16   2 100   1    103 60 9
+TEMP_FILE_128="`mktemp /tmp/folderify_128.XXXXXX`"
+folderify "$FILE" "${TEMP_FILE_128}" 128 16   2 100   1    103 60 9
 
 echo "256x256..."
-folderify "$FILE" 256 12   2 100   1    206 121 18
+TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
+folderify "$FILE" "${TEMP_FILE_256}" 256 12   2 100   1    206 121 18
 
 echo "512x512..."
-folderify "$FILE" 512 12   2 100   1    412 242 36
+TEMP_FILE_512="`mktemp /tmp/folderify_512.XXXXXX`"
+folderify "$FILE" "${TEMP_FILE_512}" 512 12   2 100   1    412 242 36
+
+echo ${OUT_FILE_NAME}
+
+"${SCRIPT_DIR}/lib/makeicns" \
+-16 "${TEMP_FILE_16}" \
+-32 "${TEMP_FILE_32}" \
+-128 "${TEMP_FILE_128}" \
+-256 "${TEMP_FILE_256}" \
+-512 "${TEMP_FILE_512}" \
+-out "${OUT_FILE_NAME}.icns"
+
+rm "${TEMP_FILE_16}" "${TEMP_FILE_32}" "${TEMP_FILE_128}" "${TEMP_FILE_256}" "${TEMP_FILE_512}"
 
 # png2icns "${OUT_FILE_NAME}.icns" "${OUT_FILE_NAME}_16.png" "${OUT_FILE_NAME}_32.png" "${OUT_FILE_NAME}_128.png" "${OUT_FILE_NAME}_256.png" "${OUT_FILE_NAME}_512.png"
 # sips -i "${OUT_FILE_NAME}.icns"
-# assignIcon "$FILE.icns" "$FILE.icns"
+# assignIcon "${FILE}.icns" "${FILE}.icns"
 # Rez, DeRez, ...
