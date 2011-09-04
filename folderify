@@ -58,6 +58,7 @@ fi
 function folderify {
 
 	FILE="$1"
+	TEMP_FILE="`mktemp /tmp/folderify.XXXXXX`"
 	scale="$2"
 	main_opacity="$3"
 	offset_white="$4"
@@ -67,29 +68,31 @@ function folderify {
 	height="$8"
 	offset_center="$9"
 
-	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "$FILE" -trim -resize "$widthx$height>" -negate -colorize 3,23,40 -negate \) \
+	convert "$FILE" -trim -resize "${width}x${height}>" -bordercolor none -border 10 "$TEMP_FILE"
+
+	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "$TEMP_FILE" -negate -colorize 3,23,40 -negate \) \
 	\( \
 		\( \
 			\( \
-				"$FILE" -trim -resize "$widthx$height>" \
+				"$TEMP_FILE" \
 				\( \
-					"$FILE" -trim -resize "$widthx$height>" -negate -shadow 100x1+10+0 -geometry -2-2 \
+					"$TEMP_FILE" -negate -shadow 100x1+10+0 -geometry -2-2 \
 				\) \
 				-compose dst-out -composite +repage \
 			\) \
 			\( \
-				"$FILE" -trim -resize "$widthx$height>" \
+				"$TEMP_FILE" \
 				\( \
-					"$FILE" -trim -resize "$widthx$height>" -negate -geometry +0-1 \
+					"$TEMP_FILE" -negate -geometry +0-1 \
 				\) \
-				-compose dst-out -composite +repage -negate -geometry +0+$offset_white \
+				-compose dst-out -composite +repage -negate -geometry +0+${offset_white} \
 			\) \
-			-compose dissolve -define compose:args=$opacity_whitex50 -composite +repage \
+			-compose dissolve -define compose:args=${opacity_white}x50 -composite +repage \
 		\) \
 		\( \
-			"$FILE" -trim -resize "$widthx$height>" \
+			"$TEMP_FILE" \
 			\( \
-				"$FILE" -trim -resize "$widthx$height>" -negate -geometry +0+1 \
+				"$TEMP_FILE" -negate -geometry +0+1 \
 			\) \
 			-compose dst-out -composite +repage \
 		\) \
@@ -100,15 +103,25 @@ function folderify {
 	+repage \
 	\) \
 	-compose over -composite  "${OUT_FILE_NAME}_$scale.png"
+
+	rm "$TEMP_FILE"
  }
 
 
+echo "16x16..."
+folderify "$FILE" 16 24   1 50   1    12 8 1
 
-folderify "$FILE" 16 24   1 0   1    12 9 1
-folderify "$FILE" 32 20   1 50   1    28 17 2
-folderify "$FILE" 128 16   2 100   1    111 68 9
-folderify "$FILE" 256 12   2 100   1    222 137 18
-folderify "$FILE" 512 12   2 100   1    444 274 36
+echo "32x32..."
+folderify "$FILE" 32 20   1 75   1    26 14 2
+
+echo "128x128..."
+folderify "$FILE" 128 16   2 100   1    103 60 9
+
+echo "256x256..."
+folderify "$FILE" 256 12   2 100   1    206 121 18
+
+echo "512x512..."
+folderify "$FILE" 512 12   2 100   1    412 242 36
 
 # png2icns "${OUT_FILE_NAME}.icns" "${OUT_FILE_NAME}_16.png" "${OUT_FILE_NAME}_32.png" "${OUT_FILE_NAME}_128.png" "${OUT_FILE_NAME}_256.png" "${OUT_FILE_NAME}_512.png"
 # sips -i "${OUT_FILE_NAME}.icns"
