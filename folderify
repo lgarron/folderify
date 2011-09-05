@@ -14,6 +14,8 @@ ASSIGN_TO_EXISTING_FILE=0
 OUT_FILE_NEW="${FILE%.*}_folder.icns"
 OUT_FILE_EXISTING=""
 
+HR_DIVIDE="----------------"
+
 function show_help {
 cat <<HEREDOC
 
@@ -103,33 +105,38 @@ function folderify {
 	rm "${TEMP_FILE}"
  }
 
-
+echo ""
 echo "Making icon file for ${FILE}"
+
+echo "${HR_DIVIDE}"
 
 # TODO: Make parameter passing a bit more readable.
 
-echo "16x16..."
+echo "Generating 16x16 image..."
 TEMP_FILE_16="`mktemp /tmp/folderify_16.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_16}" 16 50   1 50   1    12 8 1
 
-echo "32x32..."
+echo "Generating 32x32 image..."
 TEMP_FILE_32="`mktemp /tmp/folderify_32.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_32}" 32 32   1 75   1    26 14 2
 
-echo "128x128..."
+echo "Generating 128x128 image..."
 TEMP_FILE_128="`mktemp /tmp/folderify_128.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_128}" 128 24   2 100   1    103 60 9
 
-echo "256x256..."
+echo "Generating 56x256 image..."
 TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_256}" 256 20   2 100   1    206 121 18
 
-echo "512x512..."
+echo "Generating 512x512 image..."
 TEMP_FILE_512="`mktemp /tmp/folderify_512.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_512}" 512 12   2 100   1    412 242 36
 
 
 # Make the .icns file.
+
+echo "${HR_DIVIDE}"
+echo "Making the .icns file..."
 
 TEMP_ICNS_FILE="`mktemp /tmp/folderify_icns.XXXXXX`"
 
@@ -147,18 +154,46 @@ rm "${TEMP_FILE_16}" "${TEMP_FILE_32}" "${TEMP_FILE_128}" "${TEMP_FILE_256}" "${
 
 # Make the rsrc file.
 
+echo "${HR_DIVIDE}"
+echo "Making the rsrc file..."
+
 TEMP_RSRC_FILE="`mktemp /tmp/folderify_rsrc.XXXXXX`"
 
 python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${TEMP_ICNS_FILE}" "${TEMP_RSRC_FILE}"
 
 
+#Assign the rsrc file.
 
-#Assign the rsrc file to the icon itself.
-
+# Adapted from painful amounts of searchin on the internet, and some good approaches from http://hasseg.org/stuff/assignIconScript/assignIcon
 function assign_icon {
-	echo "Assigning icon to: ${2}"
-	/Developer/Tools/Rez -append "${1}" -o "${2}"
-	SetFile -a C "${2}"
+
+	echo "${HR_DIVIDE}"
+
+	if [ "`file -b \"$2\"`" == "directory" ]
+	then
+		echo "Assigning icon directory: ${2}"
+		/Developer/Tools/Rez -append "${1}" -o `printf "${2}/Icon\r"`
+		SetFile -a C "${2}"
+		SetFile -a V `printf "${2}/Icon\r"`
+	else 
+		echo "Assigning icon to file: ${2}"
+		/Developer/Tools/Rez -append "${1}" -o "${2}"
+		SetFile -a C "${2}"
+	fi
+
+	CUR_DIR=`pwd`
+	TARGETSPATH=`dirname $2`
+	TARGETSFULLPATH="`cd $TARGETSPATH; pwd`/$2"
+
+	# echo "Going to try to tell Finder about the change so that it shows the new icon immediately."
+	# echo "(This may throw a harmless AppleEvent handler failure on the next line.)"
+
+	# Instead of printing a warning, let's just tr to suppress all output.
+	echo `osascript -e "tell application \"Finder\" to update POSIX file \"$TARGETSFULLPATH\""  2>&1 > /dev/null` 2>&1 > /dev/null
+	# echo "Done telling Finder."
+
+	cd "${CUR_DIR}"
+
 }
 
 OUT_FILE_ASSIGN=""
@@ -173,4 +208,7 @@ fi
 
 rm "${TEMP_RSRC_FILE}"
 
+echo "${HR_DIVIDE}"
+
 echo "Done."
+echo ""

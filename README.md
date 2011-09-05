@@ -15,6 +15,14 @@
 
 You should see a bunch of new .icns files that were automatically generated from the .png masks.
 
+Or try this:
+
+    git clone git://github.com/lgarron/folderify.git
+    cd folderify
+    ./folderify examples/src/folder_outline.png .
+
+The repository folder should now have an icon.
+
 ## Usage
 
 Command:
