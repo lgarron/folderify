@@ -20,7 +20,7 @@ footer = "\x0A\x7D\x3B\x0A\x0A"
 # print header, "-", len(header)
 # print footer, "-", len(footer)
 
-print "Converting", sys.argv[1], "to a .rsrc file at ", sys.argv[2]
+print "Converting", sys.argv[1], "to a .rsrc file at", sys.argv[2]
 
 file_out.write(header)
 
