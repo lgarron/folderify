@@ -60,7 +60,7 @@ function folderify {
 
 	FILE="$1"
 	TEMP_FILE_OUT="$2"
-	TEMP_FILE="`mktemp /tmp/folderify.XXXXXX`"
+	TEMP_FILE="`mktemp /tmp/folderify_img.XXXXXX`"
 	scale="$3"
 	main_opacity="$4"
 	offset_white="$5"
@@ -110,6 +110,9 @@ function folderify {
  }
 
 
+echo "Making icon file for ${FILE}"
+
+
 echo "16x16..."
 TEMP_FILE_16="`mktemp /tmp/folderify_16.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_16}" 16 24   1 50   1    12 8 1
@@ -132,6 +135,8 @@ folderify "$FILE" "${TEMP_FILE_512}" 512 12   2 100   1    412 242 36
 
 echo ${OUT_FILE_NAME}
 
+# Make the .icns file.
+
 "${SCRIPT_DIR}/lib/makeicns" \
 -16 "${TEMP_FILE_16}" \
 -32 "${TEMP_FILE_32}" \
@@ -142,7 +147,20 @@ echo ${OUT_FILE_NAME}
 
 rm "${TEMP_FILE_16}" "${TEMP_FILE_32}" "${TEMP_FILE_128}" "${TEMP_FILE_256}" "${TEMP_FILE_512}"
 
-# png2icns "${OUT_FILE_NAME}.icns" "${OUT_FILE_NAME}_16.png" "${OUT_FILE_NAME}_32.png" "${OUT_FILE_NAME}_128.png" "${OUT_FILE_NAME}_256.png" "${OUT_FILE_NAME}_512.png"
-# sips -i "${OUT_FILE_NAME}.icns"
-# assignIcon "${FILE}.icns" "${FILE}.icns"
-# Rez, DeRez, ...
+# Make the rsrc file.
+
+TEMP_RSRC_FILE="`mktemp /tmp/folderify_rsrc.XXXXXX`"
+
+python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${OUT_FILE_NAME}.icns" "${TEMP_RSRC_FILE}"
+
+#Assignt the rsrc file to the icon itself.
+
+echo "Assigning icon to ${OUT_FILE_NAME}.icns file itself."
+
+/Developer/Tools/Rez -append "${TEMP_RSRC_FILE}" -o "${OUT_FILE_NAME}.icns"
+
+SetFile -a C "${OUT_FILE_NAME}.icns"
+
+rm "${TEMP_RSRC_FILE}"
+
+echo "Done. Icon file is at ${OUT_FILE_NAME}.icns"
