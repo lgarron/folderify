@@ -19,7 +19,7 @@ You should see a bunch of new .icns files that were automatically generated from
 
 Command:
 
-    folderify <image.png> [<optional_target_file.ong>]
+    folderify <image.png> [<optional_target_file.png>]
  
 - The input file should be an image with a transparent background. For best results:
   - Use a .png file

@@ -17,7 +17,7 @@ OUT_FILE_EXISTING=""
 function show_help {
 cat <<HEREDOC
 
-Usage: $SCRIPT_NAME <file.png> [<optional_target_file.ong>]
+Usage: $SCRIPT_NAME <file.png> [<optional_target_file.png>]
 
 - The file should be an image with a transparent background (i.e. the corners should be transparent).
 - $SCRIPT_NAME will produce a .icns file with 5 resolutions of icons generated from the input file.
