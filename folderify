@@ -167,14 +167,17 @@ python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${TEMP_ICNS_FILE}" "${TEMP_RSRC_FILE}
 # Adapted from painful amounts of searchin on the internet, and some good approaches from http://hasseg.org/stuff/assignIconScript/assignIcon
 function assign_icon {
 
+	
 	echo "${HR_DIVIDE}"
 
 	if [ "`file -b \"$2\"`" == "directory" ]
 	then
-		echo "Assigning icon directory: ${2}"
-		/Developer/Tools/Rez -append "${1}" -o `printf "${2}/Icon\r"`
-		SetFile -a C "${2}"
-		SetFile -a V `printf "${2}/Icon\r"`
+		# Won't work on the root folder, but I'm not so concerned.
+		NAME_WITHOUT_TRAILING_SLASH="`dirname ${2}`/`basename ${2}`"
+		echo "Assigning icon directory: ${DIRNAME_WITHOUT_TRAILING_SLASH}"
+		/Developer/Tools/Rez -append "${1}" -o `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
+		SetFile -a C "${NAME_WITHOUT_TRAILING_SLASH}"
+		SetFile -a V `printf "${DIRNAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
 	else 
 		echo "Assigning icon to file: ${2}"
 		/Developer/Tools/Rez -append "${1}" -o "${2}"
@@ -188,7 +191,7 @@ function assign_icon {
 	# echo "Going to try to tell Finder about the change so that it shows the new icon immediately."
 	# echo "(This may throw a harmless AppleEvent handler failure on the next line.)"
 
-	# Instead of printing a warning, let's just tr to suppress all output.
+	# Instead of printing a warning, let's just try to suppress all output.
 	echo `osascript -e "tell application \"Finder\" to update POSIX file \"$TARGETSFULLPATH\""  2>&1 > /dev/null` 2>&1 > /dev/null
 	# echo "Done telling Finder."
 
