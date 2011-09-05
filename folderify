@@ -174,10 +174,10 @@ function assign_icon {
 	then
 		# Won't work on the root folder, but I'm not so concerned.
 		NAME_WITHOUT_TRAILING_SLASH="`dirname ${2}`/`basename ${2}`"
-		echo "Assigning icon directory: ${DIRNAME_WITHOUT_TRAILING_SLASH}"
+		echo "Assigning icon to directory: ${NAME_WITHOUT_TRAILING_SLASH}"
 		/Developer/Tools/Rez -append "${1}" -o `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
 		SetFile -a C "${NAME_WITHOUT_TRAILING_SLASH}"
-		SetFile -a V `printf "${DIRNAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
+		SetFile -a V `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
 	else 
 		echo "Assigning icon to file: ${2}"
 		/Developer/Tools/Rez -append "${1}" -o "${2}"
