@@ -66,7 +66,7 @@ function folderify {
 	height="$9"
 	offset_center="${10}"
 
-	convert "${FILE}" -trim -resize "${width}x${height}>" -bordercolor none -border 10 "${TEMP_FILE}"
+	convert "${FILE}" -trim -resize "${width}x${height}" -bordercolor none -border 10 "${TEMP_FILE}"
 
 	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
 	\( \
@@ -126,11 +126,11 @@ folderify "$FILE" "${TEMP_FILE_128}" 128 24   2 100   1    103 60 9
 
 echo "Generating 56x256 image..."
 TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_256}" 256 20   2 100   1    206 121 18
+folderify "$FILE" "${TEMP_FILE_256}" 256 24   2 100   1    206 121 18
 
 echo "Generating 512x512 image..."
 TEMP_FILE_512="`mktemp /tmp/folderify_512.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_512}" 512 12   2 100   1    412 242 36
+folderify "$FILE" "${TEMP_FILE_512}" 512 24   2 100   1    412 242 36
 
 
 # Make the .icns file.
@@ -173,11 +173,11 @@ function assign_icon {
 	if [ "`file -b \"$2\"`" == "directory" ]
 	then
 		# Won't work on the root folder, but I'm not so concerned.
-		NAME_WITHOUT_TRAILING_SLASH="`dirname ${2}`/`basename ${2}`"
+		NAME_WITHOUT_TRAILING_SLASH="`dirname \"${2}\"`/`basename \"${2}\"`"
 		echo "Assigning icon to directory: ${NAME_WITHOUT_TRAILING_SLASH}"
 		/Developer/Tools/Rez -append "${1}" -o `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
 		SetFile -a C "${NAME_WITHOUT_TRAILING_SLASH}"
-		SetFile -a V `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
+		SetFile -a V "`printf \"${NAME_WITHOUT_TRAILING_SLASH}/Icon\r\"`"
 	else 
 		echo "Assigning icon to file: ${2}"
 		/Developer/Tools/Rez -append "${1}" -o "${2}"
