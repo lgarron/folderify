@@ -13,7 +13,7 @@
     for file in examples/src/*.png; do ./folderify $file; done
     open examples/src/
 
-You should see a bunch of new .icns files that were automatically generated from the .png masks.
+You should see a bunch of new `.icns` files that were automatically generated from the `.png` masks.
 
 Or try this:
 
@@ -27,16 +27,16 @@ The repository folder should now have an icon.
 
 Command:
 
-    folderify <image.png> [<optional_target_file.png>]
+    folderify <image.png> [<optional_target_file_or_folder>]
  
 - The input file should be an image with a transparent background. For best results:
-  - Use a .png file
+  - Use a `.png` file
   - Use a black figure on a transparent background. (Colored images also work, but may produce a weaker effect.)
   - Make sure the corner pixels of the image are transparent. They are currently used for empty margins.
-- folderify will produce a .icns file containing 5 resolutions of folder icons. The .icns file will also have itself as its icon.
-  - (Note that normal .icns files do NOT have themselves as an icon.)
-- The icon can be copied from the generated .icns to any other file folder using the "Get Info" pane in the Finder.
-  - (Note that this does NOT normally work for .icns files, but it does work for such files that have been generated using folderify.)
+- folderify will produce a `.icns` file containing 5 resolutions of folder icons. The `.icns` file will also have itself as its icon.
+  - (Note that normal `.icns` files do NOT have themselves as an icon.)
+- The icon can be copied from the generated `.icns` to any other file folder using the "Get Info" pane in the Finder.
+  - (Note that this does NOT normally work for `.icns` files, but it does work for such files that have been generated using folderify.)
  
 ### Dependencies
 
