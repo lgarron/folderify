@@ -1,10 +1,10 @@
 # folderify
 
-![Apple Folder](https://github.com/lgarron/folderify/raw/master/examples/png/apple_folder_256.png)
-![Cube Folder](https://github.com/lgarron/folderify/raw/master/examples/png/cube_folder_256.png)
-![Octocat Folder](https://github.com/lgarron/folderify/raw/master/examples/png/octocat_folder_256.png)
-![Rhombic Hexecontrahedron Folder](https://github.com/lgarron/folderify/raw/master/examples/png/rhombic_hexecontahedron_folder_256.png)
-![Octocat Folder](https://github.com/lgarron/folderify/raw/master/examples/png/sysprefs_folder_256.png)
+![Apple Folder](examples/png/apple_folder_256.png)
+![Cube Folder](examples/png/cube_folder_256.png)
+![Octocat Folder](examples/png/octocat_folder_256.png)
+![Rhombic Hexecontrahedron Folder](examples/png/rhombic_hexecontahedron_folder_256.png)
+![Octocat Folder](examples/png/sysprefs_folder_256.png)
 
 # Try it!
 
