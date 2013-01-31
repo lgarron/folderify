@@ -124,7 +124,7 @@ echo "Generating 128x128 image..."
 TEMP_FILE_128="`mktemp /tmp/folderify_128.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_128}" 128 24   2 100   1    103 60 9
 
-echo "Generating 56x256 image..."
+echo "Generating 256x256 image..."
 TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
 folderify "$FILE" "${TEMP_FILE_256}" 256 24   2 100   1    206 121 18
 
