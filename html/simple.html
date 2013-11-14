@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>bev</title>
+<style type="text/css">
+body {
+  font-family: Helvetica;
+}
+.folder {
+  margin: 0px;
+  padding: 0px;
+  
+  text-align: center;
+  height: 512px;
+  width: 512px;
+  margin: 0;
+  background: url('folder_512.png');
+  background-size: cover;
+}
+.text_input {
+  margin: 0px;
+  padding: 0px;
+  
+  line-height: 1em;
+
+  width:  100%;
+  text-align: center;
+  background: none;
+  border: none;
+  
+  opacity: 0.25;
+  font-size: 128px;
+  font-family: Helvetica;
+  font-weight: bold;
+  margin-top: 220px;
+  color: rgb(0, 80, 120);
+  text-shadow:
+  -1px -2px 1px #000,
+  -1px -1px 1px #000,
+  -1px 1px 1px #000,
+  0px 1px 1px #000,
+  
+  0px 2px 1px #888,
+  -1px 3px 1px #FFF,
+  0px 3px 1px #FFF,
+  1px 3px 1px #FFF;
+}
+
+#debug {
+  color:  rgba(0, 0, 0, 0.25);
+}
+</style>
+<script>
+function set_text_margin(amount) {
+  document.getElementById('text_input').style.marginTop = amount.toString() + 'px';
+}
+
+function mv() {
+  var text = document.getElementById('text_input').value;
+  numLines =  text.split("\n").length;
+  if (numLines == 1) {
+    set_text_margin(220);
+  }
+  else {
+    set_text_margin(165);
+  }
+  
+  document.getElementById('text_input').rows = numLines;
+  var text = document.getElementById('debug').innerHTML = "Lines: " + numLines;
+}
+
+function imagify() {
+    var canvas = document.getElementById("folder");
+    var img = canvas.toDataURL("image/png");
+        alert();
+    log("Generating image...");
+    document.getElementById("#debug").html('<a href="' + img + '" target="blank"><img src="'+img+'"/></a>');
+}
+
+welcome = ["Welcome", "Wilkommen"]
+
+</script>
+</head>
+<body>
+
+<center>
+<div class="folder">
+<div class="text">
+<textarea class="text_input" id="text_input" type="textarea" rows="1" onkeyup="mv();" autofocus wrap="off"/>&#63743;</textarea>
+</div>
+</div>
+
+<!--button onclick="imagify()">img</button-->
+
+<!--div id="debug"></div-->
+
+</body>
+</html>
