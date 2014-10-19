@@ -112,25 +112,37 @@ echo "${HR_DIVIDE}"
 
 # TODO: Make parameter passing a bit more readable.
 
+	FILE="$1"
+	TEMP_FILE_OUT="$2"
+	TEMP_FILE="`mktemp /tmp/folderify_img.XXXXXX`"
+	scale="$3"
+	main_opacity="$4"
+	offset_white="$5"
+	opacity_white="$6"
+	offset_black="$7"
+	width="$8"
+	height="$9"
+	offset_center="${10}"
+
 echo "Generating 16x16 image..."
 TEMP_FILE_16="`mktemp /tmp/folderify_16.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_16}" 16 50   1 50   1    12 8 1
+folderify "$FILE" "${TEMP_FILE_16}" 16 15   1 50   1    12 8 1
 
 echo "Generating 32x32 image..."
 TEMP_FILE_32="`mktemp /tmp/folderify_32.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_32}" 32 32   1 75   1    26 14 2
+folderify "$FILE" "${TEMP_FILE_32}" 32 15   1 75   1    26 14 2
 
 echo "Generating 128x128 image..."
 TEMP_FILE_128="`mktemp /tmp/folderify_128.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_128}" 128 24   2 100   1    103 60 9
+folderify "$FILE" "${TEMP_FILE_128}" 128 15   1 100   1    103 53 4
 
 echo "Generating 256x256 image..."
 TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_256}" 256 24   2 100   1    206 121 18
+folderify "$FILE" "${TEMP_FILE_256}" 256 15   1 100   1    206 106 9
 
 echo "Generating 512x512 image..."
 TEMP_FILE_512="`mktemp /tmp/folderify_512.XXXXXX`"
-folderify "$FILE" "${TEMP_FILE_512}" 512 24   2 100   1    412 242 36
+folderify "$FILE" "${TEMP_FILE_512}" 512 15   1 100   1    412 212 18
 
 
 # Make the .icns file.
