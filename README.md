@@ -43,3 +43,7 @@ Command:
 - [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
 - Python 2 - to help assign the icon file to itself.
 - Apple Developer Tools (for /Developer/Tools/Rez)
+
+## Pre-Yosemite
+
+If you'd like to generate old-style folder icons, download the [`pre-yosemite`](https://github.com/lgarron/folderify/releases/tag/pre-yosemite) branch.
