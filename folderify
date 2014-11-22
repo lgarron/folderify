@@ -7,18 +7,72 @@
 SCRIPT_DIR="`dirname $0`"
 SCRIPT_NAME="`basename $0`"
 
-FOLDER_ICONS_FOLDER="`dirname $0`/GenericFolderIcon.iconset"
+FOLDER_ICONS_FOLDER="${SCRIPT_DIR}/GenericFolderIcon.iconset"
+SETICON_PROGRAM="${SCRIPT_DIR}/lib/seticon"
+
+
+################################################################
+
+
+HR_DIVIDE="----------------"
+
+function show_help {
+cat <<HEREDOC
+
+Usage: $SCRIPT_NAME <file.png> [<optional target file/folder>]
+
+- The file should be an image with a transparent background (i.e. the corners should be transparent).
+- If no target is specified, $SCRIPT_NAME will produce a .iconset folder and a .icns file with various resolutions of icons generated from the input file.
+- If a target file is specified, the icon is assigned to that file instead.
+
+HEREDOC
+}
+
+function echocol {
+ echo -e "\033[1;$1m$2\033[0m"
+}
+
+
+################################################################
+
+
+if [ $# -eq 0 ]
+then
+	show_help
+	exit -1
+fi
+
 FILE="$1"
 
-SET_ICON_PROGRAM="${SCRIPT_DIR}/lib/seticon"
+if [ ! -f "${FILE}" ]
+then
+	echo ""
+	echocol 31 "ERROR - Not a file: ${FILE}"
+	show_help
+	exit 1
+fi
 
-if [ $# -ne 1 ]
+if [ $# -gt 1 ]
 then
   ASSIGN_TO_EXISTING_FILE=1
-  TARGET_FOLDER="$2"
+  TARGET_FILE_OR_FOLDER="$2"
+
+	if [ -e "${TARGET_FILE_OR_FOLDER}" ]
+	then
+		echo "Target file/folder: ${TARGET_FILE_OR_FOLDER}"
+	else
+		echo ""
+		echocol 31 "ERROR: Target file/folder does not exist: ${TARGET_FILE_OR_FOLDER}"
+		show_help
+		exit -1
+	fi
 else
 	ASSIGN_TO_EXISTING_FILE=0
 fi
+
+
+################################################################
+
 
 TEMP_FOLDER=$(mktemp -d "/tmp/folderify.XXXXXX")
 
@@ -33,34 +87,7 @@ else
 fi
 
 
-
-HR_DIVIDE="----------------"
-
-function show_help {
-cat <<HEREDOC
-
-Usage: $SCRIPT_NAME <file.png> [<optional_target_file.png>]
-
-- The file should be an image with a transparent background (i.e. the corners should be transparent).
-- $SCRIPT_NAME will produce a .icns file with 5 resolutions of icons generated from the input file.
-- If a target file is specified, the icon is assigned to that file instead.
-
-HEREDOC
-}
-
-function echocol {
- echo -e "\033[1;$1m$2\033[0m"
-}
-
-
-if [ ! -f "${FILE}" ]
-then
-	echo ""
-	echocol 31 "ERROR - Not a file: ${FILE}"
-	show_help
-	exit 1
-fi
-
+################################################################
 
 
 function folderify {
@@ -115,6 +142,8 @@ function folderify {
 	-compose over -composite  "${TEMP_FILE_OUT}"
  }
 
+################################################################
+
 echo ""
 echo "Making icon file for ${FILE}"
 
@@ -148,7 +177,9 @@ folderify "$FILE" "${TEMP_FILE_512_2X}" 1024 15   1 100   1    824 424 36 "512x5
 
 wait
 
-# Make the .icns file.
+
+################################################################
+
 
 echo "${HR_DIVIDE}"
 echo "Making the .icns file..."
@@ -158,15 +189,22 @@ iconutil \
 	--output "${ICNS_FILE}" \
 	"${ICONSET_FOLDER}"
 
+
+################################################################
+
+
 if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
 then
-	${SET_ICON_PROGRAM} -d "${ICNS_FILE}" "${TARGET_FOLDER}"
+	${SETICON_PROGRAM} -d "${ICNS_FILE}" "${TARGET_FILE_OR_FOLDER}"
 else
-	${SET_ICON_PROGRAM} -d "${ICNS_FILE}" "${ICNS_FILE}"
+	${SETICON_PROGRAM} -d "${ICNS_FILE}" "${ICNS_FILE}"
 fi
 
-echo $TEMP_FOLDER
-# rm -rf "${TEMP_FOLDER}"
+
+################################################################
+
+
+rm -rf "${TEMP_FOLDER}"
 
 echo "${HR_DIVIDE}"
 
