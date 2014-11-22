@@ -67,7 +67,6 @@ function folderify {
 
 	FILE="$1"
 	TEMP_FILE_OUT="$2"
-	TEMP_FILE="`mktemp /tmp/folderify_img.XXXXXX`"
 	scale="$3"
 	main_opacity="$4"
 	offset_white="$5"
@@ -78,6 +77,7 @@ function folderify {
 	offset_center="${10}"
 	NAME="${11}"
 
+	TEMP_FILE="${TEMP_FOLDER}/trimmed_${NAME}.png"
 	convert "${FILE}" -trim -resize "${width}x${height}" -bordercolor none -border 10 "${TEMP_FILE}"
 
 	convert "$FOLDER_ICONS_FOLDER/icon_${NAME}.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
@@ -113,8 +113,6 @@ function folderify {
 	+repage \
 	\) \
 	-compose over -composite  "${TEMP_FILE_OUT}"
-
-	rm "${TEMP_FILE}"
  }
 
 echo ""
@@ -167,6 +165,7 @@ else
 	${SET_ICON_PROGRAM} -d "${ICNS_FILE}" "${ICNS_FILE}"
 fi
 
+echo $TEMP_FOLDER
 # rm -rf "${TEMP_FOLDER}"
 
 echo "${HR_DIVIDE}"
