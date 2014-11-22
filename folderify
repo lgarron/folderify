@@ -74,10 +74,11 @@ function folderify {
 	width="$8"
 	height="$9"
 	offset_center="${10}"
+	NAME="${11}"
 
 	convert "${FILE}" -trim -resize "${width}x${height}" -bordercolor none -border 10 "${TEMP_FILE}"
 
-	convert "$FOLDER_ICONS_FOLDER/icon_${scale}x${scale}.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
+	convert "$FOLDER_ICONS_FOLDER/icon_${NAME}.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
 	\( \
 		\( \
 			\( \
@@ -123,23 +124,27 @@ mkdir -p "${ICONSET_FOLDER}"
 
 echo "Generating 16x16 image..."
 TEMP_FILE_16="${ICONSET_FOLDER}/icon_16x16.png"
-folderify "$FILE" "${TEMP_FILE_16}" 16 15   1 50   1    12 8 1 &
+folderify "$FILE" "${TEMP_FILE_16}" 16 15   1 50   1    12 8 1 "16x16" &
 
 echo "Generating 32x32 image..."
 TEMP_FILE_32="${ICONSET_FOLDER}/icon_32x32.png"
-folderify "$FILE" "${TEMP_FILE_32}" 32 15   1 75   1    26 14 2 &
+folderify "$FILE" "${TEMP_FILE_32}" 32 15   1 75   1    26 14 2 "32x32" &
 
 echo "Generating 128x128 image..."
 TEMP_FILE_128="${ICONSET_FOLDER}/icon_128x128.png"
-folderify "$FILE" "${TEMP_FILE_128}" 128 15   1 100   1    103 53 4 &
+folderify "$FILE" "${TEMP_FILE_128}" 128 15   1 100   1    103 53 4 "128x128" &
 
 echo "Generating 256x256 image..."
 TEMP_FILE_256="${ICONSET_FOLDER}/icon_256x256.png"
-folderify "$FILE" "${TEMP_FILE_256}" 256 15   1 100   1    206 106 9 &
+folderify "$FILE" "${TEMP_FILE_256}" 256 15   1 100   1    206 106 9 "256x256" &
 
 echo "Generating 512x512 image..."
 TEMP_FILE_512="${ICONSET_FOLDER}/icon_512x512.png"
-folderify "$FILE" "${TEMP_FILE_512}" 512 15   1 100   1    412 212 18 &
+folderify "$FILE" "${TEMP_FILE_512}" 512 15   1 100   1    412 212 18 "512x512" &
+
+echo "Generating 512x512@2x image..."
+TEMP_FILE_512_2X="${ICONSET_FOLDER}/icon_512x512@2x.png"
+folderify "$FILE" "${TEMP_FILE_512_2X}" 1024 15   1 100   1    824 424 36 "512x512@2x" &
 
 wait
 
