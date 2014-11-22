@@ -10,6 +10,8 @@ SCRIPT_NAME="`basename $0`"
 FOLDER_ICONS_FOLDER="`dirname $0`/GenericFolderIcon.iconset"
 FILE="$1"
 
+SET_ICON_PROGRAM="${SCRIPT_DIR}/lib/seticon"
+
 if [ $# -ne 1 ]
 then
   ASSIGN_TO_EXISTING_FILE=1
@@ -158,54 +160,14 @@ iconutil \
 	--output "${ICNS_FILE}" \
 	"${ICONSET_FOLDER}"
 
-# Adapted from painful amounts of searching on the internet, and some good approaches from http://hasseg.org/stuff/assignIconScript/assignIcon
-function assign_icon {
-
-	echo "${HR_DIVIDE}"
-
-	if [ "`file -b \"$2\"`" == "directory" ]
-	then
-		# Won't work on the root folder, but I'm not so concerned.
-		NAME_WITHOUT_TRAILING_SLASH="`dirname \"${2}\"`/`basename \"${2}\"`"
-		echo "Assigning icon to directory: ${NAME_WITHOUT_TRAILING_SLASH}"
-		Rez -append "${1}" -o `printf "${NAME_WITHOUT_TRAILING_SLASH}/Icon\r"`
-		SetFile -a C "${NAME_WITHOUT_TRAILING_SLASH}"
-		SetFile -a V "`printf \"${NAME_WITHOUT_TRAILING_SLASH}/Icon\r\"`"
-	else 
-		echo "Assigning icon to file: ${2}"
-		Rez -append "${1}" -o "${2}"
-		SetFile -a C "${2}"
-	fi
-
-	CUR_DIR=`pwd`
-	TARGETSPATH=`dirname $2`
-	TARGETSFULLPATH="`cd $TARGETSPATH; pwd`/$2"
-
-	# echo "Going to try to tell Finder about the change so that it shows the new icon immediately."
-	# echo "(This may throw a harmless AppleEvent handler failure on the next line.)"
-
-	# Instead of printing a warning, let's just try to suppress all output.
-	echo `osascript -e "tell application \"Finder\" to update POSIX file \"$TARGETSFULLPATH\""  2>&1 > /dev/null` 2>&1 > /dev/null
-	# echo "Done telling Finder."
-
-	cd "${CUR_DIR}"
-
-}
-
-# Make the rsrc file.
-echo "${HR_DIVIDE}"
-echo "Making the rsrc file..."
-TEMP_RSRC_FILE="${TEMP_FOLDER}/rsrc.rsrc"
-python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${ICNS_FILE}" "${TEMP_RSRC_FILE}"
-
 if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
 then
-	assign_icon "${TEMP_RSRC_FILE}" "${TARGET_FOLDER}"
+	${SET_ICON_PROGRAM} -d "${ICNS_FILE}" "${TARGET_FOLDER}"
 else
-	assign_icon "${TEMP_RSRC_FILE}" "${ICNS_FILE}"
+	${SET_ICON_PROGRAM} -d "${ICNS_FILE}" "${ICNS_FILE}"
 fi
 
-rm -rf "${TEMP_FOLDER}"
+# rm -rf "${TEMP_FOLDER}"
 
 echo "${HR_DIVIDE}"
 

@@ -53,3 +53,5 @@ If you'd like to generate old-style folder icons, download the [`pre-yosemite`](
 `GenericFolderIcon.iconset` is generated from the OSX default folder icon using:
 
     iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
+
+Icons are set using [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
