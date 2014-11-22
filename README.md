@@ -28,7 +28,7 @@ The repository folder should now have an icon.
 Command:
 
     folderify <image.png> [<optional_target_file_or_folder>]
- 
+
 - The input file should be an image with a transparent background. For best results:
   - Use a `.png` file
   - Use a black figure on a transparent background. (Colored images also work, but may produce a weaker effect.)
@@ -37,12 +37,12 @@ Command:
   - (Note that normal `.icns` files do NOT have themselves as an icon.)
 - The icon can be copied from the generated `.icns` to any other file folder using the "Get Info" pane in the Finder.
   - (Note that this does NOT normally work for `.icns` files, but it does work for such files that have been generated using folderify.)
- 
+
 ### Dependencies
 
 - [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
 - Python 2 - to help assign the icon file to itself.
-- Apple Developer Tools (for /Developer/Tools/Rez)
+- Apple Developer Tools (for `iconutil`)
 
 ## Pre-Yosemite
 
