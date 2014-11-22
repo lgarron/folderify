@@ -27,7 +27,7 @@ The repository folder should now have an icon.
 
 Command:
 
-    folderify <image.png> [<optional_target_file_or_folder>]
+    folderify <image.png> [<optional target file/folder>]
 
 - The input file should be an image with a transparent background. For best results:
   - Use a `.png` file

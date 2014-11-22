@@ -19,7 +19,7 @@ HR_DIVIDE="----------------"
 function show_help {
 cat <<HEREDOC
 
-Usage: $SCRIPT_NAME <file.png> [<optional target file/folder>]
+Usage: $SCRIPT_NAME <image.png> [<optional target file/folder>]
 
 - The file should be an image with a transparent background (i.e. the corners should be transparent).
 - If no target is specified, $SCRIPT_NAME will produce a .iconset folder and a .icns file with various resolutions of icons generated from the input file.
