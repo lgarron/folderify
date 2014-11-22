@@ -10,9 +10,27 @@ SCRIPT_NAME="`basename $0`"
 FOLDER_ICONS_FOLDER="`dirname $0`/scaled_folders"
 FILE="$1"
 
-ASSIGN_TO_EXISTING_FILE=0
-OUT_FILE_NEW="${FILE%.*}_folder.icns"
-OUT_FILE_EXISTING=""
+if [ $# -ne 1 ]
+then
+  ASSIGN_TO_EXISTING_FILE=1
+  TARGET_FOLDER="$2"
+else
+	ASSIGN_TO_EXISTING_FILE=0
+fi
+
+TEMP_FOLDER=$(mktemp -d "/tmp/folderify.XXXXXX")
+
+if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
+then
+	ICONSET_FOLDER="${TEMP_FOLDER}/iconset.iconset"
+	ICNS_FILE="${TEMP_FOLDER}/icns.icns"
+else
+	# TODO: Make these into options.
+	ICONSET_FOLDER="${FILE%.*}.iconset"
+	ICNS_FILE="${FILE%.*}.icns"
+fi
+
+
 
 HR_DIVIDE="----------------"
 
@@ -28,18 +46,9 @@ Usage: $SCRIPT_NAME <file.png> [<optional_target_file.png>]
 HEREDOC
 }
 
-
-
 function echocol {
  echo -e "\033[1;$1m$2\033[0m"
 }
-
-
-if [ $# -ne 1 ]
-then
-	ASSIGN_TO_EXISTING_FILE=1
-	OUT_FILE_EXISTING="$2"
-fi
 
 
 if [ ! -f "${FILE}" ]
@@ -110,38 +119,26 @@ echo "Making icon file for ${FILE}"
 
 echo "${HR_DIVIDE}"
 
-# TODO: Make parameter passing a bit more readable.
-
-	FILE="$1"
-	TEMP_FILE_OUT="$2"
-	TEMP_FILE="`mktemp /tmp/folderify_img.XXXXXX`"
-	scale="$3"
-	main_opacity="$4"
-	offset_white="$5"
-	opacity_white="$6"
-	offset_black="$7"
-	width="$8"
-	height="$9"
-	offset_center="${10}"
+mkdir -p "${ICONSET_FOLDER}"
 
 echo "Generating 16x16 image..."
-TEMP_FILE_16="`mktemp /tmp/folderify_16.XXXXXX`"
+TEMP_FILE_16="${ICONSET_FOLDER}/icon_16x16.png"
 folderify "$FILE" "${TEMP_FILE_16}" 16 15   1 50   1    12 8 1 &
 
 echo "Generating 32x32 image..."
-TEMP_FILE_32="`mktemp /tmp/folderify_32.XXXXXX`"
+TEMP_FILE_32="${ICONSET_FOLDER}/icon_32x32.png"
 folderify "$FILE" "${TEMP_FILE_32}" 32 15   1 75   1    26 14 2 &
 
 echo "Generating 128x128 image..."
-TEMP_FILE_128="`mktemp /tmp/folderify_128.XXXXXX`"
+TEMP_FILE_128="${ICONSET_FOLDER}/icon_128x128.png"
 folderify "$FILE" "${TEMP_FILE_128}" 128 15   1 100   1    103 53 4 &
 
 echo "Generating 256x256 image..."
-TEMP_FILE_256="`mktemp /tmp/folderify_256.XXXXXX`"
+TEMP_FILE_256="${ICONSET_FOLDER}/icon_256x256.png"
 folderify "$FILE" "${TEMP_FILE_256}" 256 15   1 100   1    206 106 9 &
 
 echo "Generating 512x512 image..."
-TEMP_FILE_512="`mktemp /tmp/folderify_512.XXXXXX`"
+TEMP_FILE_512="${ICONSET_FOLDER}/icon_512x512.png"
 folderify "$FILE" "${TEMP_FILE_512}" 512 15   1 100   1    412 212 18 &
 
 wait
@@ -151,36 +148,14 @@ wait
 echo "${HR_DIVIDE}"
 echo "Making the .icns file..."
 
-TEMP_ICNS_FILE="`mktemp /tmp/folderify_icns.XXXXXX`"
+iconutil \
+	--convert icns \
+	--output "${ICNS_FILE}" \
+	"${ICONSET_FOLDER}"
 
-"${SCRIPT_DIR}/lib/makeicns" \
--16 "${TEMP_FILE_16}" \
--32 "${TEMP_FILE_32}" \
--128 "${TEMP_FILE_128}" \
--256 "${TEMP_FILE_256}" \
--512 "${TEMP_FILE_512}" \
--out "${TEMP_ICNS_FILE}"
-
-rm "${TEMP_FILE_16}" "${TEMP_FILE_32}" "${TEMP_FILE_128}" "${TEMP_FILE_256}" "${TEMP_FILE_512}"
-
-
-
-# Make the rsrc file.
-
-echo "${HR_DIVIDE}"
-echo "Making the rsrc file..."
-
-TEMP_RSRC_FILE="`mktemp /tmp/folderify_rsrc.XXXXXX`"
-
-python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${TEMP_ICNS_FILE}" "${TEMP_RSRC_FILE}"
-
-
-#Assign the rsrc file.
-
-# Adapted from painful amounts of searchin on the internet, and some good approaches from http://hasseg.org/stuff/assignIconScript/assignIcon
+# Adapted from painful amounts of searching on the internet, and some good approaches from http://hasseg.org/stuff/assignIconScript/assignIcon
 function assign_icon {
 
-	
 	echo "${HR_DIVIDE}"
 
 	if [ "`file -b \"$2\"`" == "directory" ]
@@ -212,17 +187,20 @@ function assign_icon {
 
 }
 
-OUT_FILE_ASSIGN=""
 if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
 then
-	assign_icon "${TEMP_RSRC_FILE}" "${OUT_FILE_EXISTING}"
-	rm "${TEMP_ICNS_FILE}"
+	# Make the rsrc file.
+	echo "${HR_DIVIDE}"
+	echo "Making the rsrc file..."
+	TEMP_RSRC_FILE="${TEMP_FOLDER}/rsrc.rsrc"
+	python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${ICNS_FILE}" "${TEMP_RSRC_FILE}"
+
+	assign_icon "${TEMP_RSRC_FILE}" "${TARGET_FOLDER}"
 else
-	mv "${TEMP_ICNS_FILE}" "${OUT_FILE_NEW}"
-	assign_icon "${TEMP_RSRC_FILE}" "${OUT_FILE_NEW}"
+	sips --addIcon "${ICNS_FILE}"
 fi
 
-rm "${TEMP_RSRC_FILE}"
+rm -rf "${TEMP_FOLDER}"
 
 echo "${HR_DIVIDE}"
 
