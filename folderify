@@ -192,17 +192,17 @@ function assign_icon {
 
 }
 
+# Make the rsrc file.
+echo "${HR_DIVIDE}"
+echo "Making the rsrc file..."
+TEMP_RSRC_FILE="${TEMP_FOLDER}/rsrc.rsrc"
+python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${ICNS_FILE}" "${TEMP_RSRC_FILE}"
+
 if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
 then
-	# Make the rsrc file.
-	echo "${HR_DIVIDE}"
-	echo "Making the rsrc file..."
-	TEMP_RSRC_FILE="${TEMP_FOLDER}/rsrc.rsrc"
-	python "${SCRIPT_DIR}/lib/lgicns2rsrc.py" "${ICNS_FILE}" "${TEMP_RSRC_FILE}"
-
 	assign_icon "${TEMP_RSRC_FILE}" "${TARGET_FOLDER}"
 else
-	sips --addIcon "${ICNS_FILE}"
+	assign_icon "${TEMP_RSRC_FILE}" "${ICNS_FILE}"
 fi
 
 rm -rf "${TEMP_FOLDER}"
