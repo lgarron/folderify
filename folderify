@@ -7,7 +7,7 @@
 SCRIPT_DIR="`dirname $0`"
 SCRIPT_NAME="`basename $0`"
 
-FOLDER_ICONS_FOLDER="`dirname $0`/scaled_folders"
+FOLDER_ICONS_FOLDER="`dirname $0`/GenericFolderIcon.iconset"
 FILE="$1"
 
 if [ $# -ne 1 ]
@@ -77,7 +77,7 @@ function folderify {
 
 	convert "${FILE}" -trim -resize "${width}x${height}" -bordercolor none -border 10 "${TEMP_FILE}"
 
-	convert "$FOLDER_ICONS_FOLDER/folder_$scale.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
+	convert "$FOLDER_ICONS_FOLDER/icon_${scale}x${scale}.png" \( \( "${TEMP_FILE}" -negate -colorize 3,23,40 -negate \) \
 	\( \
 		\( \
 			\( \

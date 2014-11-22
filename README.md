@@ -47,3 +47,9 @@ Command:
 ## Pre-Yosemite
 
 If you'd like to generate old-style folder icons, download the [`pre-yosemite`](https://github.com/lgarron/folderify/releases/tag/pre-yosemite) branch.
+
+## Info
+
+`GenericFolderIcon.iconset` is generated from the OSX default folder icon using:
+
+    iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
