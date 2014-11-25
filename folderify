@@ -92,17 +92,20 @@ fi
 
 function folderify {
 
-	FILE="$1"
-	TEMP_FILE_OUT="$2"
-	scale="$3"
-	main_opacity="$4"
-	offset_white="$5"
-	opacity_white="$6"
-	offset_black="$7"
-	width="$8"
-	height="$9"
-	offset_center="${10}"
-	NAME="${11}"
+	FILE="${1}"
+	NAME="${2}"
+	scale="${3}"
+	width="${4}"
+	height="${5}"
+	offset_center="$6"
+
+	main_opacity="15"
+	offset_white="1"
+	opacity_white="100"
+	offset_black="1"
+
+	echo "Generating ${NAME} image..."
+	TEMP_FILE_OUT="${ICONSET_FOLDER}/icon_${NAME}.png"
 
 	TEMP_FILE="${TEMP_FOLDER}/trimmed_${NAME}.png"
 	convert "${FILE}" -trim -resize "${width}x${height}" -bordercolor none -border 10 "${TEMP_FILE}"
@@ -151,29 +154,18 @@ echo "${HR_DIVIDE}"
 
 mkdir -p "${ICONSET_FOLDER}"
 
-echo "Generating 16x16 image..."
-TEMP_FILE_16="${ICONSET_FOLDER}/icon_16x16.png"
-folderify "$FILE" "${TEMP_FILE_16}" 16 15   1 50   1    12 8 1 "16x16" &
 
-echo "Generating 32x32 image..."
-TEMP_FILE_32="${ICONSET_FOLDER}/icon_32x32.png"
-folderify "$FILE" "${TEMP_FILE_32}" 32 15   1 75   1    26 14 2 "32x32" &
+folderify "$FILE" "16x16"        16     12   8  1 &
+folderify "$FILE" "16x16@2x"     32     26  14  2 &
+folderify "$FILE" "32x32"        32     26  14  2 &
+folderify "$FILE" "32x32@2x"     64     52  28  4 &
 
-echo "Generating 128x128 image..."
-TEMP_FILE_128="${ICONSET_FOLDER}/icon_128x128.png"
-folderify "$FILE" "${TEMP_FILE_128}" 128 15   1 100   1    103 53 4 "128x128" &
-
-echo "Generating 256x256 image..."
-TEMP_FILE_256="${ICONSET_FOLDER}/icon_256x256.png"
-folderify "$FILE" "${TEMP_FILE_256}" 256 15   1 100   1    206 106 9 "256x256" &
-
-echo "Generating 512x512 image..."
-TEMP_FILE_512="${ICONSET_FOLDER}/icon_512x512.png"
-folderify "$FILE" "${TEMP_FILE_512}" 512 15   1 100   1    412 212 18 "512x512" &
-
-echo "Generating 512x512@2x image..."
-TEMP_FILE_512_2X="${ICONSET_FOLDER}/icon_512x512@2x.png"
-folderify "$FILE" "${TEMP_FILE_512_2X}" 1024 15   1 100   1    824 424 36 "512x512@2x" &
+folderify "$FILE" "128x128"     128    103  53  4 &
+folderify "$FILE" "128x128@2x"  256    206 106  9 &
+folderify "$FILE" "256x256"     256    206 106  9 &
+folderify "$FILE" "256x256@2x"  512    412 212 18 &
+folderify "$FILE" "512x512"     512    412 212 18 &
+folderify "$FILE" "512x512@2x" 1024    824 424 36 &
 
 wait
 
