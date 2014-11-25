@@ -158,7 +158,7 @@ mkdir -p "${ICONSET_FOLDER}"
 folderify "$FILE" "16x16"        16     12   8  1 &
 folderify "$FILE" "16x16@2x"     32     26  14  2 &
 folderify "$FILE" "32x32"        32     26  14  2 &
-folderify "$FILE" "32x32@2x"     64     52  28  4 &
+folderify "$FILE" "32x32@2x"     64     52  26  2 &
 
 folderify "$FILE" "128x128"     128    103  53  4 &
 folderify "$FILE" "128x128@2x"  256    206 106  9 &
