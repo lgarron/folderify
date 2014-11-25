@@ -2,12 +2,18 @@
 
 import argparse
 import functools
+import multiprocessing
 import os.path
+import shutil
 import subprocess
 import sys
 import tempfile
 
 from string import Template
+
+
+################################################################
+
 
 parser = argparse.ArgumentParser(description='Generate a native OSX folder icon from a mask file.')
 
@@ -45,73 +51,40 @@ parser.add_argument(
 )
 
 
+################################################################
+
+
 args = parser.parse_args()
-
-
-
-# SCRIPT_DIR="`dirname $0`"
-# SCRIPT_NAME="`basename $0`"
-
-# FOLDER_ICONS_FOLDER="${SCRIPT_DIR}/GenericFolderIcon.iconset"
-# SETICON_PROGRAM="${SCRIPT_DIR}/lib/seticon"
-
-
-# if [ $# -gt 1 ]
-# then
-#   ASSIGN_TO_EXISTING_FILE=1
-#   TARGET_FILE_OR_FOLDER="$2"
-
-#   if [ -e "${TARGET_FILE_OR_FOLDER}" ]
-#   then
-#     echo "Target file/folder: ${TARGET_FILE_OR_FOLDER}"
-#   else
-#     echo ""
-#     echocol 31 "ERROR: Target file/folder does not exist: ${TARGET_FILE_OR_FOLDER}"
-#     show_help
-#     exit -1
-#   fi
-# else
-#   ASSIGN_TO_EXISTING_FILE=0
-# fi
-
-
-# ################################################################
-
-
-# TEMP_FOLDER=$(mktemp -d "/tmp/folderify.XXXXXX")
-
-# if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
-# then
-#   ICONSET_FOLDER="${TEMP_FOLDER}/iconset.iconset"
-#   ICNS_FILE="${TEMP_FOLDER}/icns.icns"
-# else
-#   # TODO: Make these into options.
-#   ICONSET_FOLDER="${FILE%.*}.iconset"
-#   ICNS_FILE="${FILE%.*}.icns"
-# fi
-
-
-# ################################################################
-
-
-# maskedFile
-
-convert_path = "convert"
-iconutil_path = "iconutil"
-
-data_folder = os.path.dirname(sys.argv[0])
-
-temp_folder = tempfile.mkdtemp()
-template_folder = os.path.join(data_folder, "GenericFolderIcon.iconset")
-
-iconset_folder = os.path.join(data_folder, "test.iconset")
-icns_file = os.path.join(data_folder, "test.icns")
 
 
 ################################################################
 
 
-def folderify(arg_list):
+data_folder = os.path.dirname(sys.argv[0])
+template_folder = os.path.join(data_folder, "GenericFolderIcon.iconset")
+
+convert_path = "convert"
+iconutil_path = "iconutil"
+seticon_path = os.path.join(data_folder, "lib", "seticon")
+
+temp_folder = tempfile.mkdtemp()
+
+if args.target:
+  iconset_folder = os.path.join(temp_folder, "iconset.iconset")
+  icns_file = os.path.join(temp_folder, "icns.icns")
+else:
+  root, _ = os.path.splitext(args.mask_file)
+  iconset_folder = root + ".iconset"
+  icns_file = root + ".icns"
+
+  if not os.path.exists(iconset_folder):
+    os.mkdir(iconset_folder)
+  args.target = icns_file
+
+################################################################
+
+
+def folderify(args, arg_list):
   global processes
 
   name, width, height, offset_center = arg_list
@@ -176,7 +149,8 @@ def folderify(arg_list):
     "-compose", "over", "-composite", FILE_OUT
   ]
 
-  return subprocess.Popen(command)
+  p = subprocess.call(command)
+  print "AAA"
 
 
 ################################################################
@@ -197,46 +171,46 @@ inputs = [
   ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
 ]
 
-processes = map(folderify, inputs)
-
-for p in processes:
-  p.communicate()
-  print "X"
-  p.wait()
-# map(f, inputs)
-
+print "Using %d workers." % args.num_workers
+pool = multiprocessing.Pool(processes=args.num_workers)
+f = functools.partial(folderify, args)
+processes = pool.map(f, inputs)
+print "CCC"
+# for p in processes:
 
 ################################################################
-
+print "BBB"
 
 print "----------------"
 print "Making the .icns file..."
 
-subprocess.check_output([
+p = subprocess.Popen([
   iconutil_path,
   "--convert", "icns",
   "--output", icns_file,
   iconset_folder
 ])
+p.communicate()
+p.wait()
 
 
-# ################################################################
+################################################################
+
+p = subprocess.Popen([
+  seticon_path,
+  "-d", icns_file,
+  args.target
+])
+p.communicate()
+p.wait()
 
 
-# if [ "${ASSIGN_TO_EXISTING_FILE}" -eq 1 ]
-# then
-#   ${SETICON_PROGRAM} -d "${ICNS_FILE}" "${TARGET_FILE_OR_FOLDER}"
-# else
-#   ${SETICON_PROGRAM} -d "${ICNS_FILE}" "${ICNS_FILE}"
-# fi
+################################################################
 
 
-# ################################################################
+shutil.rmtree(temp_folder)
 
 
-# rm -rf "${TEMP_FOLDER}"
-
-# echo "${HR_DIVIDE}"
-
-# echo "Done."
-# echo ""
+print "----------------"
+print "Done."
+print "AAA"
