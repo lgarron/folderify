@@ -77,6 +77,8 @@ temp_folder = tempfile.mkdtemp()
 if args.target:
   iconset_folder = os.path.join(temp_folder, "iconset.iconset")
   icns_file = os.path.join(temp_folder, "icns.icns")
+
+  os.mkdir(iconset_folder)
 else:
   root, _ = os.path.splitext(args.mask_file)
   iconset_folder = root + ".iconset"
