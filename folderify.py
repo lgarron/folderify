@@ -201,40 +201,28 @@ for process in processes:
 print "----------------"
 print "Making the .icns file..."
 
-p = subprocess.Popen([
+subprocess.check_call([
   iconutil_path,
   "--convert", "icns",
   "--output", icns_file,
   iconset_folder
 ])
-p.wait()
 
-
-################################################################
-
-
-p = subprocess.Popen([
+# Set icon  for target.
+subprocess.check_call([
   seticon_path,
   "-d", icns_file,
   args.target
 ])
-p.wait()
 
-
-################################################################
-
-
+# Reveal target.
 if args.reveal:
-  p = subprocess.Popen([
+  subprocess.check_call([
     "open",
     "-R", args.target
   ])
-  p.wait()
 
-
-################################################################
-
-
+# Clean up.
 shutil.rmtree(temp_folder)
 
 
