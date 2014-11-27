@@ -52,7 +52,7 @@ parser.add_argument(
   '--num-workers', '-#',
   type=int,
   default=num_cores_available,
-  help="Number of workers. Defaults to the number of cores available."
+  help=("Number of workers. Defaults to the number of cores available (%d cores)." % num_cores_available)
 )
 
 
