@@ -6,6 +6,9 @@
 ![Rhombic Hexecontrahedron Folder](examples/png/rhombic_hexecontahedron_folder_256.png)
 ![Octocat Folder](examples/png/sysprefs_folder_256.png)
 
+
+![apple.gif](examples/png/apple.gif)
+
 # Try it!
 
     git clone git://github.com/lgarron/folderify.git
