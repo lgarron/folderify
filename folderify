@@ -19,7 +19,9 @@ parser = argparse.ArgumentParser(
 	formatter_class=argparse.RawTextHelpFormatter
 )
 
-parser.add_argument(
+exclusive = parser.add_mutually_exclusive_group()
+
+exclusive.add_argument(
   "mask",
   action="store",
   nargs="?",
@@ -61,14 +63,14 @@ parser.add_argument(
   default=os.path.expanduser("~/.folderify/cache"),
   help="Cache directory.")
 
-parser.add_argument(
+exclusive.add_argument(
   "--restore-from-cache",
   metavar="PATH",
   type=str,
   help="Restore folderified icon to the file/folder at PATH,\
 using the mask image in the cache for that path.")
 
-parser.add_argument(
+exclusive.add_argument(
   "--restore-all-from-cache",
   action="store_true",
   help="Restore all paths that have been cached.")
@@ -78,6 +80,9 @@ parser.add_argument(
 
 
 args = parser.parse_args()
+
+if args.cache and not args.mask:
+  parser.error("Must specify mask in order to use --cache.")
 
 
 ################################################################
