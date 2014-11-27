@@ -18,7 +18,7 @@ from string import Template
 parser = argparse.ArgumentParser(description='Generate a native OSX folder icon from a mask file.')
 
 parser.add_argument(
-  "mask_file",
+  "mask",
   action="store",
   type=str,
   help="Mask image file. Recommendations: use .png with a black shape over a transparent background. \
@@ -30,7 +30,7 @@ parser.add_argument(
   nargs='?',
   type=str,
   help="Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder. \
-    Else, a .iconset folder and .icns file will be created in the same folder as mask_file.")
+    Else, a .iconset folder and .icns file will be created in the same folder as mask.")
 
 parser.add_argument(
   "--reveal", "-r",
@@ -81,7 +81,7 @@ if args.target:
 
   os.mkdir(iconset_folder)
 else:
-  root, _ = os.path.splitext(args.mask_file)
+  root, _ = os.path.splitext(args.mask)
   iconset_folder = root + ".iconset"
   icns_file = root + ".icns"
 
@@ -102,7 +102,7 @@ def folderify(args, arg_list):
   TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
   subprocess.check_call([
     convert_path,
-    args.mask_file,
+    args.mask,
     "-trim",
     "-resize",
     ("%dx%d" % (width, height)),
@@ -165,7 +165,7 @@ def folderify(args, arg_list):
 
 
 print ""
-print "Making icon file for %s" % args.mask_file
+print "Making icon file for %s" % args.mask
 print "----------------"
 
 # mkdir -p "${ICONSET_FOLDER}"
