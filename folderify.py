@@ -31,6 +31,11 @@ parser.add_argument(
   help="Target file or folder. If a target is specified, the resulting icon will be applied to this file/folder. \
     Else, a .iconset folder and .icns file will be created in the same folder as mask_file.")
 
+parser.add_argument(
+  "--reveal", "-r",
+  action="store_true",
+  help="Reveal the target (or resulting .icns file) in Finder.")
+
 templates = ["pre-Yosemite", "Yosemite"]
 parser.add_argument(
   "--osx-version", "-x",
@@ -203,6 +208,18 @@ p = subprocess.Popen([
 ])
 p.communicate()
 p.wait()
+
+
+################################################################
+
+
+if args.reveal:
+  p = subprocess.Popen([
+    "open",
+    "-R", args.target
+  ])
+  p.communicate()
+  p.wait()
 
 
 ################################################################
