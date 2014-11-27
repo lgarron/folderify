@@ -2,7 +2,6 @@
 
 import argparse
 import functools
-import multiprocessing
 import os.path
 import shutil
 import subprocess
@@ -158,8 +157,7 @@ def folderify(args, arg_list):
     "-compose", "over", "-composite", FILE_OUT
   ]
 
-  p = subprocess.call(command)
-  print "AAA"
+  return subprocess.Popen(command)
 
 
 ################################################################
@@ -190,16 +188,15 @@ inputs = {
   ]
 }
 
-
-print "Using %d workers." % args.num_workers
-pool = multiprocessing.Pool(processes=args.num_workers)
 f = functools.partial(folderify, args)
-processes = pool.map(f, inputs[osx_version])
-print "CCC"
-# for p in processes:
+processes = map(f, inputs[osx_version])
+
+for process in processes:
+  process.wait()
+
 
 ################################################################
-print "BBB"
+
 
 print "----------------"
 print "Making the .icns file..."
@@ -210,18 +207,17 @@ p = subprocess.Popen([
   "--output", icns_file,
   iconset_folder
 ])
-p.communicate()
 p.wait()
 
 
 ################################################################
+
 
 p = subprocess.Popen([
   seticon_path,
   "-d", icns_file,
   args.target
 ])
-p.communicate()
 p.wait()
 
 
@@ -233,7 +229,6 @@ if args.reveal:
     "open",
     "-R", args.target
   ])
-  p.communicate()
   p.wait()
 
 
@@ -245,4 +240,3 @@ shutil.rmtree(temp_folder)
 
 print "----------------"
 print "Done."
-print "AAA"
