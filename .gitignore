@@ -1,1 +1,6 @@
+# Be careful about editing this file. It contains \r\r after "Icon".
+*.pyc
+/build
+/dist
+/folderify.egg-info
 Icon

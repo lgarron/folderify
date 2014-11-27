@@ -13,7 +13,7 @@
 
     git clone git://github.com/lgarron/folderify.git
     cd folderify
-    for file in examples/src/*.png; do ./folderify $file; done
+    for file in examples/src/*.png; do python -m folderify $file; done
     open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
@@ -22,7 +22,7 @@ Or try this:
 
     git clone git://github.com/lgarron/folderify.git
     cd folderify
-    ./folderify examples/src/folder_outline.png .
+    python -m folderify examples/src/folder_outline.png .
 
 The repository folder should now have an icon.
 
