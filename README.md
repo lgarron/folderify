@@ -46,7 +46,7 @@ Command:
 
 ## Pre-Yosemite
 
-If you'd like to generate old-style folder icons, download the [`pre-yosemite`](https://github.com/lgarron/folderify/releases/tag/pre-yosemite) branch.
+If you'd like to generate old folder icons, use `folderify.py` with the `--pre-yosemite` flag.
 
 ## Info
 
