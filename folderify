@@ -88,10 +88,10 @@ else:
 ################################################################
 
 
-def folderify(args, arg_list):
+def create_iconset(params):
   global processes
 
-  name, width, height, offset_center = arg_list
+  name, width, height, offset_center = params
 
   print "Generating %s image..." % name
 
@@ -184,8 +184,7 @@ inputs = {
   ]
 }
 
-f = functools.partial(folderify, args)
-processes = map(f, inputs[osx_version])
+processes = map(create_iconset, inputs[osx_version])
 
 for process in processes:
   process.wait()
