@@ -7,7 +7,7 @@
 SCRIPT_DIR="`dirname $0`"
 SCRIPT_NAME="`basename $0`"
 
-FOLDER_ICONS_FOLDER="${SCRIPT_DIR}/GenericFolderIcon.iconset"
+FOLDER_ICONS_FOLDER="${SCRIPT_DIR}/GenericFolderIcon.Yosemite.iconset"
 SETICON_PROGRAM="${SCRIPT_DIR}/lib/seticon"
 
 
