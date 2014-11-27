@@ -25,10 +25,11 @@ parser.add_argument(
       Should be at least 1024x1024 to look good at maximum Retina resolution.")
 
 parser.add_argument(
-  "--target", "-t",
+  "target",
   action="store",
+  nargs='?',
   type=str,
-  help="Target file or folder. If a target is specified, the resulting icon will be applied to this file/folder. \
+  help="Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder. \
     Else, a .iconset folder and .icns file will be created in the same folder as mask_file.")
 
 parser.add_argument(
