@@ -3,6 +3,7 @@
 import argparse
 import functools
 import os.path
+import platform
 import shutil
 import subprocess
 import sys
@@ -47,10 +48,14 @@ parser.add_argument(
   action="store_true",
   help="Reveal the target (or resulting .icns file) in Finder.")
 
+local_osx_version = ".".join(platform.mac_ver()[0].split(".")[:2])
+
 parser.add_argument(
-  "--pre-yosemite",
-  action="store_true",
-  help="Generate pre-Yosemite folder icons.")
+  "--osx_version", "-x",
+  type=str,
+  default=local_osx_version,
+  help=("Version of the OSX folder icon, e.g. \"10.9\" or \"10.10\". \
+Defaults to the version this computer is running (%s)." % local_osx_version))
 
 parser.add_argument(
   "--cache", "-c",
@@ -90,8 +95,15 @@ if args.cache and not args.mask:
 
 data_folder = os.path.dirname(sys.argv[0])
 
-osx_version = "pre-Yosemite" if args.pre_yosemite else "Yosemite"
-template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % osx_version)
+if args.osx_version == "10.10":
+  folder_type = "Yosemite"
+elif args.osx_version in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
+  # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
+  folder_type = "pre-Yosemite"
+else:
+  print "Unknown OSX version(%s). Falling back to 10.10." % s
+  folder_type = "Yosemite"
+template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
 
 convert_path = "convert"
 iconutil_path = "iconutil"
@@ -228,7 +240,7 @@ def process_mask(mask, target=None, add_to_cache=False):
   }
 
   f = functools.partial(create_iconset, mask, temp_folder, iconset_folder)
-  processes = map(f, inputs[osx_version])
+  processes = map(f, inputs[folder_type])
 
   for process in processes:
     process.wait()
