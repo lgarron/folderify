@@ -37,11 +37,10 @@ parser.add_argument(
   action="store_true",
   help="Reveal the target (or resulting .icns file) in Finder.")
 
-templates = ["pre-Yosemite", "Yosemite"]
 parser.add_argument(
-  "--osx-version", "-x",
-  default="Yosemite",
-  choices=templates)
+  "--pre-yosemite",
+  action="store_true",
+  help="Generate pre-Yosemite folder icons.")
 
 
 try:
@@ -67,7 +66,9 @@ args = parser.parse_args()
 
 
 data_folder = os.path.dirname(sys.argv[0])
-template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % args.osx_version)
+
+osx_version = "pre-Yosemite" if args.pre_yosemite else "Yosemite"
+template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % osx_version)
 
 convert_path = "convert"
 iconutil_path = "iconutil"
@@ -193,7 +194,7 @@ inputs = {
 print "Using %d workers." % args.num_workers
 pool = multiprocessing.Pool(processes=args.num_workers)
 f = functools.partial(folderify, args)
-processes = pool.map(f, inputs[args.osx_version])
+processes = pool.map(f, inputs[osx_version])
 print "CCC"
 # for p in processes:
 
