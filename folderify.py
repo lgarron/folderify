@@ -66,7 +66,7 @@ args = parser.parse_args()
 
 
 data_folder = os.path.dirname(sys.argv[0])
-template_folder = os.path.join(data_folder, "GenericFolderIcon.iconset")
+template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % args.osx_version)
 
 convert_path = "convert"
 iconutil_path = "iconutil"
@@ -167,19 +167,30 @@ print "----------------"
 
 # mkdir -p "${ICONSET_FOLDER}"
 
-inputs = [
-  ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-  ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+inputs = {
+  "Yosemite": [
+    ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+    ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
 
-  ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-  ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-  ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
-]
+    ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
+    ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
+    ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+  ],
+  "pre-Yosemite": [
+    ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+    ["32x32",       26,  14,  2], ["32x32@2x",    52,  60,  4],
+
+    ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
+    ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
+    ["512x512",    412, 242, 36], ["512x512@2x", 824, 484, 72]
+  ]
+}
+
 
 print "Using %d workers." % args.num_workers
 pool = multiprocessing.Pool(processes=args.num_workers)
 f = functools.partial(folderify, args)
-processes = pool.map(f, inputs)
+processes = pool.map(f, inputs[args.osx_version])
 print "CCC"
 # for p in processes:
 
