@@ -14,7 +14,7 @@ from string import Template
 ################################################################
 
 
-parser = argparse.ArgumentParser(description='Generate a native OSX folder icon from a mask file.')
+parser = argparse.ArgumentParser(description="Generate a native OSX folder icon from a mask file.")
 
 parser.add_argument(
   "mask",
@@ -26,7 +26,7 @@ parser.add_argument(
 parser.add_argument(
   "target",
   action="store",
-  nargs='?',
+  nargs="?",
   type=str,
   help="Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder. \
     Else, a .iconset folder and .icns file will be created in the same folder as mask.")
