@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
   "mask",
   action="store",
+  nargs="?",
   type=str,
   help="Mask image file. For best results:\n\
 - Use a .png mask.\n\
@@ -49,6 +50,29 @@ parser.add_argument(
   action="store_true",
   help="Generate pre-Yosemite folder icons.")
 
+parser.add_argument(
+  "--cache", "-c",
+  action="store_true",
+  help="Cache the mask icon in the cache dir.")
+
+parser.add_argument(
+  "--cache-dir",
+  type=str,
+  default=os.path.expanduser("~/.folderify/cache"),
+  help="Cache directory.")
+
+parser.add_argument(
+  "--restore-from-cache",
+  metavar="PATH",
+  type=str,
+  help="Restore folderified icon to the file/folder at PATH,\
+using the mask image in the cache for that path.")
+
+parser.add_argument(
+  "--restore-all-from-cache",
+  action="store_true",
+  help="Restore all paths that have been cached.")
+
 
 ################################################################
 
@@ -68,11 +92,13 @@ convert_path = "convert"
 iconutil_path = "iconutil"
 seticon_path = os.path.join(data_folder, "lib", "seticon")
 
+cached_mask_suffix = ".mask"
+
 
 ################################################################
 
 
-def create_iconset(temp_folder, iconset_folder, params):
+def create_iconset(mask, temp_folder, iconset_folder, params):
   global processes
 
   name, width, height, offset_center = params
@@ -82,7 +108,7 @@ def create_iconset(temp_folder, iconset_folder, params):
   TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
   subprocess.check_call([
     convert_path,
-    args.mask,
+    mask,
     "-trim",
     "-resize",
     ("%dx%d" % (width, height)),
@@ -142,12 +168,24 @@ def create_iconset(temp_folder, iconset_folder, params):
 
 ################################################################
 
-def process_mask(mask, target=None):
+
+def cache_path_for_target(target):
+  print args.cache_dir, target, ".mask"
+  return args.cache_dir + os.path.abspath(target) + ".mask"
+
+def process_mask(mask, target=None, add_to_cache=False):
   print ""
   print "Making icon file for %s" % mask
   print "----------------"
 
   temp_folder = tempfile.mkdtemp()
+
+  if (add_to_cache):
+    mask_cache_path = cache_path_for_target(target)
+    mask_cache_folder = os.path.dirname(mask_cache_path)
+    if not os.path.exists(mask_cache_folder):
+      os.makedirs(mask_cache_folder)
+    shutil.copyfile(mask, mask_cache_path)
 
   if target:
     iconset_folder = os.path.join(temp_folder, "iconset.iconset")
@@ -184,7 +222,7 @@ def process_mask(mask, target=None):
     ]
   }
 
-  f = functools.partial(create_iconset, temp_folder, iconset_folder)
+  f = functools.partial(create_iconset, mask, temp_folder, iconset_folder)
   processes = map(f, inputs[osx_version])
 
   for process in processes:
@@ -218,6 +256,41 @@ def process_mask(mask, target=None):
   shutil.rmtree(temp_folder)
 
   print "----------------"
-  print "Done with %s" % mask
+  print "Done with %s: assigned to %s" % (mask, target)
 
-process_mask(args.mask, args.target)
+def target_for_cache_path(cache_path):
+  assert(cache_path.endswith(cached_mask_suffix))
+  intermediate = cache_path[:-len(cached_mask_suffix)]
+  return os.path.join("/", os.path.relpath(intermediate, args.cache_dir))
+
+def restore_from_cache(target):
+  mask_cache_path = cache_path_for_target(target)
+  print "Mask path from cache: %s" % mask_cache_path
+  process_mask(
+    mask_cache_path,
+    target=target,
+    add_to_cache=False
+  )
+
+if args.mask:
+  if args.cache:
+    assert(args.target)
+  process_mask(
+    args.mask,
+    target=args.target,
+    add_to_cache=args.cache
+  )
+elif (args.restore_from_cache):
+  restore_from_cache(args.restore_from_cache)
+elif (args.restore_all_from_cache):
+  for folder, _, files in os.walk(args.cache_dir):
+    for f in files:
+      if f.endswith(cached_mask_suffix):
+        cache_path = os.path.join(folder, f)
+        target = target_for_cache_path(cache_path)
+        if os.path.exists(target):
+          restore_from_cache(target)
+        else:
+          print "Target no longer exists: %s" % target
+else:
+  parser.print_help()
