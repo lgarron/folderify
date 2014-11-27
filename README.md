@@ -28,18 +28,25 @@ The repository folder should now have an icon.
 
 ## Usage
 
-Command:
+Generate a native OSX folder icon from a mask file.
 
-    folderify <image.png> [<optional target file/folder>]
+    ./folderify -h
+    usage: folderify [-h] [--reveal] [--pre-yosemite] mask [target]
 
-- The input file should be an image with a transparent background. For best results:
-  - Use a `.png` file
-  - Use a black figure on a transparent background. (Colored images also work, but may produce a weaker effect.)
-  - Make sure the corner pixels of the image are transparent. They are currently used for empty margins.
-- folderify will produce a `.iconset` folder and an `.icns` file containing various resolutions of folder icons. The `.icns` file will also have itself as its icon.
-  - (Note that normal `.icns` files do NOT have themselves as an icon.)
-- The icon can be copied from the generated `.icns` to any other file folder using the "Get Info" pane in the Finder.
-  - (Note that this does NOT normally work for `.icns` files, but it does work for such files that have been generated using folderify.)
+    Generate a native OSX folder icon from a mask file.
+
+    positional arguments:
+      mask            Mask image file. For best results:
+                      - Use a .png mask.
+                      - Use a solid black design over a transparent background.
+                      - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.
+                      - Make sure the icon is at least around 1024x1024, in order to look good at maximum Retina resolution.
+      target          Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder. Else, a .iconset folder and .icns file will be created in the same folder as mask (you can use "Get Info" in Finder to copy the icon from the .icns file).
+
+    optional arguments:
+      -h, --help      show this help message and exit
+      --reveal, -r    Reveal the target (or resulting .icns file) in Finder.
+      --pre-yosemite  Generate pre-Yosemite folder icons.
 
 ### Dependencies
 
