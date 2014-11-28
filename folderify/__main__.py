@@ -55,8 +55,9 @@ def main():
   local_osx_version = ".".join(platform.mac_ver()[0].split(".")[:2])
 
   parser.add_argument(
-    "--osx_version", "-x",
+    "--osx", "-x",
     type=str,
+    metavar="VERSION",
     default=local_osx_version,
     help=("Version of the OSX folder icon, e.g. \"10.9\" or \"10.10\". \
   Defaults to the version this computer is running (%s)." % local_osx_version))
@@ -69,8 +70,14 @@ def main():
   parser.add_argument(
     "--cache-dir",
     type=str,
+    metavar="DIR",
     default=DEFAULT_CACHE_DIR,
     help="Use the specified cache directory (default: %s)." % DEFAULT_CACHE_DIR)
+
+  exclusive.add_argument(
+    "--cache-list",
+    action="store_true",
+    help="List all paths with cached masks.")
 
   exclusive.add_argument(
     "--cache-restore",
@@ -83,11 +90,6 @@ def main():
     "--cache-restore-all",
     action="store_true",
     help="Restore all paths that have been cached.")
-
-  exclusive.add_argument(
-    "--cache-list",
-    action="store_true",
-    help="List all paths with cached masks.")
 
   exclusive.add_argument(
     "--cache-remove",
@@ -109,9 +111,9 @@ def main():
 
   data_folder = os.path.dirname(sys.modules[__name__].__file__)
 
-  if args.osx_version == "10.10":
+  if args.osx == "10.10":
     folder_type = "Yosemite"
-  elif args.osx_version in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
+  elif args.osx in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
     folder_type = "pre-Yosemite"
   else:
