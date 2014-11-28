@@ -100,13 +100,35 @@ using the mask image in the cache for that path.")
   ################################################################
 
 
+  def cache_path_for_target(target):
+    return args.cache_dir + os.path.abspath(target) + ".mask"
+
+
+  ################################################################
+
+
   args = parser.parse_args()
 
   if args.cache and not args.mask:
     parser.error("Must specify mask in order to use --cache.")
 
+  if args.mask and not os.path.exists(args.mask):
+    parser.error("Mask file does not exist: %s" % args.mask)
+
+  if args.target and not os.path.exists(args.target):
+    parser.error("Target file/folder does not exist: %s" % args.target)
+
+  if args.cache_restore and not os.path.exists(args.cache_restore):
+    parser.error("File/folder does not exist (so the icon cannot be restored): %s" % args.cache_restore)
+  if args.cache_restore and not os.path.exists(cache_path_for_target(args.cache_restore)):
+    parser.error("File/folder is not in cache (so the icon cannot be restored): %s" % args.cache_restore)
+
+  if args.cache_remove and not os.path.exists(cache_path_for_target(args.cache_remove)):
+    parser.error("File/folder is not in cache (and cannot be removed): %s" % args.cache_remove)
+
 
   ################################################################
+
 
   data_folder = os.path.dirname(sys.modules[__name__].__file__)
 
@@ -199,10 +221,6 @@ using the mask image in the cache for that path.")
 
 
   ################################################################
-
-
-  def cache_path_for_target(target):
-    return args.cache_dir + os.path.abspath(target) + ".mask"
 
   def process_mask(mask, target=None, add_to_cache=False):
     print ""
