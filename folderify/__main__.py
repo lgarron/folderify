@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import argparse
 import functools
 import os.path
@@ -138,7 +140,7 @@ using the mask image in the cache for that path.")
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
     folder_type = "pre-Yosemite"
   else:
-    print "Unknown OSX version(%s). Falling back to 10.10." % s
+    print("Unknown OSX version(%s). Falling back to 10.10." % s)
     folder_type = "Yosemite"
   template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
 
@@ -157,7 +159,7 @@ using the mask image in the cache for that path.")
 
     name, width, height, offset_center = params
 
-    print "Generating %s image..." % name
+    print("Generating %s image..." % name)
 
     TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
     subprocess.check_call([
@@ -223,9 +225,9 @@ using the mask image in the cache for that path.")
   ################################################################
 
   def process_mask(mask, target=None, add_to_cache=False):
-    print ""
-    print "Making icon file for %s" % mask
-    print "----------------"
+    print("")
+    print("Making icon file for %s" % mask)
+    print("----------------")
 
     temp_folder = tempfile.mkdtemp()
 
@@ -277,8 +279,8 @@ using the mask image in the cache for that path.")
     for process in processes:
       process.wait()
 
-    print "----------------"
-    print "Making the .icns file..."
+    print("----------------")
+    print("Making the .icns file...")
 
     subprocess.check_call([
       iconutil_path,
@@ -311,8 +313,8 @@ using the mask image in the cache for that path.")
     # Clean up.
     shutil.rmtree(temp_folder)
 
-    print "----------------"
-    print "Done with %s: assigned to %s" % (mask, target)
+    print("----------------")
+    print("Done with %s: assigned to %s" % (mask, target))
 
   def target_for_cache_path(cache_path):
     assert(cache_path.endswith(cached_mask_suffix))
@@ -321,7 +323,7 @@ using the mask image in the cache for that path.")
 
   def restore_from_cache(target):
     mask_cache_path = cache_path_for_target(target)
-    print "Mask path from cache: %s" % mask_cache_path
+    print("Mask path from cache: %s" % mask_cache_path)
     process_mask(
       mask_cache_path,
       target=target,
@@ -355,11 +357,11 @@ using the mask image in the cache for that path.")
       if os.path.exists(target):
         restore_from_cache(target)
       else:
-        print "Target no longer exists: %s" % target
+        print("Target no longer exists: %s" % target)
 
   elif args.cache_list:
     for target in cached_targets():
-      print target
+      print(target)
 
   else:
     parser.print_help()
