@@ -82,7 +82,7 @@ Defaults to the version this computer is running (%s)." % LOCAL_OSX_VERSION))
     "--cache-restore",
     metavar="PATH",
     type=str,
-    help="Restore folderified icon to the file/folder at PATH,\
+    help="Restore folderified icon to the file/folder at PATH, \
 using the mask image in the cache for that path.")
 
   exclusive.add_argument(
