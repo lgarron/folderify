@@ -318,16 +318,20 @@ using the mask image in the cache for that path.")
       target=args.target,
       add_to_cache=args.cache
     )
+
   elif args.cache_restore:
     restore_from_cache(args.cache_restore)
+
   elif args.cache_remove:
     os.remove(cache_path_for_target(args.cache_remove))
+
   elif args.cache_restore_all:
     for target in cached_targets():
       if os.path.exists(target):
         restore_from_cache(target)
       else:
         print "Target no longer exists: %s" % target
+
   elif args.cache_list:
     for target in cached_targets():
       print target
