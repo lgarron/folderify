@@ -18,6 +18,7 @@ from string import Template
 def main():
 
   DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
+  LOCAL_OSX_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
 
   parser = argparse.ArgumentParser(
     description="Generate a native OSX folder icon from a mask file.",
@@ -32,10 +33,10 @@ def main():
     nargs="?",
     type=str,
     help="Mask image file. For best results:\n\
-  - Use a .png mask.\n\
-  - Use a solid black design over a transparent background.\n\
-  - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.\n\
-  - Make sure the icon is at least around 1024x1024, in order to look good at maximum Retina resolution.")
+- Use a .png mask.\n\
+- Use a solid black design over a transparent background.\n\
+- Make sure the corner pixels of the mask image are transparent. They are used for empty margins.\n\
+- Make sure the icon is at least around 1024x1024, in order to look good at maximum Retina resolution.")
 
   parser.add_argument(
     "target",
@@ -43,24 +44,22 @@ def main():
     nargs="?",
     type=str,
     help="Target file or folder. \
-  If a target is specified, the resulting icon will be applied to the target file/folder. \
-  Else, a .iconset folder and .icns file will be created in the same folder as mask \
-  (you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
+If a target is specified, the resulting icon will be applied to the target file/folder. \
+Else, a .iconset folder and .icns file will be created in the same folder as mask \
+(you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
 
   parser.add_argument(
     "--reveal", "-r",
     action="store_true",
     help="Reveal the target (or resulting .icns file) in Finder.")
 
-  local_osx_version = ".".join(platform.mac_ver()[0].split(".")[:2])
-
   parser.add_argument(
     "--osx", "-x",
     type=str,
     metavar="VERSION",
-    default=local_osx_version,
+    default=LOCAL_OSX_VERSION,
     help=("Version of the OSX folder icon, e.g. \"10.9\" or \"10.10\". \
-  Defaults to the version this computer is running (%s)." % local_osx_version))
+Defaults to the version this computer is running (%s)." % LOCAL_OSX_VERSION))
 
   parser.add_argument(
     "--cache", "-c",
@@ -84,7 +83,7 @@ def main():
     metavar="PATH",
     type=str,
     help="Restore folderified icon to the file/folder at PATH,\
-  using the mask image in the cache for that path.")
+using the mask image in the cache for that path.")
 
   exclusive.add_argument(
     "--cache-restore-all",
