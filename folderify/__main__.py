@@ -269,6 +269,13 @@ using the mask image in the cache for that path.")
       iconset_folder
     ])
 
+    # Make sure seticon is executable.
+    subprocess.check_call([
+      "chmod",
+      "+x",
+      seticon_path
+    ])
+
     # Set icon  for target.
     subprocess.check_call([
       seticon_path,
