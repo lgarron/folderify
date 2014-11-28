@@ -9,26 +9,53 @@
 
 ![apple.gif](examples/png/apple.gif)
 
-# Try it!
+
+# Install from `pip`
+
+    pip install folderify
+
+## Simple Usage
+
+    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
+    mkdir new_dir
+    folderify octocat.png new_dir --reveal
+
+
+## Cache your folderified icons.
+
+    # Set the icon for the folder, and cache it.
+    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
+    mkdir new_dir
+    folderify --cache octocat.png new_dir
+
+    # Remove the source image and the folder.
+    rm octocat.png && rm -rf new_dir
+
+    # Recreate the directory and add the icon from the cache.
+    mkdir new_dir
+    folderify --cache-restore new_dir
+
+    # View cache contents.
+    folderify --cache-list
+
+You are now safe(r) from programs that steamroll over metadata!
+
+
+# Use without `pip`
 
     git clone git://github.com/lgarron/folderify.git
     cd folderify
+    python -m folderify examples/src/folder_outline.png . --reveal
+
+The repository folder should now have a custom icon.
+
     for file in examples/src/*.png; do python -m folderify $file; done
     open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
-Or try this:
-
-    git clone git://github.com/lgarron/folderify.git
-    cd folderify
-    python -m folderify examples/src/folder_outline.png .
-
-The repository folder should now have an icon.
 
 ## Usage
-
-Generate a native OSX folder icon from a mask file.
 
     usage: __main__.py [-h] [--reveal] [--osx VERSION] [--cache] [--cache-dir DIR]
                        [--cache-list] [--cache-restore PATH] [--cache-restore-all]
@@ -64,9 +91,6 @@ Generate a native OSX folder icon from a mask file.
 - Python 2 - to help assign the icon file to itself.
 - Apple Developer Tools (for `iconutil`)
 
-## Pre-Yosemite
-
-If you'd like to generate old folder icons, use `folderify.py` with the `--pre-yosemite` flag.
 
 ## Info
 
