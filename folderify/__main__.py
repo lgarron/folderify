@@ -17,6 +17,8 @@ from string import Template
 
 def main():
 
+  DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
+
   parser = argparse.ArgumentParser(
     description="Generate a native OSX folder icon from a mask file.",
     formatter_class=argparse.RawTextHelpFormatter
@@ -67,20 +69,31 @@ def main():
   parser.add_argument(
     "--cache-dir",
     type=str,
-    default=os.path.expanduser("~/.folderify/cache"),
-    help="Cache directory.")
+    default=DEFAULT_CACHE_DIR,
+    help="Use the specified cache directory (default: %s)." % DEFAULT_CACHE_DIR)
 
   exclusive.add_argument(
-    "--restore-from-cache",
+    "--cache-restore",
     metavar="PATH",
     type=str,
     help="Restore folderified icon to the file/folder at PATH,\
   using the mask image in the cache for that path.")
 
   exclusive.add_argument(
-    "--restore-all-from-cache",
+    "--cache-restore-all",
     action="store_true",
     help="Restore all paths that have been cached.")
+
+  exclusive.add_argument(
+    "--cache-list",
+    action="store_true",
+    help="List all paths with cached masks.")
+
+  exclusive.add_argument(
+    "--cache-remove",
+    metavar="PATH",
+    type=str,
+    help="Remove the cached mask for the file/folder at PATH.")
 
 
   ################################################################
@@ -188,7 +201,6 @@ def main():
 
 
   def cache_path_for_target(target):
-    print args.cache_dir, target, ".mask"
     return args.cache_dir + os.path.abspath(target) + ".mask"
 
   def process_mask(mask, target=None, add_to_cache=False):
@@ -290,6 +302,13 @@ def main():
       add_to_cache=False
     )
 
+  def cached_targets():
+    for folder, _, files in os.walk(args.cache_dir):
+      for f in files:
+        if f.endswith(cached_mask_suffix):
+          cache_path = os.path.join(folder, f)
+          yield target_for_cache_path(cache_path)
+
   if args.mask:
     if args.cache:
       assert(args.target)
@@ -298,18 +317,20 @@ def main():
       target=args.target,
       add_to_cache=args.cache
     )
-  elif (args.restore_from_cache):
-    restore_from_cache(args.restore_from_cache)
-  elif (args.restore_all_from_cache):
-    for folder, _, files in os.walk(args.cache_dir):
-      for f in files:
-        if f.endswith(cached_mask_suffix):
-          cache_path = os.path.join(folder, f)
-          target = target_for_cache_path(cache_path)
-          if os.path.exists(target):
-            restore_from_cache(target)
-          else:
-            print "Target no longer exists: %s" % target
+  elif args.cache_restore:
+    restore_from_cache(args.cache_restore)
+  elif args.cache_remove:
+    os.remove(cache_path_for_target(args.cache_remove))
+  elif args.cache_restore_all:
+    for target in cached_targets():
+      if os.path.exists(target):
+        restore_from_cache(target)
+      else:
+        print "Target no longer exists: %s" % target
+  elif args.cache_list:
+    for target in cached_targets():
+      print target
+
   else:
     parser.print_help()
 
