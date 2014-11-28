@@ -98,6 +98,11 @@ using the mask image in the cache for that path.")
     type=str,
     help="Remove the cached mask for the file/folder at PATH.")
 
+  parser.add_argument(
+    "--verbose", "-v",
+    action="store_true",
+    help="Detailed output.")
+
 
   ################################################################
 
@@ -111,8 +116,8 @@ using the mask image in the cache for that path.")
 
   args = parser.parse_args()
 
-  if args.cache and not args.mask:
-    parser.error("Must specify mask in order to use --cache.")
+  if args.cache and not (args.mask and args.target):
+    parser.error("Must specify mask and target in order to use --cache.")
 
   if args.mask and not os.path.exists(args.mask):
     parser.error("Mask file does not exist: %s" % args.mask)
@@ -140,7 +145,7 @@ using the mask image in the cache for that path.")
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
     folder_type = "pre-Yosemite"
   else:
-    print("Unknown OSX version(%s). Falling back to 10.10." % s)
+    print("Unknown OSX version (%s). Falling back to 10.10." % args.osx, file=sys.stderr)
     folder_type = "Yosemite"
   template_folder = os.path.join(data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
 
@@ -154,12 +159,13 @@ using the mask image in the cache for that path.")
   ################################################################
 
 
-  def create_iconset(mask, temp_folder, iconset_folder, params):
+  def create_iconset(print_prefix, mask, temp_folder, iconset_folder, params):
     global processes
 
     name, width, height, offset_center = params
 
-    print("Generating %s image..." % name)
+    if args.verbose:
+      print("[%s] %s" % (print_prefix, name))
 
     TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
     subprocess.check_call([
@@ -224,25 +230,21 @@ using the mask image in the cache for that path.")
 
   ################################################################
 
-  def process_mask(mask, target=None, add_to_cache=False):
-    print("")
-    print("Making icon file for %s" % mask)
-    print("----------------")
+  def create_and_set_icns(mask, target=None, add_to_cache=False, is_from_cache=False):
 
     temp_folder = tempfile.mkdtemp()
-
-    if (add_to_cache):
-      mask_cache_path = cache_path_for_target(target)
-      mask_cache_folder = os.path.dirname(mask_cache_path)
-      if not os.path.exists(mask_cache_folder):
-        os.makedirs(mask_cache_folder)
-      shutil.copyfile(mask, mask_cache_path)
 
     if target:
       iconset_folder = os.path.join(temp_folder, "iconset.iconset")
       icns_file = os.path.join(temp_folder, "icns.icns")
 
       os.mkdir(iconset_folder)
+
+      print_prefix = target
+      if is_from_cache:
+        print("[%s] Restoring from cache." % (print_prefix))
+      else:
+        print("[%s] <= [%s]" % (print_prefix, mask))
     else:
       root, _ = os.path.splitext(mask)
       iconset_folder = root + ".iconset"
@@ -252,7 +254,17 @@ using the mask image in the cache for that path.")
         os.mkdir(iconset_folder)
       target = icns_file
 
-    # mkdir -p "${ICONSET_FOLDER}"
+      print_prefix = mask
+      print("[%s] => [%s]" % (print_prefix, iconset_folder))
+      print("[%s] => [%s]" % (print_prefix, icns_file))
+
+    if (add_to_cache):
+      mask_cache_path = cache_path_for_target(target)
+      mask_cache_folder = os.path.dirname(mask_cache_path)
+      if not os.path.exists(mask_cache_folder):
+        os.makedirs(mask_cache_folder)
+      shutil.copyfile(mask, mask_cache_path)
+      print("[%s] Storing in cache => [%s]" % (print_prefix, mask_cache_path))
 
     inputs = {
       "Yosemite": [
@@ -273,14 +285,14 @@ using the mask image in the cache for that path.")
       ]
     }
 
-    f = functools.partial(create_iconset, mask, temp_folder, iconset_folder)
+    f = functools.partial(create_iconset, print_prefix, mask, temp_folder, iconset_folder)
     processes = map(f, inputs[folder_type])
 
     for process in processes:
       process.wait()
 
-    print("----------------")
-    print("Making the .icns file...")
+    if args.verbose:
+      print("[%s] Creating the .icns file..." % print_prefix)
 
     subprocess.check_call([
       iconutil_path,
@@ -296,6 +308,8 @@ using the mask image in the cache for that path.")
       seticon_path
     ])
 
+    if args.verbose:
+      print("[%s] Setting icon for target." % (print_prefix))
     # Set icon  for target.
     subprocess.check_call([
       seticon_path,
@@ -303,18 +317,20 @@ using the mask image in the cache for that path.")
       target
     ])
 
+    # Clean up.
+    shutil.rmtree(temp_folder)
+
     # Reveal target.
     if args.reveal:
+      if args.verbose:
+        print("[%s] Revealing target." % (print_prefix))
       subprocess.check_call([
         "open",
         "-R", target
       ])
 
-    # Clean up.
-    shutil.rmtree(temp_folder)
-
-    print("----------------")
-    print("Done with %s: assigned to %s" % (mask, target))
+    if args.verbose:
+      print("[%s] Done." % (print_prefix))
 
   def target_for_cache_path(cache_path):
     assert(cache_path.endswith(cached_mask_suffix))
@@ -323,11 +339,13 @@ using the mask image in the cache for that path.")
 
   def restore_from_cache(target):
     mask_cache_path = cache_path_for_target(target)
-    print("Mask path from cache: %s" % mask_cache_path)
-    process_mask(
+    if args.verbose:
+      print("[%s] Mask path from cache: %s" % (target, mask_cache_path))
+    create_and_set_icns(
       mask_cache_path,
       target=target,
-      add_to_cache=False
+      add_to_cache=False,
+      is_from_cache=True
     )
 
   def cached_targets():
@@ -340,10 +358,11 @@ using the mask image in the cache for that path.")
   if args.mask:
     if args.cache:
       assert(args.target)
-    process_mask(
+    create_and_set_icns(
       args.mask,
       target=args.target,
-      add_to_cache=args.cache
+      add_to_cache=args.cache,
+      is_from_cache=False
     )
 
   elif args.cache_restore:
@@ -357,7 +376,7 @@ using the mask image in the cache for that path.")
       if os.path.exists(target):
         restore_from_cache(target)
       else:
-        print("Target no longer exists: %s" % target)
+        print("[%s] Target no longer exists. Skipping." % target)
 
   elif args.cache_list:
     for target in cached_targets():
