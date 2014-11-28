@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
   name="folderify",
-  version="0.0.3",
+  version="0.0.4",
   description="A tool to generate pretty, beveled OSX folder icons.",
   long_description=long_description,
   url="https://github.com/lgarron/folderify",
@@ -64,7 +64,7 @@ setup(
   # pip to create the appropriate form of executable for the target platform.
   entry_points={
     "console_scripts": [
-        "folderify = folderify:main",
+        "folderify = folderify",
     ],
   },
 )
