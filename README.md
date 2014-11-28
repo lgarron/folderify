@@ -1,14 +1,6 @@
 # folderify
 
-![Apple Folder](examples/png/apple_folder_256.png)
-![Cube Folder](examples/png/cube_folder_256.png)
-![Octocat Folder](examples/png/octocat_folder_256.png)
-![Rhombic Hexecontrahedron Folder](examples/png/rhombic_hexecontahedron_folder_256.png)
-![Octocat Folder](examples/png/sysprefs_folder_256.png)
-
-
-![apple.gif](examples/png/apple.gif)
-
+![mask.png + folder = folderified!](examples/png/explanation.png)
 
 # Install from `pip`
 
@@ -99,3 +91,9 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
     iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
 
 Icons are set using [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
+
+
+----------------------------------------------------------------
+
+
+![apple.gif](examples/png/apple.gif)
