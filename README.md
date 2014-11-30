@@ -2,7 +2,7 @@
 
 ![mask.png + folder = folderified!](examples/png/explanation.png)
 
-# Install from `pip`
+# Install [from PyPI](https://pypi.python.org/pypi/folderify/) using `pip`
 
     pip install folderify
 
