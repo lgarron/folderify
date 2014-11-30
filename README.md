@@ -51,7 +51,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
     usage: folderify [-h] [--reveal] [--osx VERSION] [--cache] [--cache-dir DIR]
                      [--cache-list] [--cache-restore PATH] [--cache-restore-all]
-                     [--cache-remove PATH]
+                     [--cache-remove PATH] [--verbose]
                      [mask] [target]
 
     Generate a native OSX folder icon from a mask file.
@@ -75,6 +75,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
       --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
       --cache-restore-all   Restore all paths that have been cached.
       --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
+      --verbose, -v         Detailed output.
 
 
 ### Dependencies
