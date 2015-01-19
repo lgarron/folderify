@@ -70,7 +70,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
       --osx VERSION, -x VERSION
                             Version of the OSX folder icon, e.g. "10.9" or "10.10". Defaults to the version this computer is running (10.10).
       --cache, -c           Cache the mask icon in the cache dir.
-      --cache-dir DIR       Use the specified cache directory (default: /Users/lgarron/.folderify/cache).
+      --cache-dir DIR       Use the specified cache directory (default: ~/.folderify/cache).
       --cache-list          List all paths with cached masks.
       --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
       --cache-restore-all   Restore all paths that have been cached.
