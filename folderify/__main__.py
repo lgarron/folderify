@@ -168,16 +168,28 @@ using the mask image in the cache for that path.")
       print("[%s] %s" % (print_prefix, name))
 
     TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
-    subprocess.check_call([
-      convert_path,
-      mask,
-      "-trim",
-      "-resize",
-      ("%dx%d" % (width, height)),
-      "-bordercolor", "none",
-      "-border", str(10),
-      TEMP_MASK_IMAGE
-    ])
+    try:
+      subprocess.check_call([
+        convert_path,
+        mask,
+        "-trim",
+        "-resize",
+        ("%dx%d" % (width, height)),
+        "-bordercolor", "none",
+        "-border", str(10),
+        TEMP_MASK_IMAGE
+      ])
+    except OSError as e:
+      print("""ImageMagick command failed.
+Make sure you have ImageMagick installed, for example:
+
+  brew install imagemagick
+
+or
+
+  sudo port install ImageMagick
+""")
+      sys.exit(1)
 
     FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
     template_icon = os.path.join(template_folder, "icon_%s.png" % name)
