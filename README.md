@@ -4,6 +4,7 @@
 
 # Install [from PyPI](https://pypi.python.org/pypi/folderify/) using `pip`
 
+    brew install imagemagick # Make sure ImageMagick installed.
     pip install folderify
 
 ## Simple Usage
