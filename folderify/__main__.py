@@ -139,7 +139,7 @@ using the mask image in the cache for that path.")
 
   data_folder = os.path.dirname(sys.modules[__name__].__file__)
 
-  if args.osx == "10.10":
+  if args.osx in ["10.10", "10.11"]:
     folder_type = "Yosemite"
   elif args.osx in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
