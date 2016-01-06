@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
   name="folderify",
-  version="1.0.1",
+  version="1.1.0",
   description="A tool to generate pretty, beveled OSX folder icons.",
   long_description=long_description,
   url="https://github.com/lgarron/folderify",
