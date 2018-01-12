@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
   name="folderify",
-  version="1.1.0",
+  version="1.2.0",
   description="A tool to generate pretty, beveled OSX folder icons.",
   long_description=long_description,
   url="https://github.com/lgarron/folderify",
@@ -31,10 +31,6 @@ setup(
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
-    # "Programming Language :: Python :: 3",
-    # "Programming Language :: Python :: 3.2",
-    # "Programming Language :: Python :: 3.3",
-    # "Programming Language :: Python :: 3.4",
   ],
 
   # # What does your project relate to?
