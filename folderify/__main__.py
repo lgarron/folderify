@@ -60,7 +60,7 @@ Else, a .iconset folder and .icns file will be created in the same folder as mas
     type=str,
     metavar="VERSION",
     default=LOCAL_OSX_VERSION,
-    help=("Version of the OSX folder icon, e.g. \"10.9\" or \"10.10\". \
+    help=("Version of the OSX folder icon, e.g. \"10.13\". Pass in \"10.9\" to get the pre-Yosemite style. \
 Defaults to the version this computer is running (%s)." % LOCAL_OSX_VERSION))
 
   parser.add_argument(
