@@ -10,6 +10,7 @@ setup(
     name="folderify",
     version="1.2.1",
     description="A tool to generate pretty, beveled OSX folder icons.",
+    long_description_content_type="text/markdown",
     long_description=long_description,
     url="https://github.com/lgarron/folderify",
 
