@@ -9,7 +9,7 @@ with open("README.md") as f:
 setup(
     name="folderify",
     version="1.2.3",
-    description="A tool to generate pretty, beveled OSX folder icons.",
+    description="A tool to generate pretty, beveled macOS folder icons.",
     long_description_content_type="text/markdown",
     long_description=long_description,
     url="https://github.com/lgarron/folderify",
@@ -36,7 +36,7 @@ setup(
     ],
 
     # # What does your project relate to?
-    keywords="icon OSX Mac Darwin graphics folder imagemagick",
+    keywords="icon macOS OSX Mac Darwin graphics folder imagemagick",
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
