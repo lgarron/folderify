@@ -55,7 +55,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
                      [--cache-remove PATH] [--verbose]
                      [mask] [target]
 
-    Generate a native OSX folder icon from a mask file.
+    Generate a native macOS folder icon from a mask file.
 
     positional arguments:
       mask                  Mask image file. For best results:
@@ -69,7 +69,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
       -h, --help            show this help message and exit
       --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
       --osx VERSION, -x VERSION
-                            Version of the OSX folder icon, e.g. "10.9" or "10.10". Defaults to the version this computer is running (10.10).
+                            Version of the macOS folder icon, e.g. "10.9" or "10.10". Defaults to the version this computer is running (10.10).
       --cache, -c           Cache the mask icon in the cache dir.
       --cache-dir DIR       Use the specified cache directory (default: ~/.folderify/cache).
       --cache-list          List all paths with cached masks.
@@ -88,7 +88,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ## Info
 
-`GenericFolderIcon.iconset` is generated from the OSX default folder icon using:
+`GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
 
     iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
 
