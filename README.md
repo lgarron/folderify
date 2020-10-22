@@ -2,51 +2,72 @@
 
 ![mask.png + folder = folderified!](examples/png/explanation.png)
 
-# Install [from PyPI](https://pypi.python.org/pypi/folderify/) using `pip`
+## Installation
 
-    brew install imagemagick # Make sure ImageMagick installed.
-    pip install folderify
+### [PyPI](https://pypi.python.org/pypi/folderify/)
+
+```bash
+brew install imagemagick # Make sure ImageMagick installed.
+pip install folderify
+```
+
+### [Homebrew](https://formulae.brew.sh/formula/folderify)
+
+```bash
+brew install folderify
+```
+    
+### [MacPorts](https://ports.macports.org/port/folderify/summary)
+
+```bash
+sudo port install folderify
+```
+
+### Build from source
+
+```bash
+git clone git://github.com/lgarron/folderify.git
+cd folderify
+python -m folderify examples/src/folder_outline.png . --reveal
+```
 
 ## Simple Usage
 
-    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
-    mkdir new_dir
-    folderify octocat.png new_dir --reveal
-
-
-## Cache your folderified icons.
-
-    # Set the icon for the folder, and cache it.
-    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
-    mkdir new_dir
-    folderify --cache octocat.png new_dir
-
-    # Remove the source image and the folder.
-    rm octocat.png && rm -rf new_dir
-
-    # Recreate the directory and add the icon from the cache.
-    mkdir new_dir
-    folderify --cache-restore new_dir
-
-    # View cache contents.
-    folderify --cache-list
-
-You are now safe(r) from programs that steamroll over metadata!
-
-
-# Use without `pip`
-
-    git clone git://github.com/lgarron/folderify.git
-    cd folderify
-    python -m folderify examples/src/folder_outline.png . --reveal
+```bash
+curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
+mkdir new_dir
+folderify octocat.png new_dir --reveal
+```
 
 The repository folder should now have a custom icon.
 
-    for file in examples/src/*.png; do python -m folderify $file; done
-    open examples/src/
+```bash
+for file in examples/src/*.png; do python -m folderify $file; done
+open examples/src/
+```
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
+## Cache your folderified icons.
+
+```bash
+# Set the icon for the folder, and cache it.
+curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
+mkdir new_dir
+folderify --cache octocat.png new_dir
+
+# Remove the source image and the folder.
+rm octocat.png && rm -rf new_dir
+
+# Recreate the directory and add the icon from the cache.
+mkdir new_dir
+folderify --cache-restore new_dir
+
+# View cache contents.
+folderify --cache-list
+```
+
+You are now safe(r) from programs that steamroll over metadata!
 
 ## Usage
 
