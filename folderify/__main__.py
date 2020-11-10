@@ -139,8 +139,10 @@ using the mask image in the cache for that path.")
     if args.osx in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
         # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
         folder_type = "pre-Yosemite"
-    else:
+    elif args.osx in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
         folder_type = "Yosemite"
+    else:
+        folder_type = "BigSur"
     template_folder = os.path.join(
         data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
 
@@ -275,6 +277,15 @@ or
                   (print_prefix, mask_cache_path))
 
         inputs = {
+            # TODO: adjust this
+            "BigSur": [
+                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+                ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+
+                ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
+                ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
+                ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+            ],
             "Yosemite": [
                 ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
                 ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
