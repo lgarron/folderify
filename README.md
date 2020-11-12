@@ -64,7 +64,7 @@ open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
-# Full Options
+# Full options
 
 ```shell
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION] [--cache]
