@@ -17,6 +17,21 @@ from string import Template
 ################################################################
 
 
+# There are clever ways to do recursive flattening, but this works just fine.
+def p(*args):
+    group = []
+    for arg in args:
+        if isinstance(arg, list):
+            for entry in arg:
+                group.append(entry)
+        else:
+            group.append(arg)
+    return group
+
+# There are clever ways to do recursive flattening, but this works just fine.
+def g(*args):
+    return ["("] + p(*args) + [")"]
+
 def main():
 
     DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
@@ -157,23 +172,28 @@ using the mask image in the cache for that path.")
     def create_iconset(print_prefix, mask, temp_folder, iconset_folder, params):
         global processes
 
-        name, width, height, offset_center = params
+        name, icon_size, width, height, offset_center = params
 
         if args.verbose:
             print("[%s] %s" % (print_prefix, name))
 
-        TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
+        # TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
+        TEMP_MASK_IMAGE = "/Users/lgarron/Desktop/folderify/working/TEMP_MASK_IMAGE.png"
         try:
-            subprocess.check_call([
+            subprocess.check_call(p(
                 convert_path,
-                mask,
-                "-trim",
-                "-resize",
-                ("%dx%d" % (width, height)),
-                "-bordercolor", "none",
-                "-border", str(10),
+                "-background",
+                "transparent",
+                g(mask,
+                    "-trim",
+                    "-resize",
+                    ("%dx%d" % (width, height)),
+                    "-gravity", "Center",
+                ),
+                "-extent",
+                ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
                 TEMP_MASK_IMAGE
-            ])
+            ))
         except OSError as e:
             print("""ImageMagick command failed.
 Make sure you have ImageMagick installed, for example:
@@ -190,52 +210,139 @@ or
         template_icon = os.path.join(template_folder, "icon_%s.png" % name)
 
         main_opacity = 15
-        offset_white = 1
+        offset_white = 2
         opacity_white = 100
+
+        aligned_image = g(TEMP_MASK_IMAGE) #, "-gravity", "Center", "-geometry", ("+0+%d" % offset_center))
+
+        COLORIZED_ICON_IMAGE = "/Users/lgarron/Desktop/folderify/working/1.1.COLORIZED_ICON_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            "-fill", "rgb(8, 134, 206)",
+            TEMP_MASK_IMAGE,
+            "-colorize", "100, 100, 100",
+            "-channel", "Alpha", "-evaluate", "multiply", "0.5",
+            COLORIZED_ICON_IMAGE
+        )).wait()
+
+        WHITE_TOP_COLORIZED_IMAGE = "/Users/lgarron/Desktop/folderify/working/2.1.WHITE_TOP_COLORIZED_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            TEMP_MASK_IMAGE,
+            "-fill", "rgb(90, 170, 230)",
+            "-colorize", "100, 100, 100",
+            WHITE_TOP_COLORIZED_IMAGE
+        )).wait()
+
+        WHITE_TOP_BLUR_IMAGE = "/Users/lgarron/Desktop/folderify/working/2.2.WHITE_TOP_BLUR_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_TOP_COLORIZED_IMAGE,
+            "-motion-blur", "0x0-90",
+            "-page", "+0+1", "-background", "none", "-flatten",
+            WHITE_TOP_BLUR_IMAGE
+        )).wait()
+
+        WHITE_TOP_MASKED_IMAGE = "/Users/lgarron/Desktop/folderify/working/2.3.WHITE_TOP_MASKED_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_TOP_BLUR_IMAGE,
+            TEMP_MASK_IMAGE,
+            "-alpha", "Set", "-compose", "Dst_Out", "-composite",
+            WHITE_TOP_MASKED_IMAGE
+        )).wait()
+
+        WHITE_TOP_SHADOW_IMAGE = "/Users/lgarron/Desktop/folderify/working/2.4.WHITE_TOP_SHADOW_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_TOP_MASKED_IMAGE,
+            "-channel", "Alpha", "-evaluate", "multiply", "0.5",
+            WHITE_TOP_SHADOW_IMAGE
+        )).wait()
+
+        WHITE_BOTTOM_COLORIZED_IMAGE = "/Users/lgarron/Desktop/folderify/working/3.1.WHITE_BOTTOM_COLORIZED_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            TEMP_MASK_IMAGE,
+            "-fill", "rgb(174, 225, 253)",
+            "-colorize", "100, 100, 100",
+            WHITE_BOTTOM_COLORIZED_IMAGE
+        )).wait()
+
+        WHITE_BOTTOM_BLUR_IMAGE = "/Users/lgarron/Desktop/folderify/working/3.2.WHITE_BOTTOM_BLUR_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_BOTTOM_COLORIZED_IMAGE,
+            "-motion-blur", "0x2-90",
+            "-page", "+0+2", "-background", "none", "-flatten",
+            WHITE_BOTTOM_BLUR_IMAGE
+        )).wait()
+
+        WHITE_BOTTOM_MASKED_IMAGE = "/Users/lgarron/Desktop/folderify/working/3.3.WHITE_BOTTOM_MASKED_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_BOTTOM_BLUR_IMAGE,
+            TEMP_MASK_IMAGE,
+            "-alpha", "Set", "-compose", "Dst_Out", "-composite",
+            WHITE_BOTTOM_MASKED_IMAGE
+        )).wait()
+
+        WHITE_BOTTOM_SHADOW_IMAGE = "/Users/lgarron/Desktop/folderify/working/3.4.WHITE_BOTTOM_SHADOW_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            WHITE_BOTTOM_MASKED_IMAGE,
+            "-channel", "Alpha", "-evaluate", "multiply", "0.5",
+            WHITE_BOTTOM_SHADOW_IMAGE
+        )).wait()
+
+        COLORIZED_BLACK_IMAGE = "/Users/lgarron/Desktop/folderify/working/4.1.COLORIZED_BLACK_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            TEMP_MASK_IMAGE,
+            "-fill", "rgb(58, 152, 208)",
+            "-colorize", "100, 100, 100",
+            "-channel", "Alpha", "-negate",
+            COLORIZED_BLACK_IMAGE
+        )).wait()
+
+        BLACK_BLUR_IMAGE = "/Users/lgarron/Desktop/folderify/working/4.2.BLACK_BLUR_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            COLORIZED_BLACK_IMAGE,
+            "-motion-blur", "0x0-90",
+            "-page", "+0+2", "-background", "none", "-flatten",
+            BLACK_BLUR_IMAGE
+        )).wait()
+
+        BLACK_SHADOW_IMAGE = "/Users/lgarron/Desktop/folderify/working/4.3.BLACK_SHADOW_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            "-compose", "dst-in",
+            BLACK_BLUR_IMAGE,
+            TEMP_MASK_IMAGE,
+            "-composite",
+            "-channel", "Alpha", "-evaluate", "multiply", "0.5",
+            BLACK_SHADOW_IMAGE
+        )).wait()
 
         # Here comes the magic.
         # TODO: rewrite in Python.
-        command = [
-            convert_path, template_icon, "(",
-            "(", TEMP_MASK_IMAGE, "-colorize", "3,23,40", ")",
-            "(",
-            "(",
-            "(",
-            TEMP_MASK_IMAGE,
-            "(",
-            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-shadow", "100x1+10+0", "-geometry", "-2-2",
-            ")",
-            "-compose", "dst-out", "-composite", "+repage",
-            ")",
-            "(",
-            TEMP_MASK_IMAGE,
-            "(",
-            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-geometry", "+0-1",
-            ")",
-            "-compose", "dst-out", "-composite", "+repage", "-channel", "rgb", "-negate", "+channel", "-geometry", (
-                "+0+%d" % offset_white),
-            ")",
-            "-compose", "dissolve", "-define", ("compose:args=%dx50" %
-                                                opacity_white), "-composite", "+repage",
-            ")",
-            "(",
-            TEMP_MASK_IMAGE,
-            "(",
-            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-geometry", "+0+1",
-            ")",
-            "-compose", "dst-out", "-composite", "+repage",
-            ")",
-            "-compose", "dissolve", "-define", "compose:args=50x80", "-composite",
-            ")",
-            "-compose", "dissolve", "-define", ("compose:args=60x%d" %
-                                                main_opacity), "-composite", "+repage",
-            "-gravity", "Center", "-geometry", ("+0+%d" % offset_center),
-            "+repage",
-            ")",
-            "-compose", "over", "-composite", FILE_OUT
-        ]
+        COMPOSITE_IMAGE = "/Users/lgarron/Desktop/folderify/working/5.1.COMPOSITE_IMAGE.png"
+        subprocess.Popen(p(
+            convert_path,
+            template_icon,
+            COLORIZED_ICON_IMAGE,
+            "-composite",
+            WHITE_TOP_SHADOW_IMAGE,
+            "-composite",
+            WHITE_BOTTOM_SHADOW_IMAGE,
+            "-composite",
+            BLACK_SHADOW_IMAGE,
+            "-composite",
+            COMPOSITE_IMAGE
+        )).wait()
 
-        return subprocess.Popen(command)
+        return subprocess.Popen(["ls"])
 
     ################################################################
 
@@ -279,29 +386,30 @@ or
         inputs = {
             # TODO: adjust this
             "BigSur": [
-                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-                ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+                # ["16x16", 1,      12,   8,  1], ["16x16@2x", 32,    26,  14,  2],
+                # ["32x32", 3,      26,  14,  2], ["32x32@2x", 64,    52,  26,  2],
 
-                ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-                ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-                ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+                # ["128x128", 128,   103,  53,  4], ["128x128@2x", 256, 206, 106,  9],
+                # ["256x256", 256,   206, 106,  9], ["256x256@2x", 512, 412, 212, 18],
+                # ["512x512", 512, 412, 212, 18],
+                ["512x512@2x", 1024, 760, 380, 52]
             ],
-            "Yosemite": [
-                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-                ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+            # "Yosemite": [
+            #     ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+            #     ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
 
-                ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-                ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-                ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
-            ],
-            "pre-Yosemite": [
-                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-                ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
+            #     ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
+            #     ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
+            #     ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+            # ],
+            # "pre-Yosemite": [
+            #     ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+            #     ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
 
-                ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
-                ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
-                ["512x512",    412, 242, 36], ["512x512@2x", 824, 484, 72]
-            ]
+            #     ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
+            #     ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
+            #     ["512x512",    412, 242, 36], ["512x512@2x", 824, 484, 72]
+            # ]
         }
 
         f = functools.partial(create_iconset, print_prefix,
@@ -338,7 +446,8 @@ or
         ])
 
         # Clean up.
-        shutil.rmtree(temp_folder)
+        # shutil.rmtree(temp_folder)
+        print(temp_folder)
 
         # Reveal target.
         if args.reveal:
