@@ -2,6 +2,9 @@
 
 ![mask.png + folder = folderified!](examples/png/explanation.png)
 
+Generate pixel-perfect macOS folder icons. Works for macOS 10.5 (Leopard)
+through 10.11 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
+
 # Install [from PyPI](https://pypi.python.org/pypi/folderify/) using `pip`
 
     brew install imagemagick # Make sure ImageMagick installed.
