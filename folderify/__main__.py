@@ -13,17 +13,17 @@ import tempfile
 
 from string import Template
 
-
 ################################################################
 
+OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 
 def main():
 
     DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
-    LOCAL_OSX_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
+    LOCAL_MACOS_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
 
     parser = argparse.ArgumentParser(
-        description="Generate a native OSX folder icon from a mask file.",
+        description="Generate a native-style macOS folder icon from a mask file.",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -56,12 +56,19 @@ Else, a .iconset folder and .icns file will be created in the same folder as mas
         help="Reveal the target (or resulting .icns file) in Finder.")
 
     parser.add_argument(
+        "--macOS",
+        type=str,
+        metavar="VERSION",
+        default=LOCAL_MACOS_VERSION,
+        help=("Version of the macOS folder icon, e.g. \"10.13\". \
+Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
+
+    parser.add_argument(
         "--osx", "-x",
         type=str,
         metavar="VERSION",
-        default=LOCAL_OSX_VERSION,
-        help=("Version of the OSX folder icon, e.g. \"10.13\". Pass in \"10.9\" to get the pre-Yosemite style. \
-Defaults to the version this computer is running (%s)." % LOCAL_OSX_VERSION))
+        help=("Synonym for the --macOS argument.")
+    )
 
     parser.add_argument(
         "--cache", "-c",
@@ -136,10 +143,13 @@ using the mask image in the cache for that path.")
 
     data_folder = os.path.dirname(sys.modules[__name__].__file__)
 
-    if args.osx in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
+    if args.osx:
+        args.macOS = args.osx
+
+    if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
         # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
         folder_type = "pre-Yosemite"
-    elif args.osx in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
+    elif args.macOS in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
         folder_type = "Yosemite"
     else:
         folder_type = "BigSur"
@@ -154,7 +164,123 @@ using the mask image in the cache for that path.")
 
     ################################################################
 
-    def create_iconset(print_prefix, mask, temp_folder, iconset_folder, params):
+    # There are clever ways to do recursive flattening, but this works just fine.
+    def p(*args):
+        group = []
+        for arg in args:
+            if isinstance(arg, list):
+                for entry in arg:
+                    group.append(entry)
+            else:
+                group.append(arg)
+        return group
+
+    # There are clever ways to do recursive flattening, but this works just fine.
+    def g(*args):
+        return ["("] + p(*args) + [")"]
+
+    def create_iconset(folder_type, print_prefix, mask, temp_folder, iconset_folder, params):
+        if folder_type in OLD_IMPLEMENTATION_FOLDER_TYPES:
+            return create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params)
+
+        global processes
+
+        name, icon_size, dims, b, w = params
+        width, height, offset_center = dims
+        black_blur, black_offset = b
+        white_blur, white_offset, white_opacity = w
+
+        if args.verbose:
+            print("[%s] %s" % (print_prefix, name))
+
+        SIZED_MASK = os.path.join(temp_folder, "%s_1.0_SIZED_MASK.png" % name)
+        try:
+            subprocess.check_call(p(
+                convert_path,
+                "-background",
+                "transparent",
+                g(mask,
+                    "-trim",
+                    "-resize",
+                    ("%dx%d" % (width, height)),
+                    "-gravity", "Center",
+                ),
+                "-extent",
+                ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
+                SIZED_MASK
+            ))
+        except OSError as e:
+            print("""ImageMagick command failed.
+Make sure you have ImageMagick installed, for example:
+
+  brew install imagemagick
+
+or
+
+  sudo port install ImageMagick
+""")
+            sys.exit(1)
+
+        FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
+        template_icon = os.path.join(template_folder, "icon_%s.png" % name)
+
+        main_opacity = 15
+        offset_white = 2
+        opacity_white = 100
+
+        aligned = g(SIZED_MASK) #, "-gravity", "Center", "-geometry", ("+0+%d" % offset_center))
+
+        def colorize(step_name, fill, input):
+            return g(input, "-fill", fill, "-colorize", "100, 100, 100")
+        
+        def opacity(step_name, fraction, input):
+            return g(input, "-channel", "Alpha", "-evaluate", "multiply", fraction)
+        
+        def blur_down(step_name, blur_px, offset_px, input):
+            return g(input, "-motion-blur", ("0x%d-90" % blur_px),
+                            "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten")
+
+        def mask_down(step_name, mask_operation, input, mask):
+            return g(input, mask, "-alpha", "Set", "-compose", mask_operation, "-composite")
+        
+        def negate(step_name, input):
+            return g(input, "-negate")
+
+        FILL_COLORIZED = colorize("1.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
+        FILL = opacity("1.2_FILL", "0.5", FILL_COLORIZED)
+
+        BLACK_NEGATED = negate("2.1_BLACK_NEGATED", SIZED_MASK)
+        BLACK_COLORIZED = colorize("2.2_BLACK_COLORIZED", "rgb(58, 152, 208)", BLACK_NEGATED)
+        BLACK_BLURRED = blur_down("2.3_BLACK_BLURRED", black_blur, black_offset, BLACK_COLORIZED)
+        BLACK_MASKED = mask_down("2.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
+        BLACK_SHADOW = opacity("2.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
+
+        WHITE_COLORIZED = colorize("4.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
+        WHITE_BLURRED = blur_down("4.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
+        WHITE_MASKED = mask_down("4.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
+        WHITE_SHADOW = opacity("4.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
+
+        COMPOSITE = g(
+            template_icon,
+            FILL,
+            "-compose", "dissolve", "-composite",
+            BLACK_SHADOW,
+            "-compose", "dissolve", "-composite",
+            WHITE_SHADOW,
+            "-compose", "dissolve", "-composite"
+        )
+
+        command = p(
+            convert_path,
+            COMPOSITE, # can be replaced with an intermediate step for debugging.
+            FILE_OUT
+        )
+
+        return subprocess.Popen(command)
+
+    # Messy implementation for from Yosemite
+    # TODO: Unify this with the new implementation?
+    def create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params):
         global processes
 
         name, width, height, offset_center = params
@@ -177,11 +303,8 @@ using the mask image in the cache for that path.")
         except OSError as e:
             print("""ImageMagick command failed.
 Make sure you have ImageMagick installed, for example:
-
   brew install imagemagick
-
 or
-
   sudo port install ImageMagick
 """)
             sys.exit(1)
@@ -242,6 +365,7 @@ or
     def create_and_set_icns(mask, target=None, add_to_cache=False, is_from_cache=False):
 
         temp_folder = tempfile.mkdtemp()
+        print(temp_folder)
 
         if target:
             iconset_folder = os.path.join(temp_folder, "iconset.iconset")
@@ -279,12 +403,29 @@ or
         inputs = {
             # TODO: adjust this
             "BigSur": [
-                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-                ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
-
-                ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-                ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-                ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+                # Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
+                ["16x16",      16, (12, 6, 1), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32@2x",   64, (48, 24, 4), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (96, 48, 6), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256",    256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
+                ["512x512",    512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (760, 380, 52), (0, 2), (2, 1, "0.75")]
+            ],
+            "Yosemite": [
+                ["16x16",      16, (12,   8,  1), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (26,  14,  2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (26,  14,  2), (0, 2), (2, 1, "0.35")],
+                ["32x32@2x",   64, (52,  26,  2), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (103,  53,  4), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (206, 106,  9), (0, 2), (2, 1, "0.6")],
+                ["256x256",    256, (206, 106,  9), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (412, 212, 18), (0, 2), (2, 1, "0.75")],
+                ["512x512",    512, (412, 212, 18), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (824, 424, 36), (0, 2), (2, 1, "0.75")]
             ],
             "Yosemite": [
                 ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
@@ -300,11 +441,11 @@ or
 
                 ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
                 ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
-                ["512x512",    412, 242, 36], ["512x512@2x", 824, 484, 72]
+                ["512x512", 412, 242, 36],    ["512x512@2x", 824, 484, 72]
             ]
         }
 
-        f = functools.partial(create_iconset, print_prefix,
+        f = functools.partial(create_iconset, folder_type, print_prefix,
                               mask, temp_folder, iconset_folder)
         processes = map(f, inputs[folder_type])
 
@@ -338,7 +479,7 @@ or
         ])
 
         # Clean up.
-        shutil.rmtree(temp_folder)
+        # shutil.rmtree(temp_folder)
 
         # Reveal target.
         if args.reveal:
