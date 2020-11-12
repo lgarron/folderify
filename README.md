@@ -13,7 +13,6 @@
     mkdir new_dir
     folderify octocat.png new_dir --reveal
 
-
 ## Cache your folderified icons.
 
     # Set the icon for the folder, and cache it.
@@ -33,7 +32,6 @@
 
 You are now safe(r) from programs that steamroll over metadata!
 
-
 # Use without `pip`
 
     git clone git://github.com/lgarron/folderify.git
@@ -47,15 +45,14 @@ The repository folder should now have a custom icon.
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
-
 ## Usage
 
-    usage: folderify [-h] [--reveal] [--osx VERSION] [--cache] [--cache-dir DIR]
-                     [--cache-list] [--cache-restore PATH] [--cache-restore-all]
-                     [--cache-remove PATH] [--verbose]
-                     [mask] [target]
+    usage: __main__.py [-h] [--reveal] [--macOS VERSION] [--osx VERSION] [--cache]
+                       [--cache-dir DIR] [--cache-list] [--cache-restore PATH]
+                       [--cache-restore-all] [--cache-remove PATH] [--verbose]
+                       [mask] [target]
 
-    Generate a native macOS folder icon from a mask file.
+    Generate a native-style macOS folder icon from a mask file.
 
     positional arguments:
       mask                  Mask image file. For best results:
@@ -68,16 +65,16 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
     optional arguments:
       -h, --help            show this help message and exit
       --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
+      --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
       --osx VERSION, -x VERSION
-                            Version of the macOS folder icon, e.g. "10.9" or "10.10". Defaults to the version this computer is running (10.10).
+                            Synonym for the --macOS argument.
       --cache, -c           Cache the mask icon in the cache dir.
-      --cache-dir DIR       Use the specified cache directory (default: ~/.folderify/cache).
+      --cache-dir DIR       Use the specified cache directory (default: /Users/lgarron/.folderify/cache).
       --cache-list          List all paths with cached masks.
       --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
       --cache-restore-all   Restore all paths that have been cached.
       --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
       --verbose, -v         Detailed output.
-
 
 ### Dependencies
 
@@ -85,17 +82,14 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 - Python 2 - to help assign the icon file to itself.
 - Apple Developer Tools (for `iconutil`)
 
-
 ## Info
 
-`GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
+On Yosemite or earlier, `GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
 
     iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
 
 Icons are set using [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
 
-
-----------------------------------------------------------------
-
+---
 
 ![apple.gif](examples/png/apple.gif)

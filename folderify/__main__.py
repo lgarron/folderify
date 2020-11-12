@@ -20,10 +20,10 @@ OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 def main():
 
     DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
-    LOCAL_OSX_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
+    LOCAL_MACOS_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
 
     parser = argparse.ArgumentParser(
-        description="Generate a native OSX folder icon from a mask file.",
+        description="Generate a native-style macOS folder icon from a mask file.",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -56,12 +56,19 @@ Else, a .iconset folder and .icns file will be created in the same folder as mas
         help="Reveal the target (or resulting .icns file) in Finder.")
 
     parser.add_argument(
+        "--macOS",
+        type=str,
+        metavar="VERSION",
+        default=LOCAL_MACOS_VERSION,
+        help=("Version of the macOS folder icon, e.g. \"10.13\". \
+Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
+
+    parser.add_argument(
         "--osx", "-x",
         type=str,
         metavar="VERSION",
-        default=LOCAL_OSX_VERSION,
-        help=("Version of the OSX folder icon, e.g. \"10.13\". Pass in \"10.9\" to get the pre-Yosemite style. \
-Defaults to the version this computer is running (%s)." % LOCAL_OSX_VERSION))
+        help=("Synonym for the --macOS argument.")
+    )
 
     parser.add_argument(
         "--cache", "-c",
@@ -136,10 +143,13 @@ using the mask image in the cache for that path.")
 
     data_folder = os.path.dirname(sys.modules[__name__].__file__)
 
-    if args.osx in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
+    if args.osx:
+        args.macOS = args.osx
+
+    if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
         # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
         folder_type = "pre-Yosemite"
-    elif args.osx in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
+    elif args.macOS in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
         folder_type = "Yosemite"
     else:
         folder_type = "BigSur"
