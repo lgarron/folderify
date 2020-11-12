@@ -172,7 +172,10 @@ using the mask image in the cache for that path.")
     def create_iconset(print_prefix, mask, temp_folder, iconset_folder, params):
         global processes
 
-        name, icon_size, width, height, offset_center = params
+        name, icon_size, dims, b, w = params
+        width, height, offset_center = dims
+        black_blur, black_offset = b
+        white_blur, white_offset, white_opacity = w
 
         if args.verbose:
             print("[%s] %s" % (print_prefix, name))
@@ -213,81 +216,54 @@ or
         opacity_white = 100
 
         aligned = g(SIZED_MASK) #, "-gravity", "Center", "-geometry", ("+0+%d" % offset_center))
+
+        def colorize(step_name, fill, input):
+            return g(input, "-fill", fill, "-colorize", "100, 100, 100")
         
-        def colorize(step_name, fill, input_path):
-            output_path = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
-            subprocess.Popen(p(convert_path,
-                input_path,
-                "-fill", fill, "-colorize", "100, 100, 100",
-                output_path)).wait()
-            return output_path
+        def opacity(step_name, fraction, input):
+            return g(input, "-channel", "Alpha", "-evaluate", "multiply", fraction)
         
-        def opacity(step_name, fraction, input_path):
-            output_path = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
-            subprocess.Popen(p(convert_path,
-                input_path,
-                "-channel", "Alpha", "-evaluate", "multiply", fraction,
-                output_path)).wait()
-            return output_path
+        def blur_down(step_name, blur_px, offset_px, input):
+            return g(input, "-motion-blur", ("0x%d-90" % blur_px),
+                            "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten")
+
+        def mask_down(step_name, mask_operation, input, mask):
+            return g(input, mask, "-alpha", "Set", "-compose", mask_operation, "-composite")
         
-        def blur_down(step_name, blur_px, offset_px, input_path):
-            output_path = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
-            subprocess.Popen(p(convert_path,
-                input_path,
-                "-motion-blur", ("0x%d-90" % blur_px),
-                "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten",
-                output_path)).wait()
-            return output_path
-        
-        def mask_down(step_name, mask_operation, input_path, mask_path):
-            output_path = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
-            subprocess.Popen(p(convert_path,
-                input_path,
-                mask_path,
-                "-alpha", "Set", "-compose", mask_operation, "-composite",
-                output_path)).wait()
-            return output_path
-        
-        def negate(step_name, input_path):
-            output_path = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
-            subprocess.Popen(p(convert_path,
-                input_path,
-                "-negate",
-                output_path)).wait()
-            return output_path
+        def negate(step_name, input):
+            return g(input, "-negate")
 
         FILL_COLORIZED = colorize("1.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
         FILL = opacity("1.2_FILL", "0.5", FILL_COLORIZED)
 
-        WHITE_TOP_COLORIZED = colorize("2.1_WHITE_TOP_COLORIZED", "rgb(90, 170, 230)", SIZED_MASK)
-        WHITE_TOP_BLURRED = blur_down("2.2_WHITE_TOP_BLURRED", 0, 1, WHITE_TOP_COLORIZED)
-        WHITE_TOP_MASKED = mask_down("2.3_WHITE_TOP_MASKED", "Dst_Out", WHITE_TOP_BLURRED, SIZED_MASK)
-        WHITE_TOP_SHADOW = opacity("2.4_WHITE_TOP_SHADOW", "0.5", WHITE_TOP_MASKED)
+        BLACK_NEGATED = negate("2.1_BLACK_NEGATED", SIZED_MASK)
+        BLACK_COLORIZED = colorize("2.2_BLACK_COLORIZED", "rgb(58, 152, 208)", BLACK_NEGATED)
+        BLACK_BLURRED = blur_down("2.3_BLACK_BLURRED", black_blur, black_offset, BLACK_COLORIZED)
+        BLACK_MASKED = mask_down("2.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
+        BLACK_SHADOW = opacity("2.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
 
-        WHITE_BOTTOM_COLORIZED = colorize("3.1_WHITE_BOTTOM_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
-        WHITE_BOTTOM_BLURRED = blur_down("3.2_WHITE_BOTTOM_BLURRED", 2, 2, WHITE_BOTTOM_COLORIZED)
-        WHITE_BOTTOM_MASKED = mask_down("3.3_WHITE_BOTTOM_MASKED", "Dst_Out", WHITE_BOTTOM_BLURRED, SIZED_MASK)
-        WHITE_BOTTOM_SHADOW = opacity("3.4_WHITE_BOTTOM_SHADOW", "0.5", WHITE_BOTTOM_MASKED)
+        WHITE_COLORIZED = colorize("4.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
+        WHITE_BLURRED = blur_down("4.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
+        WHITE_MASKED = mask_down("4.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
+        WHITE_SHADOW = opacity("4.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
 
-        BLACK_NEGATED = negate("4.1_BLACK_NEGATED", SIZED_MASK)
-        BLACK_COLORIZED = colorize("4.2_BLACK_COLORIZED", "rgb(58, 152, 208)", BLACK_NEGATED)
-        BLACK_BLURRED = blur_down("4.3_BLACK_BLURRED", 2, 2, BLACK_COLORIZED)
-        BLACK_MASKED = mask_down("4.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
-        BLACK_SHADOW = opacity("4.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
-
-        return subprocess.Popen(p(
-            convert_path,
+        COMPOSITE = g(
             template_icon,
             FILL,
-            "-composite",
-            WHITE_TOP_SHADOW,
-            "-composite",
-            WHITE_BOTTOM_SHADOW,
-            "-composite",
+            "-compose", "dissolve", "-composite",
             BLACK_SHADOW,
-            "-composite",
+            "-compose", "dissolve", "-composite",
+            WHITE_SHADOW,
+            "-compose", "dissolve", "-composite"
+        )
+
+        command = p(
+            convert_path,
+            COMPOSITE, # can be replaced with an intermediate step for debugging.
             FILE_OUT
-        ))
+        )
+
+        return subprocess.Popen(command)
 
     ################################################################
 
@@ -332,13 +308,17 @@ or
         inputs = {
             # TODO: adjust this
             "BigSur": [
-                ["16x16", 1, 12, 8, 1],
-                ["16x16@2x", 32,    26,  14,  2], ["32x32", 3, 26, 14, 2],
-                ["32x32@2x", 64,    52,  26,  2],
-                ["128x128", 128, 103, 53, 4],
-                ["128x128@2x", 256, 206, 106,  9], ["256x256", 256, 206, 106, 9],
-                ["256x256@2x", 512, 412, 212, 18], ["512x512", 512, 412, 212, 18],
-                ["512x512@2x", 1024, 760, 380, 52]
+                # Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
+                ["16x16",      16, (12, 6, 1), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32@2x",   64, (48, 24, 4), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (96, 48, 6), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256",    256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
+                ["512x512",    512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (760, 380, 52), (0, 2), (2, 1, "0.75")]
             ],
             # "Yosemite": [
             #     ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
