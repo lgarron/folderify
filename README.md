@@ -64,7 +64,7 @@ open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
-## Full Options
+# Full Options
 
 ```shell
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION] [--cache]
@@ -98,15 +98,15 @@ optional arguments:
     --verbose, -v         Detailed output.
 ```
 
-### Dependencies
+# Dependencies
 
 - Python (version 2 or 3).
 - [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
 - Apple Developer Tools (for `iconutil`).
 
-## Info
+# Info
 
-On Yosemite or earlier, `GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
+On macOS 10.15 (Catalina) or earlier, `GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
 
 ```shell
 iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
