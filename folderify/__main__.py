@@ -46,8 +46,8 @@ def main():
         nargs="?",
         type=str,
         help="Target file or folder. \
-If a target is specified, the resulting icon will be applied to the target file/folder. \
-Else, a .iconset folder and .icns file will be created in the same folder as mask \
+If a target is specified, the resulting icon will be applied to the target file/folder.\n\
+Else, a .iconset folder and .icns file will be created in the same folder as the mask \
 (you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
 
     parser.add_argument(
