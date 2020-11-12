@@ -399,18 +399,27 @@ or
             print("[%s] Storing in cache => [%s]" %
                   (print_prefix, mask_cache_path))
 
+        # The following can be excluded, since they are essentially
+        # indistinguishable from the preceding @2x resolution:
+        #
+        # - 32x32
+        # - 256x256
+        # - 512x512
+        #
+        # This saves about 20%. However, it breaks Quicklook preview for the
+        # `.iconset`, and it's possible that some programs assume all sizes are present.
+        #
+        # Data: Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
         inputs = {
-            # TODO: adjust this
             "BigSur": [
-                # Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
                 ["16x16",      16, (12, 6, 1), (0, 2), (2, 0, "0.5")],
                 ["16x16@2x",   32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
-                ["32x32",      32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
                 ["32x32@2x",   64, (48, 24, 4), (0, 2), (2, 1, "0.6")],
                 ["128x128",    128, (96, 48, 6), (0, 2), (2, 1, "0.6")],
-                ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
                 ["256x256",    256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
-                ["256x256@2x", 512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
+                ["256x256@2x", 512, (380, 190, 26), (0, 2), (2, 1, "0.75")], # Can be excluded
                 ["512x512",    512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
                 ["512x512@2x", 1024, (760, 380, 52), (0, 2), (2, 1, "0.75")]
             ],
