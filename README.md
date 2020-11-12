@@ -5,37 +5,64 @@
 Generate pixel-perfect macOS folder icons. Works for macOS 10.5 (Leopard)
 through 10.11 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
 
-# Install [from PyPI](https://pypi.python.org/pypi/folderify/) using `pip`
+# Install using [Homebrew](https://formulae.brew.sh/formula/folderify):
 
-    brew install imagemagick # Make sure ImageMagick installed.
-    pip install folderify
+```shell
+brew install folderify
+```
+
+# Usage
+
+Use a mask to assign an icon to a folder:
+
+```shell
+folderify mask.png /path/to/folder
+```
+
+Generate `mask.icns` and `mask.iconset` files:
+
+```shell
+folderify mask.png
+```
+
+Target a specific version of macOS (the default is your current version):
+
+    folderify mask.png --macOS 11.0
 
 ## Simple Usage
 
-    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
-    mkdir new_dir
-    folderify octocat.png new_dir --reveal
+    curl https://raw.githubusercontent.com/lgarron/folderify/main/examples/src/octocat.png -o octocat.png
+    mkdir new_folder
+    folderify octocat.png new_folder --reveal
+
+The folder should now have a custom icon.
 
 ## Cache your folderified icons.
 
     # Set the icon for the folder, and cache it.
-    curl https://raw.githubusercontent.com/lgarron/folderify/master/examples/src/octocat.png -o octocat.png
-    mkdir new_dir
-    folderify --cache octocat.png new_dir
+    curl https://raw.githubusercontent.com/lgarron/folderify/main/examples/src/octocat.png -o octocat.png
+    mkdir new_folder
+    folderify --cache octocat.png new_folder
 
     # Remove the source image and the folder.
-    rm octocat.png && rm -rf new_dir
+    rm octocat.png && rm -rf new_folder
 
     # Recreate the directory and add the icon from the cache.
-    mkdir new_dir
-    folderify --cache-restore new_dir
+    mkdir new_folder
+    folderify --cache-restore new_folder
 
     # View cache contents.
     folderify --cache-list
 
 You are now safe(r) from programs that steamroll over metadata!
 
-# Use without `pip`
+# Other installation options
+
+With `pip`:
+
+    pip install folderify
+
+If you have ImageMagick on your computer, you can also install with `pip install folderify`.
 
     git clone git://github.com/lgarron/folderify.git
     cd folderify
