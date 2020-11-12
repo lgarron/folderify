@@ -13,24 +13,9 @@ import tempfile
 
 from string import Template
 
-
 ################################################################
 
-
-# There are clever ways to do recursive flattening, but this works just fine.
-def p(*args):
-    group = []
-    for arg in args:
-        if isinstance(arg, list):
-            for entry in arg:
-                group.append(entry)
-        else:
-            group.append(arg)
-    return group
-
-# There are clever ways to do recursive flattening, but this works just fine.
-def g(*args):
-    return ["("] + p(*args) + [")"]
+OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 
 def main():
 
@@ -169,7 +154,25 @@ using the mask image in the cache for that path.")
 
     ################################################################
 
-    def create_iconset(print_prefix, mask, temp_folder, iconset_folder, params):
+    # There are clever ways to do recursive flattening, but this works just fine.
+    def p(*args):
+        group = []
+        for arg in args:
+            if isinstance(arg, list):
+                for entry in arg:
+                    group.append(entry)
+            else:
+                group.append(arg)
+        return group
+
+    # There are clever ways to do recursive flattening, but this works just fine.
+    def g(*args):
+        return ["("] + p(*args) + [")"]
+
+    def create_iconset(folder_type, print_prefix, mask, temp_folder, iconset_folder, params):
+        if folder_type in OLD_IMPLEMENTATION_FOLDER_TYPES:
+            return create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params)
+
         global processes
 
         name, icon_size, dims, b, w = params
@@ -265,6 +268,88 @@ or
 
         return subprocess.Popen(command)
 
+    # Messy implementation for from Yosemite
+    # TODO: Unify this with the new implementation?
+    def create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params):
+        global processes
+
+        name, width, height, offset_center = params
+
+        if args.verbose:
+            print("[%s] %s" % (print_prefix, name))
+
+        TEMP_MASK_IMAGE = os.path.join(temp_folder, "trimmed_%s.png" % name)
+        try:
+            subprocess.check_call([
+                convert_path,
+                mask,
+                "-trim",
+                "-resize",
+                ("%dx%d" % (width, height)),
+                "-bordercolor", "none",
+                "-border", str(10),
+                TEMP_MASK_IMAGE
+            ])
+        except OSError as e:
+            print("""ImageMagick command failed.
+Make sure you have ImageMagick installed, for example:
+  brew install imagemagick
+or
+  sudo port install ImageMagick
+""")
+            sys.exit(1)
+
+        FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
+        template_icon = os.path.join(template_folder, "icon_%s.png" % name)
+
+        main_opacity = 15
+        offset_white = 1
+        opacity_white = 100
+
+        # Here comes the magic.
+        # TODO: rewrite in Python.
+        command = [
+            convert_path, template_icon, "(",
+            "(", TEMP_MASK_IMAGE, "-colorize", "3,23,40", ")",
+            "(",
+            "(",
+            "(",
+            TEMP_MASK_IMAGE,
+            "(",
+            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-shadow", "100x1+10+0", "-geometry", "-2-2",
+            ")",
+            "-compose", "dst-out", "-composite", "+repage",
+            ")",
+            "(",
+            TEMP_MASK_IMAGE,
+            "(",
+            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-geometry", "+0-1",
+            ")",
+            "-compose", "dst-out", "-composite", "+repage", "-channel", "rgb", "-negate", "+channel", "-geometry", (
+                "+0+%d" % offset_white),
+            ")",
+            "-compose", "dissolve", "-define", ("compose:args=%dx50" %
+                                                opacity_white), "-composite", "+repage",
+            ")",
+            "(",
+            TEMP_MASK_IMAGE,
+            "(",
+            TEMP_MASK_IMAGE, "-channel", "rgb", "-negate", "+channel", "-geometry", "+0+1",
+            ")",
+            "-compose", "dst-out", "-composite", "+repage",
+            ")",
+            "-compose", "dissolve", "-define", "compose:args=50x80", "-composite",
+            ")",
+            "-compose", "dissolve", "-define", ("compose:args=60x%d" %
+                                                main_opacity), "-composite", "+repage",
+            "-gravity", "Center", "-geometry", ("+0+%d" % offset_center),
+            "+repage",
+            ")",
+            "-compose", "over", "-composite", FILE_OUT
+        ]
+
+        return subprocess.Popen(command)
+
     ################################################################
 
     def create_and_set_icns(mask, target=None, add_to_cache=False, is_from_cache=False):
@@ -320,25 +405,37 @@ or
                 ["512x512",    512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
                 ["512x512@2x", 1024, (760, 380, 52), (0, 2), (2, 1, "0.75")]
             ],
-            # "Yosemite": [
-            #     ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-            #     ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+            "Yosemite": [
+                ["16x16",      16, (12,   8,  1), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (26,  14,  2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (26,  14,  2), (0, 2), (2, 1, "0.35")],
+                ["32x32@2x",   64, (52,  26,  2), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (103,  53,  4), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (206, 106,  9), (0, 2), (2, 1, "0.6")],
+                ["256x256",    256, (206, 106,  9), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (412, 212, 18), (0, 2), (2, 1, "0.75")],
+                ["512x512",    512, (412, 212, 18), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (824, 424, 36), (0, 2), (2, 1, "0.75")]
+            ],
+            "Yosemite": [
+                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+                ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
 
-            #     ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-            #     ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-            #     ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
-            # ],
-            # "pre-Yosemite": [
-            #     ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-            #     ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
+                ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
+                ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
+                ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+            ],
+            "pre-Yosemite": [
+                ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+                ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
 
-            #     ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
-            #     ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
-            #     ["512x512",    412, 242, 36], ["512x512@2x", 824, 484, 72]
-            # ]
+                ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
+                ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
+                ["512x512", 412, 242, 36],    ["512x512@2x", 824, 484, 72]
+            ]
         }
 
-        f = functools.partial(create_iconset, print_prefix,
+        f = functools.partial(create_iconset, folder_type, print_prefix,
                               mask, temp_folder, iconset_folder)
         processes = map(f, inputs[folder_type])
 
