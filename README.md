@@ -7,7 +7,7 @@ through 10.11 (Big Sur) and automatically includes all icon sizes from `16x16` t
 
 # Install using [Homebrew](https://formulae.brew.sh/formula/folderify):
 
-```shell
+```console
 brew install folderify
 ```
 
@@ -15,19 +15,21 @@ brew install folderify
 
 Use a mask to assign an icon to a folder:
 
-```shell
+```console
 folderify mask.png /path/to/folder
 ```
 
 Generate `mask.icns` and `mask.iconset` files:
 
-```shell
+```console
 folderify mask.png
 ```
 
 Target a specific version of macOS (the default is your current version):
 
-    folderify mask.png --macOS 11.0
+```console
+folderify mask.png --macOS 11.0
+```
 
 ## Simple Usage
 
