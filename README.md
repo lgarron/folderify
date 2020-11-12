@@ -37,6 +37,19 @@ version):
 folderify --macOS 11.0 mask.png
 ```
 
+## Tips
+
+For best results:
+
+- Use a `.png` mask.
+- Use a solid black design over a transparent background.
+- Make sure the corner pixels of the mask image are transparent. They are used for empty margins.
+- Pass the `--no-trim` flag and use a mask:
+  - with a height of 384px,
+  - with a width that is a multiple of 128px (up to 768px),
+  - using a 16px grid.
+  - Each 64x64 tile will exactly align with 1 pixel at the smallest icon size.
+
 # Other installation options
 
 If you don't have Homebrew but you already have ImageMagick (the `convert`
@@ -79,33 +92,36 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 # Full options
 
 ```shell
-usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION] [--cache]
-                    [--cache-dir DIR] [--cache-list] [--cache-restore PATH]
-                    [--cache-restore-all] [--cache-remove PATH] [--verbose]
-                    [mask] [target]
+usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION]
+                 [--no-trim] [--cache] [--cache-dir DIR] [--cache-list]
+                 [--cache-restore PATH] [--cache-restore-all]
+                 [--cache-remove PATH] [--verbose]
+                 [mask] [target]
 
 Generate a native-style macOS folder icon from a mask file.
 
 positional arguments:
-    mask                  Mask image file. For best results:
+  mask                  Mask image file. For best results:
                         - Use a .png mask.
                         - Use a solid black design over a transparent background.
                         - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.
-                        - Make sure the icon is at least around 1024x1024, in order to look good at maximum Retina resolution.
-    target                Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder.
-                          Else, a .iconset folder and .icns file will be created in the same folder as themask (you can use "Get Info" in Finder to copy the icon from the .icns file).
+                        - Make sure the non-transparent pixels span a height of 384px, using a 16px grid.
+                          If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
+  target                Target file or folder. If a target is specified, the resulting icon will be applied to the target file/folder.
+                        Else, a .iconset folder and .icns file will be created in the same folder as the mask (you can use "Get Info" in Finder to copy the icon from the .icns file).
 
 optional arguments:
-    -h, --help            show this help message and exit
-    --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
-    --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
-    --osx VERSION, -x VERSION
-                          Synonym for the --macOS argument.
-    --cache, -c           Cache the mask icon in the cache dir.
-    --cache-dir DIR       Use the specified cache directory (default: /Users/lgarron/.folderify/cache).
-    --cache-list          List all paths with cached masks.
-    --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
-    --cache-restore-all   Restore all paths that have been cached.
-    --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
-    --verbose, -v         Detailed output.
+  -h, --help            show this help message and exit
+  --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
+  --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
+  --osx VERSION, -x VERSION
+                        Synonym for the --macOS argument.
+  --no-trim             Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.
+  --cache, -c           Cache the mask icon in the cache dir.
+  --cache-dir DIR       Use the specified cache directory (default: /Users/lgarron/.folderify/cache).
+  --cache-list          List all paths with cached masks.
+  --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
+  --cache-restore-all   Restore all paths that have been cached.
+  --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
+  --verbose, -v         Detailed output.
 ```

@@ -38,7 +38,8 @@ def main():
 - Use a .png mask.\n\
 - Use a solid black design over a transparent background.\n\
 - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.\n\
-- Make sure the icon is at least around 1024x1024, in order to look good at maximum Retina resolution.")
+- Make sure the non-transparent pixels span a height of 384px, using a 16px grid.\n\
+  If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.")
 
     parser.add_argument(
         "target",
@@ -68,6 +69,12 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
         type=str,
         metavar="VERSION",
         help=("Synonym for the --macOS argument.")
+    )
+
+    parser.add_argument(
+        "--no-trim",
+        action="store_true",
+        help=("Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.")
     )
 
     parser.add_argument(
@@ -197,16 +204,13 @@ using the mask image in the cache for that path.")
         try:
             subprocess.check_call(p(
                 convert_path,
-                "-background",
-                "transparent",
+                "-background", "transparent",
                 g(mask,
-                    "-trim",
-                    "-resize",
-                    ("%dx%d" % (width, height)),
+                    [] if args.no_trim else "-trim",
+                    "-resize", ("%dx%d" % (width, height)),
                     "-gravity", "Center",
                 ),
-                "-extent",
-                ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
+                "-extent", ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
                 SIZED_MASK
             ))
         except OSError as e:
@@ -223,12 +227,6 @@ or
 
         FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
         template_icon = os.path.join(template_folder, "icon_%s.png" % name)
-
-        main_opacity = 15
-        offset_white = 2
-        opacity_white = 100
-
-        aligned = g(SIZED_MASK) #, "-gravity", "Center", "-geometry", ("+0+%d" % offset_center))
 
         def colorize(step_name, fill, input):
             return g(input, "-fill", fill, "-colorize", "100, 100, 100")
@@ -419,9 +417,9 @@ or
                 ["128x128",    128, (96, 48, 6), (0, 2), (2, 1, "0.6")],
                 ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
                 ["256x256",    256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
-                ["256x256@2x", 512, (380, 190, 26), (0, 2), (2, 1, "0.75")], # Can be excluded
-                ["512x512",    512, (380, 190, 26), (0, 2), (2, 1, "0.75")],
-                ["512x512@2x", 1024, (760, 380, 52), (0, 2), (2, 1, "0.75")]
+                ["256x256@2x", 512, (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
+                ["512x512",    512, (384, 192, 24), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (768, 384, 48), (0, 2), (2, 1, "0.75")]
             ],
             "Yosemite": [
                 ["16x16",      16, (12,   8,  1), (0, 2), (2, 0, "0.5")],
