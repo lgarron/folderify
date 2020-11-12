@@ -31,7 +31,7 @@ Generate icon files for a specific version of macOS (the default is your current
 version):
 
 ```shell
-folderify mask.png --macOS 11.0
+folderify --macOS 11.0 mask.png
 ```
 
 # Other installation options
