@@ -2,7 +2,7 @@
 
 ![mask.png + folder = folderified!](examples/png/explanation.png)
 
-Generate pixel-perfect macOS folder icons.
+Generate pixel-perfect macOS folder icons in the native style.
 
 Works for macOS 10.5 (Leopard)
 through 10.11 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
