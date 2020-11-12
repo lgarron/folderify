@@ -365,7 +365,6 @@ or
     def create_and_set_icns(mask, target=None, add_to_cache=False, is_from_cache=False):
 
         temp_folder = tempfile.mkdtemp()
-        print(temp_folder)
 
         if target:
             iconset_folder = os.path.join(temp_folder, "iconset.iconset")
@@ -479,7 +478,7 @@ or
         ])
 
         # Clean up.
-        # shutil.rmtree(temp_folder)
+        shutil.rmtree(temp_folder)
 
         # Reveal target.
         if args.reveal:
