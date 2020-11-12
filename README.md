@@ -7,6 +7,9 @@ Generate pixel-perfect macOS folder icons in the native style.
 Works for macOS 10.5 (Leopard)
 through 10.11 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
 
+Example generated from the Apple logo:
+![Icons from apple.iconset at resolutions from 16x16  up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
+
 # Install using [Homebrew](https://formulae.brew.sh/formula/folderify)
 
 ```shell
@@ -64,6 +67,15 @@ open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
+## Dependencies
+
+- [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
+- Included with macOS:
+  - Python (version 2 or 3).
+  - `iconutil`
+- Bundled with `folderify`:
+  - [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
+
 # Full options
 
 ```shell
@@ -97,23 +109,3 @@ optional arguments:
     --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
     --verbose, -v         Detailed output.
 ```
-
-# Dependencies
-
-- Python (version 2 or 3).
-- [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
-- Apple Developer Tools (for `iconutil`).
-
-# Info
-
-On macOS 10.15 (Catalina) or earlier, `GenericFolderIcon.iconset` is generated from the macOS default folder icon using:
-
-```shell
-iconutil --convert iconset --output GenericFolderIcon.iconset "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns"
-```
-
-Icons are set using [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
-
----
-
-![apple.gif](examples/png/apple.gif)
