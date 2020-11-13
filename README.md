@@ -122,7 +122,6 @@ optional arguments:
   --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
   --verbose, -v         Detailed output.
 ```
-`.
 
 --------
 
