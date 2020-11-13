@@ -5,10 +5,7 @@
 Generate pixel-perfect macOS folder icons in the native style.
 
 Works for macOS 10.5 (Leopard)
-through 11.0 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
-
-Example generated from the Apple logo:
-![Icons from apple.iconset at resolutions from 16x16  up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
+through 11.0 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x
 
 # Install using [Homebrew](https://formulae.brew.sh/formula/folderify)
 
@@ -125,3 +122,9 @@ optional arguments:
   --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
   --verbose, -v         Detailed output.
 ```
+`.
+
+--------
+
+Example generated from the Apple logo:
+![Icons from apple.iconset at resolutions from 16x16  up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
