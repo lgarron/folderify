@@ -197,19 +197,19 @@ or
         def negate(step_name, input):
             return process(step_name, g(input, "-negate"))
 
-        FILL_COLORIZED = colorize("1.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
-        FILL = opacity("1.2_FILL", "0.5", FILL_COLORIZED)
+        FILL_COLORIZED = colorize("2.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
+        FILL = opacity("2.2_FILL", "0.5", FILL_COLORIZED)
 
-        BLACK_NEGATED = negate("2.1_BLACK_NEGATED", SIZED_MASK)
-        BLACK_COLORIZED = colorize("2.2_BLACK_COLORIZED", "rgb(58, 152, 208)", BLACK_NEGATED)
-        BLACK_BLURRED = blur_down("2.3_BLACK_BLURRED", black_blur, black_offset, BLACK_COLORIZED)
-        BLACK_MASKED = mask_down("2.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
-        BLACK_SHADOW = opacity("2.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
+        BLACK_NEGATED = negate("3.1_BLACK_NEGATED", SIZED_MASK)
+        BLACK_COLORIZED = colorize("3.2_BLACK_COLORIZED", "rgb(58, 152, 208)", BLACK_NEGATED)
+        BLACK_BLURRED = blur_down("3.3_BLACK_BLURRED", black_blur, black_offset, BLACK_COLORIZED)
+        BLACK_MASKED = mask_down("3.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
+        BLACK_SHADOW = opacity("3.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
 
-        WHITE_COLORIZED = colorize("3.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
-        WHITE_BLURRED = blur_down("3.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
-        WHITE_MASKED = mask_down("3.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
-        WHITE_SHADOW = opacity("3.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
+        WHITE_COLORIZED = colorize("4.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
+        WHITE_BLURRED = blur_down("4.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
+        WHITE_MASKED = mask_down("4.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
+        WHITE_SHADOW = opacity("4.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
 
         COMPOSITE = g(
             template_icon,
