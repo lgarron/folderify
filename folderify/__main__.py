@@ -19,7 +19,6 @@ OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 
 def main():
 
-    DEFAULT_CACHE_DIR = os.path.expanduser("~/.folderify/cache")
     LOCAL_MACOS_VERSION = ".".join(platform.mac_ver()[0].split(".")[:2])
 
     parser = argparse.ArgumentParser(
@@ -78,73 +77,19 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     )
 
     parser.add_argument(
-        "--cache", "-c",
-        action="store_true",
-        help="Cache the mask icon in the cache dir.")
-
-    parser.add_argument(
-        "--cache-dir",
-        type=str,
-        metavar="DIR",
-        default=DEFAULT_CACHE_DIR,
-        help="Use the specified cache directory (default: %s)." % DEFAULT_CACHE_DIR)
-
-    exclusive.add_argument(
-        "--cache-list",
-        action="store_true",
-        help="List all paths with cached masks.")
-
-    exclusive.add_argument(
-        "--cache-restore",
-        metavar="PATH",
-        type=str,
-        help="Restore folderified icon to the file/folder at PATH, \
-using the mask image in the cache for that path.")
-
-    exclusive.add_argument(
-        "--cache-restore-all",
-        action="store_true",
-        help="Restore all paths that have been cached.")
-
-    exclusive.add_argument(
-        "--cache-remove",
-        metavar="PATH",
-        type=str,
-        help="Remove the cached mask for the file/folder at PATH.")
-
-    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Detailed output.")
 
     ################################################################
 
-    def cache_path_for_target(target):
-        return args.cache_dir + os.path.abspath(target) + ".mask"
-
-    ################################################################
-
     args = parser.parse_args()
-
-    if args.cache and not (args.mask and args.target):
-        parser.error("Must specify mask and target in order to use --cache.")
 
     if args.mask and not os.path.exists(args.mask):
         parser.error("Mask file does not exist: %s" % args.mask)
 
     if args.target and not os.path.exists(args.target):
         parser.error("Target file/folder does not exist: %s" % args.target)
-
-    if args.cache_restore and not os.path.exists(args.cache_restore):
-        parser.error(
-            "File/folder does not exist (so the icon cannot be restored): %s" % args.cache_restore)
-    if args.cache_restore and not os.path.exists(cache_path_for_target(args.cache_restore)):
-        parser.error(
-            "File/folder is not in cache (so the icon cannot be restored): %s" % args.cache_restore)
-
-    if args.cache_remove and not os.path.exists(cache_path_for_target(args.cache_remove)):
-        parser.error(
-            "File/folder is not in cache (and cannot be removed): %s" % args.cache_remove)
 
     ################################################################
 
@@ -166,8 +111,6 @@ using the mask image in the cache for that path.")
     convert_path = "convert"
     iconutil_path = "iconutil"
     seticon_path = os.path.join(data_folder, "lib", "seticon")
-
-    cached_mask_suffix = ".mask"
 
     ################################################################
 
@@ -360,7 +303,7 @@ or
 
     ################################################################
 
-    def create_and_set_icns(mask, target=None, add_to_cache=False, is_from_cache=False):
+    def create_and_set_icns(mask, target=None):
 
         temp_folder = tempfile.mkdtemp()
 
@@ -371,10 +314,6 @@ or
             os.mkdir(iconset_folder)
 
             print_prefix = target
-            if is_from_cache:
-                print("[%s] Restoring from cache." % (print_prefix))
-            else:
-                print("[%s] <= [%s]" % (print_prefix, mask))
         else:
             root, _ = os.path.splitext(mask)
             iconset_folder = root + ".iconset"
@@ -387,15 +326,6 @@ or
             print_prefix = mask
             print("[%s] => [%s]" % (print_prefix, iconset_folder))
             print("[%s] => [%s]" % (print_prefix, icns_file))
-
-        if (add_to_cache):
-            mask_cache_path = cache_path_for_target(target)
-            mask_cache_folder = os.path.dirname(mask_cache_path)
-            if not os.path.exists(mask_cache_folder):
-                os.makedirs(mask_cache_folder)
-            shutil.copyfile(mask, mask_cache_path)
-            print("[%s] Storing in cache => [%s]" %
-                  (print_prefix, mask_cache_path))
 
         # The following can be excluded, since they are essentially
         # indistinguishable from the preceding @2x resolution:
@@ -487,59 +417,14 @@ or
         if args.verbose:
             print("[%s] Done." % (print_prefix))
 
-    def target_for_cache_path(cache_path):
-        assert(cache_path.endswith(cached_mask_suffix))
-        intermediate = cache_path[:-len(cached_mask_suffix)]
-        return os.path.join("/", os.path.relpath(intermediate, args.cache_dir))
-
-    def restore_from_cache(target):
-        mask_cache_path = cache_path_for_target(target)
-        if args.verbose:
-            print("[%s] Mask path from cache: %s" % (target, mask_cache_path))
-        create_and_set_icns(
-            mask_cache_path,
-            target=target,
-            add_to_cache=False,
-            is_from_cache=True
-        )
-
-    def cached_targets():
-        for folder, _, files in os.walk(args.cache_dir):
-            for f in files:
-                if f.endswith(cached_mask_suffix):
-                    cache_path = os.path.join(folder, f)
-                    yield target_for_cache_path(cache_path)
-
     if args.mask:
-        if args.cache:
-            assert(args.target)
         create_and_set_icns(
             args.mask,
-            target=args.target,
-            add_to_cache=args.cache,
-            is_from_cache=False
+            target=args.target
         )
-
-    elif args.cache_restore:
-        restore_from_cache(args.cache_restore)
-
-    elif args.cache_remove:
-        os.remove(cache_path_for_target(args.cache_remove))
-
-    elif args.cache_restore_all:
-        for target in cached_targets():
-            if os.path.exists(target):
-                restore_from_cache(target)
-            else:
-                print("[%s] Target no longer exists. Skipping." % target)
-
-    elif args.cache_list:
-        for target in cached_targets():
-            print(target)
 
     else:
         parser.print_help()
-
 
 __main__ = main
 
