@@ -15,6 +15,7 @@ from string import Template
 
 ################################################################
 
+DEBUG = os.environ['FOLDERIFY_DEBUG'] == "1"
 OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 
 def main():
@@ -171,21 +172,30 @@ or
         FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
         template_icon = os.path.join(template_folder, "icon_%s.png" % name)
 
+        def process(step_name, args):
+            if DEBUG:
+                file_name = os.path.join(temp_folder, "%s_%s.png" % (name, step_name))
+                print(file_name)
+                subprocess.Popen(p(convert_path, args, file_name)).wait()
+                return file_name
+            else:
+                return args
+
+
         def colorize(step_name, fill, input):
-            return g(input, "-fill", fill, "-colorize", "100, 100, 100")
+            return process(step_name, g(input, "-fill", fill, "-colorize", "100, 100, 100"))
         
         def opacity(step_name, fraction, input):
-            return g(input, "-channel", "Alpha", "-evaluate", "multiply", fraction)
+            return process(step_name, g(input, "-channel", "Alpha", "-evaluate", "multiply", fraction))
         
         def blur_down(step_name, blur_px, offset_px, input):
-            return g(input, "-motion-blur", ("0x%d-90" % blur_px),
-                            "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten")
+            return process(step_name, g(input, "-motion-blur", ("0x%d-90" % blur_px), "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten"))
 
         def mask_down(step_name, mask_operation, input, mask):
-            return g(input, mask, "-alpha", "Set", "-compose", mask_operation, "-composite")
+            return process(step_name, g(input, mask, "-alpha", "Set", "-compose", mask_operation, "-composite"))
         
         def negate(step_name, input):
-            return g(input, "-negate")
+            return process(step_name, g(input, "-negate"))
 
         FILL_COLORIZED = colorize("1.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
         FILL = opacity("1.2_FILL", "0.5", FILL_COLORIZED)
@@ -305,7 +315,13 @@ or
 
     def create_and_set_icns(mask, target=None):
 
-        temp_folder = tempfile.mkdtemp()
+        if DEBUG:
+            temp_folder = "%s-folderify-debug" % mask
+            if not os.path.exists(temp_folder):
+                os.mkdir(temp_folder)
+            subprocess.Popen(["open", temp_folder]).wait()
+        else:
+            temp_folder = tempfile.mkdtemp()
 
         if target:
             iconset_folder = os.path.join(temp_folder, "iconset.iconset")
@@ -403,7 +419,8 @@ or
         ])
 
         # Clean up.
-        shutil.rmtree(temp_folder)
+        if not DEBUG:
+            shutil.rmtree(temp_folder)
 
         # Reveal target.
         if args.reveal:
