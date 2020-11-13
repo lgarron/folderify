@@ -196,10 +196,10 @@ or
         BLACK_MASKED = mask_down("2.4_BLACK_MASKED", "Dst_In", BLACK_BLURRED, SIZED_MASK)
         BLACK_SHADOW = opacity("2.5_BLACK_SHADOW", "0.5", BLACK_MASKED)
 
-        WHITE_COLORIZED = colorize("4.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
-        WHITE_BLURRED = blur_down("4.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
-        WHITE_MASKED = mask_down("4.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
-        WHITE_SHADOW = opacity("4.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
+        WHITE_COLORIZED = colorize("3.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
+        WHITE_BLURRED = blur_down("3.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
+        WHITE_MASKED = mask_down("3.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
+        WHITE_SHADOW = opacity("3.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
 
         COMPOSITE = g(
             template_icon,
