@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import functools
+import os
 import os.path
 import platform
 import shutil
@@ -15,7 +16,7 @@ from string import Template
 
 ################################################################
 
-DEBUG = os.environ['FOLDERIFY_DEBUG'] == "1"
+DEBUG = "FOLDERIFY_DEBUG" in os.environ and os.environ["FOLDERIFY_DEBUG"] == "1"
 OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
 
 def main():
