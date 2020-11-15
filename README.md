@@ -88,7 +88,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 # Full options
 
-```shell
+```
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION]
                  [--no-trim] [--verbose]
                  [mask] [target]
