@@ -223,11 +223,11 @@ or
 
         COMPOSITE = g(
             template_icon,
+            WHITE_SHADOW,
+            "-compose", "dissolve", "-composite",
             FILL,
             "-compose", "dissolve", "-composite",
             BLACK_SHADOW,
-            "-compose", "dissolve", "-composite",
-            WHITE_SHADOW,
             "-compose", "dissolve", "-composite"
         )
 
