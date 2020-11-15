@@ -181,17 +181,6 @@ or
 """)
             sys.exit(1)
 
-        # SIZED_MASK = os.path.join(temp_folder, "%s_1.1_SIZED_MASK.png" % name)
-        # subprocess.Popen(p(
-        #     convert_path,
-        #     FULL_MASK,
-        #     "-background", "transparent",
-        #     "-resize", ("%dx%d" % (width , height)),
-        #     "-gravity", "Center",
-        #     "-extent", ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
-        #     SIZED_MASK
-        # )).wait()
-
         FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
         template_icon = os.path.join(template_folder, "icon_%s.png" % name)
 
