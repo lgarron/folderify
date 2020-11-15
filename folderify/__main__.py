@@ -148,7 +148,6 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
         SIZED_MASK = os.path.join(temp_folder, "%s_1.0_SIZED_MASK.png" % name)
         try:
-            print()
             subprocess.check_call(p(
                 convert_path,
                 g(
