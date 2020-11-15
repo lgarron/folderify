@@ -136,7 +136,8 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
         global processes
 
-        name, icon_size, dims, b, w = params
+        name, icon_size, centering, dims, b, w = params
+        centering_width, centering_height = centering
         width, height, offset_center = dims
         black_blur, black_offset = b
         white_blur, white_offset, white_opacity = w
@@ -146,14 +147,24 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
         SIZED_MASK = os.path.join(temp_folder, "%s_1.0_SIZED_MASK.png" % name)
         try:
+            print()
             subprocess.check_call(p(
                 convert_path,
-                "-background", "transparent",
-                g(mask,
+                g(
+                    # We first center the image in the max size, to avoid pixel
+                    # rounding when the trimmed image is an odd width. (The extra
+                    # pixel would extend to the right, making the right margin
+                    # 1px slimmer. This is quite noticable on 16x16.)
+                    mask,
+                    "-background", "transparent",
                     [] if args.no_trim else "-trim",
-                    "-resize", ("%dx%d" % (width, height)),
+                    "-resize", ("%dx%d" % (centering_width, centering_height)),
                     "-gravity", "Center",
+                    "-extent", ("%dx%d" % (centering_width, centering_height))
                 ),
+                "-background", "transparent",
+                "-resize", ("%dx%d" % (width , height)),
+                "-gravity", "Center",
                 "-extent", ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
                 SIZED_MASK
             ))
@@ -169,6 +180,17 @@ or
 """)
             sys.exit(1)
 
+        # SIZED_MASK = os.path.join(temp_folder, "%s_1.1_SIZED_MASK.png" % name)
+        # subprocess.Popen(p(
+        #     convert_path,
+        #     FULL_MASK,
+        #     "-background", "transparent",
+        #     "-resize", ("%dx%d" % (width , height)),
+        #     "-gravity", "Center",
+        #     "-extent", ("%dx%d+0-%d" % (icon_size, icon_size, offset_center)),
+        #     SIZED_MASK
+        # )).wait()
+
         FILE_OUT = os.path.join(iconset_folder, "icon_%s.png" % name)
         template_icon = os.path.join(template_folder, "icon_%s.png" % name)
 
@@ -180,7 +202,6 @@ or
                 return file_name
             else:
                 return args
-
 
         def colorize(step_name, fill, input):
             return process(step_name, g(input, "-fill", fill, "-colorize", "100, 100, 100"))
@@ -356,16 +377,16 @@ or
         # Data: Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
         inputs = {
             "BigSur": [
-                ["16x16",      16, (12, 6, 2), (0, 2), (2, 0, "0.5")],
-                ["16x16@2x",   32, (24, 12, 2), (0, 2), (2, 1, "0.35")],
-                ["32x32",      32, (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
-                ["32x32@2x",   64, (48, 24, 3), (0, 2), (2, 1, "0.6")],
-                ["128x128",    128, (96, 48, 6), (0, 2), (2, 1, "0.6")],
-                ["128x128@2x", 256, (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
-                ["256x256",    256, (192, 96, 12), (0, 2), (2, 1, "0.6")],
-                ["256x256@2x", 512, (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
-                ["512x512",    512, (384, 192, 24), (0, 2), (2, 1, "0.75")],
-                ["512x512@2x", 1024, (768, 384, 48), (0, 2), (2, 1, "0.75")]
+                ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
+                ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
+                ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
+                ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
             ],
             "Yosemite": [
                 ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
