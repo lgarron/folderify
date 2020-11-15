@@ -90,9 +90,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ```shell
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION]
-                 [--no-trim] [--cache] [--cache-dir DIR] [--cache-list]
-                 [--cache-restore PATH] [--cache-restore-all]
-                 [--cache-remove PATH] [--verbose]
+                 [--no-trim] [--verbose]
                  [mask] [target]
 
 Generate a native-style macOS folder icon from a mask file.
@@ -114,16 +112,10 @@ optional arguments:
   --osx VERSION, -x VERSION
                         Synonym for the --macOS argument.
   --no-trim             Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.
-  --cache, -c           Cache the mask icon in the cache dir.
-  --cache-dir DIR       Use the specified cache directory (default: /Users/lgarron/.folderify/cache).
-  --cache-list          List all paths with cached masks.
-  --cache-restore PATH  Restore folderified icon to the file/folder at PATH, using the mask image in the cache for that path.
-  --cache-restore-all   Restore all paths that have been cached.
-  --cache-remove PATH   Remove the cached mask for the file/folder at PATH.
   --verbose, -v         Detailed output.
 ```
 
---------
+---
 
 Example generated from the Apple logo:
 ![Icons from apple.iconset at resolutions from 16x16  up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
