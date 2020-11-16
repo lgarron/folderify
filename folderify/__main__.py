@@ -340,6 +340,7 @@ or
             os.mkdir(iconset_folder)
 
             print_prefix = target
+            print("[%s] => assign to [%s]" % (mask, target))
         else:
             root, _ = os.path.splitext(mask)
             iconset_folder = root + ".iconset"

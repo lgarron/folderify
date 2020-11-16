@@ -16,11 +16,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install ImageMagick
         run: brew install imagemagick
-      - name: Generate icon files
-        run: python -m folderify ./examples/src/apple.png
-      - name: Check generated icon files.
-        run: .github/workflows/check-generated-files.sh
-      - name: Generate and assign folder icon
-        run: python -m folderify ./examples/src/apple.png .
-      - name: Check assigned icon.
-        run: .github/workflows/check-assigned-icon.sh
+      - name: make test
+        run: make test
