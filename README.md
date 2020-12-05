@@ -7,7 +7,7 @@ Generate pixel-perfect macOS folder icons in the native style.
 Works for macOS 10.5 (Leopard)
 through 11.0 (Big Sur) and automatically includes all icon sizes from `16x16` through `512x512@2x`.
 
-**Using `folderify`?** [Let me know](https://github.com/lgarron/folderify/issues/new) and I'd love to feature some real-world uses!
+**Using `folderify`?** [Let me know](https://twitter.com/lgarron) or [let me know](https://github.com/lgarron/folderify/issues/new) and I'd love to feature some real-world uses!
 
 # Install using [Homebrew](https://formulae.brew.sh/formula/folderify)
 
