@@ -163,13 +163,13 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   def g(*args):
     return ["("] + p(*args) + [")"]
 
-  def create_iconset(folder_style, print_prefix, mask, temp_folder, iconset_folder, params):
+  def create_iconset(folder_style, print_prefix, mask, temp_folder, iconset_folder, colors, dimensions):
     if folder_style in OLD_IMPLEMENTATION_FOLDER_STYLES:
-      return create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params)
+      return create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, dimensions)
 
     global processes
 
-    name, icon_size, centering, dims, b, w = params
+    name, icon_size, centering, dims, b, w = dimensions
     centering_width, centering_height = centering
     width, height, offset_center = dims
     black_blur, black_offset = b
@@ -239,7 +239,7 @@ or
     def negate(step_name, input):
       return process(step_name, g(input, "-negate"))
 
-    FILL_COLORIZED = colorize("2.1_FILL_COLORIZED", "rgb(8, 134, 206)", SIZED_MASK)
+    FILL_COLORIZED = colorize("2.1_FILL_COLORIZED", colors["fill"], SIZED_MASK)
     FILL = opacity("2.2_FILL", "0.5", FILL_COLORIZED)
 
     BLACK_NEGATED = negate("3.1_BLACK_NEGATED", SIZED_MASK)
@@ -398,51 +398,67 @@ or
     #
     # Data: Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
     inputs = {
-      "BigSur": [
-        ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
-        ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
-        ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
-        ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
-        ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
-        ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
-        ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
-        ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
-        ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
-        ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
-      ],
-      "BigSur.dark": [
-        ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
-        ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
-        ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
-        ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
-        ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
-        ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
-        ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
-        ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
-        ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
-        ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
-      ],
-      "Yosemite": [
-        ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-        ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
+      "BigSur": {
+        "colors": {
+          "fill": "rgb(8, 134, 206)"
+        },
+        "dimensions": [
+          ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
+          ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
+          ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
+          ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
+          ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
+          ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
+          ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
+          ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
+          ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
+          ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
+        ]
+      },
+      "BigSur.dark": {
+        "colors": {
+          "fill": "rgb(6, 111, 194)"
+        },
+        "dimensions": [
+          ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
+          ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
+          ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
+          ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
+          ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
+          ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
+          ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
+          ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
+          ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
+          ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
+        ]
+      },
+      "Yosemite": {
+        "colors": {},
+        "dimensions": [
+          ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+          ["32x32",       26,  14,  2], ["32x32@2x",    52,  26,  2],
 
-        ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
-        ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
-        ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
-      ],
-      "pre-Yosemite": [
-        ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
-        ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
+          ["128x128",    103,  53,  4], ["128x128@2x", 206, 106,  9],
+          ["256x256",    206, 106,  9], ["256x256@2x", 412, 212, 18],
+          ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
+        ]
+      },
+      "pre-Yosemite": {
+        "colors": {},
+        "dimensions": [
+          ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
+          ["32x32",       26,  14,  2], ["32x32@2x",    52,  30,  4],
 
-        ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
-        ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
-        ["512x512", 412, 242, 36],    ["512x512@2x", 824, 484, 72]
-      ]
+          ["128x128",    103,  60,  9], ["128x128@2x", 206, 121, 18],
+          ["256x256",    206, 121, 18], ["256x256@2x", 412, 242, 36],
+          ["512x512", 412, 242, 36], ["512x512@2x", 824, 484, 72]
+        ]
+      }
     }
 
     f = functools.partial(create_iconset, folder_style, print_prefix,
-                    mask, temp_folder, iconset_folder)
-    processes = map(f, inputs[folder_style])
+                    mask, temp_folder, iconset_folder, inputs[folder_style]["colors"])
+    processes = map(f, inputs[folder_style]["dimensions"])
 
     for process in processes:
       process.wait()
