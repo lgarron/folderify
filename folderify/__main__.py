@@ -482,7 +482,7 @@ or
 
     if args.verbose:
       print("[%s] Setting icon for target." % (print_prefix))
-    # Set icon  for target.
+    # Set icon for target.
     subprocess.check_call([
       seticon_path,
       icns_file,
