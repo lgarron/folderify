@@ -73,6 +73,14 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     )
 
     parser.add_argument(
+        "--color-scheme",
+        type=str,
+        metavar="VERSION",
+        default="auto",
+        help=("Color scheme: auto (match current system), light, dark.")
+    )
+
+    parser.add_argument(
         "--no-trim",
         action="store_true",
         help=("Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.")
@@ -100,13 +108,32 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     if args.osx:
         args.macOS = args.osx
 
+    effective_color_scheme = args.color_scheme
+    if effective_color_scheme == "auto":
+        try:
+            if subprocess.check_call(["defaults", "read", "-g", "AppleInterfaceStyle"]) == "Dark":
+                effective_color_scheme = "dark"
+        except:
+            sys.stderr.write("Could not automatically calculate color scheme. Defaulting to light.\n")
+            effective_color_scheme = "light"
+    if effective_color_scheme not in ["light", "dark"]:
+        sys.stderr.write("Invalid color scheme. Defaulting to light.\n")
+        effective_color_scheme = "light"
+
     if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
         # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
         folder_type = "pre-Yosemite"
+        if effective_color_scheme == "dark":
+            print("Dark mode is not currently implemented for pre-Yosemite. Defaulting to light.")
     elif args.macOS in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
         folder_type = "Yosemite"
+        if effective_color_scheme == "dark":
+            print("Dark mode is not currently implemented for Yosemite. Defaulting to light.")
     else:
         folder_type = "BigSur"
+        if effective_color_scheme == "dark":
+            folder_type = "BigSur.dark"
+
     template_folder = os.path.join(
         data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
 
@@ -367,6 +394,18 @@ or
         # Data: Name, icon size, dimensions, black shadow, white top shadow, white bottom shadow
         inputs = {
             "BigSur": [
+                ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
+                ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
+                ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
+                ["32x32@2x",   64, (768, 384), (48, 24, 3), (0, 2), (2, 1, "0.6")],
+                ["128x128",    128, (768, 384), (96, 48, 6), (0, 2), (2, 1, "0.6")],
+                ["128x128@2x", 256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")], # Can be excluded
+                ["256x256",    256, (768, 384), (192, 96, 12), (0, 2), (2, 1, "0.6")],
+                ["256x256@2x", 512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")], # Can be excluded
+                ["512x512",    512, (768, 384), (384, 192, 24), (0, 2), (2, 1, "0.75")],
+                ["512x512@2x", 1024, (768, 384), (768, 384, 48), (0, 2), (2, 1, "0.75")]
+            ],
+            "BigSur.dark": [
                 ["16x16",      16, (768, 384), (12, 6, 2), (0, 2), (2, 0, "0.5")],
                 ["16x16@2x",   32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")],
                 ["32x32",      32, (768, 384), (24, 12, 2), (0, 2), (2, 1, "0.35")], # Can be excluded
