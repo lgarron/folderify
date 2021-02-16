@@ -75,7 +75,7 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   parser.add_argument(
     "--color-scheme",
     type=str,
-    metavar="VERSION",
+    metavar="COLOR_SCHEME",
     default="auto",
     help=("Color scheme: auto (match current system), light, dark.")
   )
