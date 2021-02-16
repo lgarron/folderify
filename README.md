@@ -101,7 +101,8 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ```
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION]
-                 [--color-scheme VERSION] [--dark] [--no-trim] [--verbose] [mask] [target]
+                 [--color-scheme VERSION] [--no-trim] [--verbose]
+                 [mask] [target]
 Generate a native-style macOS folder icon from a mask file.
 
 positional arguments:
@@ -122,7 +123,6 @@ optional arguments:
                         Synonym for the --macOS argument.
   --color-scheme VERSION
                         Color scheme: auto (match current system), light, dark.
-  --dark                Synonym for `--color-scheme dark`.
   --no-trim             Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.
   --verbose, -v         Detailed output.
 ```
