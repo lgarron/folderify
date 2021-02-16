@@ -17,7 +17,7 @@ from string import Template
 ################################################################
 
 DEBUG = "FOLDERIFY_DEBUG" in os.environ and os.environ["FOLDERIFY_DEBUG"] == "1"
-OLD_IMPLEMENTATION_FOLDER_TYPES = ["Yosemite", "pre-Yosemite"]
+OLD_IMPLEMENTATION_FOLDER_STYLES = ["Yosemite", "pre-Yosemite"]
 
 def main():
 
@@ -111,8 +111,11 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     effective_color_scheme = args.color_scheme
     if effective_color_scheme == "auto":
         try:
-            if subprocess.check_call(["defaults", "read", "-g", "AppleInterfaceStyle"]) == "Dark":
+            apple_interface_style = subprocess.check_output(["defaults", "read", "-g", "AppleInterfaceStyle"])
+            if apple_interface_style.strip() == "Dark":
                 effective_color_scheme = "dark"
+            else:
+                effective_color_scheme = "light"
         except:
             sys.stderr.write("Could not automatically calculate color scheme. Defaulting to light.\n")
             effective_color_scheme = "light"
@@ -122,20 +125,22 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
     if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
         # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
-        folder_type = "pre-Yosemite"
+        folder_style = "pre-Yosemite"
         if effective_color_scheme == "dark":
             print("Dark mode is not currently implemented for pre-Yosemite. Defaulting to light.")
     elif args.macOS in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
-        folder_type = "Yosemite"
+        folder_style = "Yosemite"
         if effective_color_scheme == "dark":
             print("Dark mode is not currently implemented for Yosemite. Defaulting to light.")
     else:
-        folder_type = "BigSur"
+        folder_style = "BigSur"
         if effective_color_scheme == "dark":
-            folder_type = "BigSur.dark"
+            folder_style = "BigSur.dark"
+
+    print("Using folder style:", folder_style)
 
     template_folder = os.path.join(
-        data_folder, "GenericFolderIcon.%s.iconset" % folder_type)
+        data_folder, "GenericFolderIcon.%s.iconset" % folder_style)
 
     convert_path = "convert"
     iconutil_path = "iconutil"
@@ -158,8 +163,8 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     def g(*args):
         return ["("] + p(*args) + [")"]
 
-    def create_iconset(folder_type, print_prefix, mask, temp_folder, iconset_folder, params):
-        if folder_type in OLD_IMPLEMENTATION_FOLDER_TYPES:
+    def create_iconset(folder_style, print_prefix, mask, temp_folder, iconset_folder, params):
+        if folder_style in OLD_IMPLEMENTATION_FOLDER_STYLES:
             return create_iconset_old_implementation(print_prefix, mask, temp_folder, iconset_folder, params)
 
         global processes
@@ -435,9 +440,9 @@ or
             ]
         }
 
-        f = functools.partial(create_iconset, folder_type, print_prefix,
+        f = functools.partial(create_iconset, folder_style, print_prefix,
                               mask, temp_folder, iconset_folder)
-        processes = map(f, inputs[folder_type])
+        processes = map(f, inputs[folder_style])
 
         for process in processes:
             process.wait()
