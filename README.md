@@ -43,6 +43,8 @@ By default, `folderify` uses your systems's current light/dark mode. To generate
 folderify --macOS 11.0 --color-scheme dark mask.png
 ```
 
+(Note that currently there is no simple way to set an icon that will automatically switch between light and dark with the entire OS. You have to pick one icon.)
+
 ## Tips
 
 For best results:
