@@ -43,9 +43,7 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         "folderify": [
-            "GenericFolderIcon.BigSur.iconset/*.png",
-            "GenericFolderIcon.pre-Yosemite.iconset/*.png",
-            "GenericFolderIcon.Yosemite.iconset/*.png",
+            "*.iconset/*.png",
             "lib/seticon",
         ]
     },
