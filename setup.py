@@ -8,7 +8,7 @@ with open("README.md") as f:
 
 setup(
     name="folderify",
-    version="2.2.2",
+    version="2.2.3",
     description="Generate pixel-perfect macOS folder icons in the native style.",
     long_description_content_type="text/markdown",
     long_description=long_description,
