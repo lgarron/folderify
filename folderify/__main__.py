@@ -111,8 +111,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   effective_color_scheme = args.color_scheme
   if effective_color_scheme == "auto":
     try:
-      apple_interface_style = subprocess.check_output(["defaults", "read", "-g", "AppleInterfaceStyle"])
-      if apple_interface_style.strip() == "Dark":
+      apple_interface_style = subprocess.check_output(["/usr/bin/env", "defaults", "read", "-g", "AppleInterfaceStyle"])
+      # Comparison compatible with Python 2 and Python 3:
+      if apple_interface_style.strip() == "Dark".encode("ascii"):
         effective_color_scheme = "dark"
       else:
         effective_color_scheme = "light"
