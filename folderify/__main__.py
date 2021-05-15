@@ -9,6 +9,7 @@ import os.path
 import platform
 import shutil
 import subprocess
+import Cocoa
 import sys
 import tempfile
 
@@ -145,7 +146,6 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
   convert_path = "convert"
   iconutil_path = "iconutil"
-  seticon_path = os.path.join(data_folder, "lib", "seticon")
 
   ################################################################
 
@@ -474,21 +474,11 @@ or
       iconset_folder
     ])
 
-    # Make sure seticon is executable.
-    subprocess.check_call([
-      "chmod",
-      "+x",
-      seticon_path
-    ])
-
     if args.verbose:
       print("[%s] Setting icon for target." % (print_prefix))
     # Set icon for target.
-    subprocess.check_call([
-      seticon_path,
-      icns_file,
-      target
-    ])
+    if not Cocoa.NSWorkspace.sharedWorkspace().setIcon_forFile_options_(Cocoa.NSImage.alloc().initWithContentsOfFile_(icns_file), target, 0):
+        raise
 
     # Clean up.
     if not DEBUG:
