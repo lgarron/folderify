@@ -151,9 +151,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   convert_path = "convert"
   iconutil_path = "iconutil"
   sips_path = "sips"
-  DeRez_path = "DeRez"
-  Rez_path = "Rez"
-  SetFile_path = "SetFile"
+  deRez_path = "DeRez"
+  rez_path = "Rez"
+  setFile_path = "SetFile"
   seticon_path = os.path.join(data_folder, "lib", "seticon")
 
   ################################################################
@@ -517,7 +517,7 @@ or
         # DeRez: export the icns resource from the icns file
         with open(temp_file, "w") as f:
           subprocess.check_call([
-            DeRez_path,
+            deRez_path,
             "-only",
             "icns",
             icns_file
@@ -525,7 +525,7 @@ or
 
         # Rez: add exported icns resource to the resource fork of target/Icon^M
         subprocess.check_call([
-          Rez_path,
+          rez_path,
           "-append",
           temp_file,
           "-o",
@@ -534,7 +534,7 @@ or
 
         # SetFile: set custom icon attribute
         subprocess.check_call([
-          SetFile_path,
+          setFile_path,
           "-a",
           "C",
           target
@@ -542,7 +542,7 @@ or
 
         # SetFile: set hidden file attribute
         subprocess.check_call([
-          SetFile_path,
+          setFile_path,
           "-a",
           "V",
           target_icon
