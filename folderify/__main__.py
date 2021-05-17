@@ -53,6 +53,11 @@ Else, a .iconset folder and .icns file will be created in the same folder as the
 (you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
 
   parser.add_argument(
+    "--builtin", "-b",
+    action="store_true",
+    help="Use built-in macOS tools in place of seticon.")
+
+  parser.add_argument(
     "--reveal", "-r",
     action="store_true",
     help="Reveal the target (or resulting .icns file) in Finder.")
@@ -145,6 +150,10 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
   convert_path = "convert"
   iconutil_path = "iconutil"
+  sips_path = "sips"
+  DeRez_path = "DeRez"
+  Rez_path = "Rez"
+  SetFile_path = "SetFile"
   seticon_path = os.path.join(data_folder, "lib", "seticon")
 
   ################################################################
@@ -474,21 +483,70 @@ or
       iconset_folder
     ])
 
-    # Make sure seticon is executable.
-    subprocess.check_call([
-      "chmod",
-      "+x",
-      seticon_path
-    ])
+    if not args.builtin:
+      # Make sure seticon is executable.
+      subprocess.check_call([
+        "chmod",
+        "+x",
+        seticon_path
+      ])
 
-    if args.verbose:
-      print("[%s] Setting icon for target." % (print_prefix))
-    # Set icon for target.
-    subprocess.check_call([
-      seticon_path,
-      icns_file,
-      target
-    ])
+      if args.verbose:
+        print("[%s] Setting icon for target %s with seticon." % (print_prefix, target))
+      # Set icon for target.
+      subprocess.check_call([
+        seticon_path,
+        icns_file,
+        target
+      ])
+    else:
+      if args.verbose:
+        print("[%s] Setting icon for target %s with sips/DeRez/Rez/SetFile." % (print_prefix, target))
+
+      # sips: add an icns resource fork to the icns file
+      subprocess.check_call([
+        sips_path,
+        "-i",
+        icns_file
+      ])
+
+      if target != icns_file:
+        temp_file = os.path.join(temp_folder, "tmpicns.rsrc")
+        target_icon = target + "/Icon\r"
+
+        # DeRez: export the icns resource from the icns file
+        with open(temp_file, "w") as f:
+          subprocess.check_call([
+            DeRez_path,
+            "-only",
+            "icns",
+            icns_file
+          ], stdout=f)
+
+        # Rez: add exported icns resource to the resource fork of target/Icon^M
+        subprocess.check_call([
+          Rez_path,
+          "-append",
+          temp_file,
+          "-o",
+          target_icon
+        ])
+
+        # SetFile: set custom icon attribute
+        subprocess.check_call([
+          SetFile_path,
+          "-a",
+          "C",
+          target
+        ])
+
+        # SetFile: set hidden file attribute
+        subprocess.check_call([
+          SetFile_path,
+          "-a",
+          "V",
+          target_icon
+        ])
 
     # Clean up.
     if not DEBUG:
