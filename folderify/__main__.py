@@ -512,7 +512,7 @@ or
 
       if target != icns_file:
         temp_file = os.path.join(temp_folder, "tmpicns.rsrc")
-        target_icon = target + "/Icon\r"
+        target_icon = os.path.join(target, "Icon\r")
 
         # DeRez: export the icns resource from the icns file
         with open(temp_file, "w") as f:
