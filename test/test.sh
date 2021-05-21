@@ -15,11 +15,19 @@ echo -e "\nCheck generated files."
 check_file "./examples/src/apple.icns"
 check_folder "./examples/src/apple.iconset"
 
+DIR=`mktemp -d`
 echo -e "\nAssign folder icon."
-python -m folderify ./examples/src/apple.png .
-
+python -m folderify ./examples/src/apple.png "${DIR}"
 echo -e "\nCheck folder icon."
-check_folder_icon "."
+check_folder_icon "${DIR}"
+rm -r "${DIR}"
+
+DIR=`mktemp -d`
+echo -e "\nAssign folder icon with -b."
+python -m folderify -b ./examples/src/apple.png "${DIR}"
+echo -e "\nCheck folder icon assigned with -b."
+check_folder_icon "${DIR}"
+rm -r "${DIR}"
 
 echo -e "\nTest that \`--verbose\` is accepted."
 python -m folderify --verbose ./examples/src/apple.png
