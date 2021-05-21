@@ -540,7 +540,7 @@ or
           target
         ])
 
-        # SetFile: set hidden file attribute
+        # SetFile: set invisible file attribute
         subprocess.check_call([
           setFile_path,
           "-a",
