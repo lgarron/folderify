@@ -44,6 +44,7 @@ folderify --macOS 11.0 --color-scheme dark mask.png
 ```
 
 Note:
+
 - There is currently no simple way to set an icon that will automatically switch between light and dark when you switch the entire OS. You can only assign one icon to a folder.
 - Dark color scheme is only supported for macOS 11.0 right now.
 
@@ -92,12 +93,12 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ## Dependencies
 
-- [ImageMagick](http://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
+- [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
 - Included with macOS:
   - Python (version 2 or 3).
   - `iconutil`
 - Bundled with `folderify`:
-  - [`osxiconutils`](http://www.sveinbjorn.org/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
+  - [`osxiconutils`](https://github.com/sveinbjornt/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
 
 # Full options
 
