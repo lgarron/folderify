@@ -124,7 +124,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --set-icon-using TOOL
-                        Tool to use to set the icon. Supported arguments: seticon, rez.
+                        Tool to use to set the icon. Supported arguments: seticon, rez. Defaults to seticon.
   --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
   --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
   --osx VERSION, -x VERSION

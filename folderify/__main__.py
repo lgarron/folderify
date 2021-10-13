@@ -57,7 +57,7 @@ Else, a .iconset folder and .icns file will be created in the same folder as the
     type=str,
     metavar="TOOL",
     default="seticon",
-    help="Tool to use to set the icon. Supported arguments: seticon, rez.")
+    help="Tool to use to set the icon. Supported arguments: seticon, rez. Defaults to seticon.")
 
   parser.add_argument(
     "--reveal", "-r",
