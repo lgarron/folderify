@@ -53,9 +53,11 @@ Else, a .iconset folder and .icns file will be created in the same folder as the
 (you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
 
   parser.add_argument(
-    "--builtin", "-b",
-    action="store_true",
-    help="Use built-in macOS tools in place of seticon.")
+    "--set-icon-using",
+    type=str,
+    metavar="TOOL",
+    default="seticon",
+    help="Tool to use to set the icon. Supported arguments: seticon, rez.")
 
   parser.add_argument(
     "--reveal", "-r",
@@ -128,6 +130,11 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   if effective_color_scheme not in ["light", "dark"]:
     sys.stderr.write("Invalid color scheme. Defaulting to light.\n")
     effective_color_scheme = "light"
+
+  seticon_tool = args.set_icon_using
+  if seticon_tool not in ["seticon", "rez"]:
+    sys.stderr.write("Invalid icon tool specified. Defaulting to seticon.\n")
+    seticon_tool = "seticon"
 
   if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
@@ -483,7 +490,7 @@ or
       iconset_folder
     ])
 
-    if not args.builtin:
+    if seticon_tool == "seticon":
       # Make sure seticon is executable.
       subprocess.check_call([
         "chmod",

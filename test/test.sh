@@ -23,9 +23,9 @@ check_folder_icon "${DIR}"
 rm -r "${DIR}"
 
 DIR=`mktemp -d`
-echo -e "\nAssign folder icon with -b."
-python -m folderify -b ./examples/src/apple.png "${DIR}"
-echo -e "\nCheck folder icon assigned with -b."
+echo -e "\nAssign folder icon with --set-icon-using rez."
+python -m folderify --set-icon-using rez ./examples/src/apple.png "${DIR}"
+echo -e "\nCheck folder icon assigned with --set-icon-using rez."
 check_folder_icon "${DIR}"
 rm -r "${DIR}"
 

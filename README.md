@@ -98,10 +98,10 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
   - Python (version 2 or 3).
   - `iconutil`
   - `sips`, `DeRez`, `Rez`, `SetFile`
-    - Only used if the `--builtin`/`-b` option is specified.
+    - Only used if the `--set-icon-using rez` option is specified.
 - Bundled with `folderify`:
   - [`osxiconutils`](https://github.com/sveinbjornt/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
-    - This is used unless the `--builtin`/`-b` option is specified.
+    - This is used unless the `--set-icon-using rez` option is specified.
 
 # Full options
 
@@ -123,7 +123,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --builtin, -b         Use built-in macOS tools in place of seticon.
+  --set-icon-using TOOL
+                        Tool to use to set the icon. Supported arguments: seticon, rez.
   --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
   --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
   --osx VERSION, -x VERSION
