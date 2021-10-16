@@ -138,7 +138,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     # `seticon` is the most compatible at the moment
     set_icon_using = "seticon"
   if set_icon_using == "rez":
-    # Accept lowercase.
+    # Accept lowercase. The actual binary is `Rez` (`man Rez` works but `man
+    # rez` doesn't), but macOS is case-insensitive and `rez` matches the case
+    # you'd expect if there weren't legacy considerations.
     set_icon_using = "Rez"
   if set_icon_using not in ["seticon", "Rez"]:
     sys.stderr.write("Invalid icon tool specified. Defaulting to seticon.\n")
