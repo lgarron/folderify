@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+function make_temp_folder {
+  mktemp -d
+}
+
 function check_file {
   FILE="${1}"
   if test -f "${FILE}"
