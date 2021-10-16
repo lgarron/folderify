@@ -91,9 +91,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     type=str,
     metavar="TOOL",
     default="auto",
-    help="Tool to used to set the icon of the target: auto (default), seticon, Rez. \
-Rez usually produces a smaller \"resource fork\" for the icon, but requires \
-XCode command line tools and only works for folder targets.")
+    help="Tool to used to set the icon of the target: auto (default), seticon, Rez.\n\
+Rez usually produces a smaller \"resource fork\" for the icon, but only works if \
+XCode command line tools are already installed and if you're using a folder target.")
 
   parser.add_argument(
     "--verbose", "-v",
