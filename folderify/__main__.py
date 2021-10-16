@@ -160,8 +160,6 @@ XCode command line tools are already installed and if you're using a folder targ
     if effective_color_scheme == "dark":
       folder_style = "BigSur.dark"
 
-  print("Using folder style:", folder_style)
-
   template_folder = os.path.join(
     data_folder, "GenericFolderIcon.%s.iconset" % folder_style)
 
@@ -484,6 +482,7 @@ or
       }
     }
 
+    print("[%s] Using folder style: %s" % (print_prefix, folder_style))
     f = functools.partial(create_iconset, folder_style, print_prefix,
                     mask, temp_folder, iconset_folder, inputs[folder_style]["colors"])
     processes = map(f, inputs[folder_style]["dimensions"])
