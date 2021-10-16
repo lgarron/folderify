@@ -87,6 +87,15 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   )
 
   parser.add_argument(
+    "--set-icon-using",
+    type=str,
+    metavar="TOOL",
+    default="auto",
+    help="Tool to used to set the icon of the target: auto (default), seticon, Rez.\n\
+Rez usually produces a smaller \"resource fork\" for the icon, but only works if \
+XCode command line tools are already installed and if you're using a folder target.")
+
+  parser.add_argument(
     "--verbose", "-v",
     action="store_true",
     help="Detailed output.")
@@ -124,6 +133,19 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     sys.stderr.write("Invalid color scheme. Defaulting to light.\n")
     effective_color_scheme = "light"
 
+  set_icon_using = args.set_icon_using
+  if set_icon_using == "auto":
+    # `seticon` is the most compatible at the moment
+    set_icon_using = "seticon"
+  if set_icon_using == "rez":
+    # Accept lowercase. The actual binary is `Rez` (`man Rez` works but `man
+    # rez` doesn't), but macOS is case-insensitive and `rez` matches the case
+    # you'd expect if there weren't legacy considerations.
+    set_icon_using = "Rez"
+  if set_icon_using not in ["seticon", "Rez"]:
+    sys.stderr.write("Invalid icon tool specified. Defaulting to seticon.\n")
+    set_icon_using = "seticon"
+
   if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
     folder_style = "pre-Yosemite"
@@ -145,6 +167,10 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
 
   convert_path = "convert"
   iconutil_path = "iconutil"
+  sips_path = "sips"
+  DeRez_path = "DeRez"
+  Rez_path = "Rez"
+  SetFile_path = "SetFile"
   seticon_path = os.path.join(data_folder, "lib", "seticon")
 
   ################################################################
@@ -366,6 +392,7 @@ or
     else:
       temp_folder = tempfile.mkdtemp()
 
+    original_target = target
     if target:
       iconset_folder = os.path.join(temp_folder, "iconset.iconset")
       icns_file = os.path.join(temp_folder, "icns.icns")
@@ -474,21 +501,80 @@ or
       iconset_folder
     ])
 
-    # Make sure seticon is executable.
-    subprocess.check_call([
-      "chmod",
-      "+x",
-      seticon_path
-    ])
+    if set_icon_using == "seticon":
+      # Make sure seticon is executable.
+      subprocess.check_call([
+        "chmod",
+        "+x",
+        seticon_path
+      ])
 
-    if args.verbose:
-      print("[%s] Setting icon for target." % (print_prefix))
-    # Set icon for target.
-    subprocess.check_call([
-      seticon_path,
-      icns_file,
-      target
-    ])
+      if args.verbose:
+        print("[%s] Setting icon for target %s with seticon." % (print_prefix, target))
+      # Set icon for target.
+      subprocess.check_call([
+        seticon_path,
+        icns_file,
+        target
+      ])
+    else:
+      if args.verbose:
+        print("[%s] Setting icon for target %s with sips/DeRez/Rez/SetFile." % (print_prefix, target))
+
+      # sips: add an icns resource fork to the icns file
+      subprocess.check_call([
+        sips_path,
+        "-i",
+        icns_file
+      ])
+
+      if original_target:
+        if not os.path.isdir(target):
+          sys.stderr.write("[%s] Warning: the target path does not appear to be a folder. Setting the icon using Rez will probably fail. Try --set-icon-using seticon instead.\n\n" % print_prefix)
+
+        temp_file = os.path.join(temp_folder, "tmpicns.rsrc")
+        target_icon = os.path.join(target, "Icon\r")
+
+        # DeRez: export the icns resource from the icns file
+        with open(temp_file, "w") as f:
+          subprocess.check_call([
+            DeRez_path,
+            "-only",
+            "icns",
+            icns_file
+          ], stdout=f)
+
+        # Rez: add exported icns resource to the resource fork of target/Icon^M
+        try:
+          # If XCode command line tools are not installed, here's where we'd first run into issues.
+          subprocess.check_call([
+            Rez_path,
+            "-append",
+            temp_file,
+            "-o",
+            target_icon
+          ])
+        except OSError as e:
+          # If `Rez` is not installed, we get `FileNotFoundError` in higher versions of Python. But we have to use `OSError` for compatibility with Python 2.7.
+          sys.stderr.write("[%s] Could not set the target icon, probably because Rez is not installed. If you want to use it, make sure XCode command line tools are installed.\n" % print_prefix)
+          sys.stderr.write("%s" % e)
+          sys.exit(1)
+
+        # SetFile: set custom icon attribute
+        subprocess.check_call([
+          SetFile_path,
+          "-a",
+          "C",
+          target
+        ])
+
+        # SetFile: set invisible file attribute
+        subprocess.check_call([
+          SetFile_path,
+          "-a",
+          "V",
+          target_icon
+        ])
 
     # Clean up.
     if not DEBUG:
