@@ -22,6 +22,8 @@ echo -e "\nCheck folder icon."
 check_folder_icon "${TEMP_DIR}"
 rm -r "${TEMP_DIR}"
 
+Rez || xcode-select --install
+
 TEMP_DIR_REZ=$(make_temp_folder)
 echo -e "\nAssign folder icon with --set-icon-using rez."
 python -m folderify --set-icon-using rez ./examples/src/apple.png "${TEMP_DIR_REZ}"
