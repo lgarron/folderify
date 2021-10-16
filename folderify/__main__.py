@@ -545,13 +545,20 @@ or
           ], stdout=f)
 
         # Rez: add exported icns resource to the resource fork of target/Icon^M
-        subprocess.check_call([
-          Rez_path,
-          "-append",
-          temp_file,
-          "-o",
-          target_icon
-        ])
+        try:
+          # If XCode command line tools are not installed, here's where we'd first run into issues.
+          subprocess.check_call([
+            Rez_path,
+            "-append",
+            temp_file,
+            "-o",
+            target_icon
+          ])
+        except OSError as e:
+          # If `Rez` is not installed, we get `FileNotFoundError` in higher versions of Python. But we have to use `OSError` for compatibility with Python 2.7.
+          sys.stderr.write("[%s] Could not set the target icon, probably because Rez is not installed. If you want to use it, make sure XCode command line tools are installed.\n" % print_prefix)
+          sys.stderr.write("%s" % e)
+          sys.exit(1)
 
         # SetFile: set custom icon attribute
         subprocess.check_call([
