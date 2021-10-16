@@ -56,8 +56,8 @@ Else, a .iconset folder and .icns file will be created in the same folder as the
     "--set-icon-using",
     type=str,
     metavar="TOOL",
-    default="seticon",
-    help="Tool to used to set the icon of the target: seticon, Rez. \
+    default="auto",
+    help="Tool to used to set the icon of the target: auto (default), seticon, Rez. \
 Rez usually produces a smaller \"resource fork\" for the icon, but requires \
 XCode command line tools and only works for folder targets.")
 
@@ -134,6 +134,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     effective_color_scheme = "light"
 
   set_icon_using = args.set_icon_using
+  if set_icon_using == "auto":
+    # `seticon` is the most compatible at the moment
+    set_icon_using = "seticon"
   if set_icon_using == "rez":
     # Accept lowercase.
     set_icon_using = "Rez"
@@ -525,7 +528,7 @@ or
 
       if original_target:
         if not os.path.isdir(target):
-          print("[%s] Warning: the target path does not appear to be a folder. Setting the icon using Rez will probably fail. Try --set-icon-using seticon instead." % print_prefix)
+          sys.stderr.write("[%s] Warning: the target path does not appear to be a folder. Setting the icon using Rez will probably fail. Try --set-icon-using seticon instead.\n\n" % print_prefix)
 
         temp_file = os.path.join(temp_folder, "tmpicns.rsrc")
         target_icon = os.path.join(target, "Icon\r")
