@@ -131,10 +131,10 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     sys.stderr.write("Invalid color scheme. Defaulting to light.\n")
     effective_color_scheme = "light"
 
-  seticon_tool = args.set_icon_using
-  if seticon_tool not in ["seticon", "rez"]:
+  set_icon_using = args.set_icon_using
+  if set_icon_using not in ["seticon", "rez"]:
     sys.stderr.write("Invalid icon tool specified. Defaulting to seticon.\n")
-    seticon_tool = "seticon"
+    set_icon_using = "seticon"
 
   if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
@@ -158,9 +158,9 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
   convert_path = "convert"
   iconutil_path = "iconutil"
   sips_path = "sips"
-  deRez_path = "DeRez"
-  rez_path = "Rez"
-  setFile_path = "SetFile"
+  DeRez_path = "DeRez"
+  Rez_path = "Rez"
+  SetFile_path = "SetFile"
   seticon_path = os.path.join(data_folder, "lib", "seticon")
 
   ################################################################
@@ -490,7 +490,7 @@ or
       iconset_folder
     ])
 
-    if seticon_tool == "seticon":
+    if set_icon_using == "seticon":
       # Make sure seticon is executable.
       subprocess.check_call([
         "chmod",
@@ -524,7 +524,7 @@ or
         # DeRez: export the icns resource from the icns file
         with open(temp_file, "w") as f:
           subprocess.check_call([
-            deRez_path,
+            DeRez_path,
             "-only",
             "icns",
             icns_file
@@ -532,7 +532,7 @@ or
 
         # Rez: add exported icns resource to the resource fork of target/Icon^M
         subprocess.check_call([
-          rez_path,
+          Rez_path,
           "-append",
           temp_file,
           "-o",
@@ -541,7 +541,7 @@ or
 
         # SetFile: set custom icon attribute
         subprocess.check_call([
-          setFile_path,
+          SetFile_path,
           "-a",
           "C",
           target
@@ -549,7 +549,7 @@ or
 
         # SetFile: set invisible file attribute
         subprocess.check_call([
-          setFile_path,
+          SetFile_path,
           "-a",
           "V",
           target_icon
