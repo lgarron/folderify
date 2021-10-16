@@ -97,11 +97,12 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 - Included with macOS:
   - Python (version 2 or 3).
   - `iconutil`
-  - `sips`, `DeRez`, `Rez`, `SetFile`
-    - Only used if the `--set-icon-using rez` option is specified.
 - Bundled with `folderify`:
   - [`osxiconutils`](https://github.com/sveinbjornt/osxiconutils), a GPL-licensed project by Sveinbjorn Thordarson (based on [`IconFamily`](http://iconfamily.sourceforge.net/)).
-    - This is used unless the `--set-icon-using rez` option is specified.
+- Optional:
+  - `sips`, `DeRez`, `Rez`, `SetFile` (You need XCode command line tools for some of these.)
+    - Only used if you use `--set-icon-using Rez` in the arguments.
+
 
 # Full options
 
