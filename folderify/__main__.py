@@ -53,15 +53,6 @@ Else, a .iconset folder and .icns file will be created in the same folder as the
 (you can use \"Get Info\" in Finder to copy the icon from the .icns file).")
 
   parser.add_argument(
-    "--set-icon-using",
-    type=str,
-    metavar="TOOL",
-    default="auto",
-    help="Tool to used to set the icon of the target: auto (default), seticon, Rez. \
-Rez usually produces a smaller \"resource fork\" for the icon, but requires \
-XCode command line tools and only works for folder targets.")
-
-  parser.add_argument(
     "--reveal", "-r",
     action="store_true",
     help="Reveal the target (or resulting .icns file) in Finder.")
@@ -94,6 +85,15 @@ Defaults to the version currently running (%s)." % LOCAL_MACOS_VERSION))
     action="store_true",
     help=("Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.")
   )
+
+  parser.add_argument(
+    "--set-icon-using",
+    type=str,
+    metavar="TOOL",
+    default="auto",
+    help="Tool to used to set the icon of the target: auto (default), seticon, Rez. \
+Rez usually produces a smaller \"resource fork\" for the icon, but requires \
+XCode command line tools and only works for folder targets.")
 
   parser.add_argument(
     "--verbose", "-v",
