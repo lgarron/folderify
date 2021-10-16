@@ -103,13 +103,14 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
   - `sips`, `DeRez`, `Rez`, `SetFile` (You need XCode command line tools for some of these.)
     - Only used if you use `--set-icon-using Rez` in the arguments.
 
-
 # Full options
 
 ```
 usage: folderify [-h] [--reveal] [--macOS VERSION] [--osx VERSION]
-                 [--color-scheme COLOR_SCHEME] [--no-trim] [--verbose]
-                 [mask] [target]
+                   [--color-scheme COLOR_SCHEME] [--no-trim]
+                   [--set-icon-using TOOL] [--verbose]
+                   [mask] [target]
+
 Generate a native-style macOS folder icon from a mask file.
 
 positional arguments:
@@ -124,16 +125,18 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --set-icon-using TOOL
-                        Tool to use to set the icon. Supported arguments: seticon, rez. Defaults to seticon.
   --reveal, -r          Reveal the target (or resulting .icns file) in Finder.
-  --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.15).
+  --macOS VERSION       Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running (10.16).
   --osx VERSION, -x VERSION
                         Synonym for the --macOS argument.
   --color-scheme COLOR_SCHEME
                         Color scheme: auto (match current system), light, dark.
   --no-trim             Don't trim margins from the mask. By default, transparent margins are trimmed from all 4 sides.
+  --set-icon-using TOOL
+                        Tool to used to set the icon of the target: auto (default), seticon, Rez.
+                        Rez usually produces a smaller "resource fork" for the icon, but only works if XCode command line tools are already installed and if you're using a folder target.
   --verbose, -v         Detailed output.
+
 ```
 
 ---
