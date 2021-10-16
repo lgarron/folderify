@@ -532,6 +532,20 @@ or
         if not os.path.isdir(target):
           sys.stderr.write("[%s] Warning: the target path does not appear to be a folder. Setting the icon using Rez will probably fail. Try --set-icon-using seticon instead.\n\n" % print_prefix)
 
+        # If XCode command line tools are not installed, here's where we'd first run into issues.
+        try:
+          # We could use `shutil.which`, but that's not available in Python 2
+          # without a shim. So we try to see if calling the binary itself works.
+          subprocess.check_call([
+            Rez_path
+          ])
+        except:
+          # In practice, this seems to be a `FileNotFoundError`, but that's underdocumented and may depend on the version of Python for all we know.
+          # So we catch any error.
+          sys.stderr.write("[%s] Rez does not appear to be installed. If you want to use it, make sure XCode command line tools are installed.\n" % print_prefix)
+          sys.exit(1)
+
+
         temp_file = os.path.join(temp_folder, "tmpicns.rsrc")
         target_icon = os.path.join(target, "Icon\r")
 
