@@ -5,6 +5,11 @@ set -euo pipefail
 DIR="$(dirname "$0")"
 source "${DIR}/helpers.sh"
 
+# Homebrew expects `seticon` at an exact path (so that it can overwrite the
+# binary with an architecture-specific build).
+# https://github.com/Homebrew/homebrew-core/pull/87346
+check_file ./folderify/lib/seticon
+
 echo -e "\nTest help flag."
 python -m folderify -h
 
