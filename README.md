@@ -4,7 +4,7 @@
 
 Generate pixel-perfect macOS folder icons in the native style.
 
-- Works for macOS 10.5 (Leopard) through 12.0 (Monterey).
+- Works for macOS 10.5 (Leopard) through macOS 12 (Monterey).
 - Automatically includes all icon sizes from `16x16` through `512x512@2x`.
 - Light or dark mode (automatically selected by default).
 
