@@ -5,8 +5,7 @@ jobs:
     strategy:
       matrix:
         python-version: [2.7, 3.9]
-        # TODO: Reintroduce macos-11.0
-        os: [macos-10.15, macos-latest]
+        os: [macos-10.15, macos-11, macos-12]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
