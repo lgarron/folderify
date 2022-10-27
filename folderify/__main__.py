@@ -17,7 +17,7 @@ from string import Template
 ################################################################
 
 DEBUG = "FOLDERIFY_DEBUG" in os.environ and os.environ["FOLDERIFY_DEBUG"] == "1"
-OLD_IMPLEMENTATION_FOLDER_STYLES = ["Yosemite", "pre-Yosemite"]
+OLD_IMPLEMENTATION_FOLDER_STYLES = ["Yosemite", "Leopard"]
 
 def main():
 
@@ -148,9 +148,9 @@ XCode command line tools are already installed and if you're using a folder targ
 
   if args.macOS in ["10.5", "10.6", "10.7", "10.8", "10.9"]:
     # http://arstechnica.com/apple/2007/10/mac-os-x-10-5/4/
-    folder_style = "pre-Yosemite"
+    folder_style = "Leopard"
     if effective_color_scheme == "dark":
-      print("Dark mode is not currently implemented for pre-Yosemite. Defaulting to light.")
+      print("Dark mode is not currently implemented for Leopard. Defaulting to light.")
   elif args.macOS in ["10.10", "10.11", "10.12", "10.13", "10.14", "10.15"]:
     folder_style = "Yosemite"
     if effective_color_scheme == "dark":
@@ -469,7 +469,7 @@ or
           ["512x512",    412, 212, 18], ["512x512@2x", 824, 424, 36]
         ]
       },
-      "pre-Yosemite": {
+      "Leopard": {
         "colors": {},
         "dimensions": [
           ["16x16",       12,   8,  1], ["16x16@2x",    26,  14,  2],
