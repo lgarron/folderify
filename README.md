@@ -37,7 +37,7 @@ version):
 folderify --macOS 11.0 mask.png
 ```
 
-By default, `folderify` uses your systems's current light/dark mode. Use `--color-scheme` to override this:
+By default, `folderify` uses your system's current light/dark mode. Use `--color-scheme` to override this:
 
 ```shell
 folderify --macOS 11.0 --color-scheme dark mask.png
@@ -45,7 +45,7 @@ folderify --macOS 11.0 --color-scheme dark mask.png
 
 Note:
 
-- There is currently no simple way to set an icon that will automatically switch between light and dark when you switch the entire OS. You can only assign one icon to a folder.
+- There is currently no simple way to set an icon that will automatically switch between light and dark when you switch the entire OS. You can only assign one version of an icon to a folder.
 - Dark color scheme is only supported for macOS 11.0 (and later) right now.
 
 ## Tips
