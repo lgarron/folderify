@@ -212,8 +212,8 @@ XCode command line tools are already installed and if you're using a folder targ
           # rounding when the trimmed image is an odd width. (The extra
           # pixel would extend to the right, making the right margin
           # 1px slimmer. This is quite noticable on 16x16.)
-          mask,
           "-background", "transparent",
+          mask,
           [] if args.no_trim else "-trim",
           "-resize", ("%dx%d" % (centering_width, centering_height)),
           "-gravity", "Center",
