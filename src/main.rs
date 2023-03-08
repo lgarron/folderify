@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
@@ -28,12 +28,35 @@ struct Args {
     #[clap(long = "macOS", alias = "osx", short_alias = 'x')]
     mac_os: Option<String>, // TODO: enum, default?
 
-    /// Color scheme: auto (match current system), light, dark.
-    color_scheme: Option<String>,
+    /// Color scheme — auto matches the current system value.
+    #[clap(long, value_enum, default_value_t = ColorScheme::Auto)]
+    color_scheme: ColorScheme,
+
+    /// Don't trim margins from the mask.
+    /// By default, transparent margins are trimmed from all 4 sides.
+    #[clap(long, verbatim_doc_comment)]
+    no_trim: bool,
+
+    /// Tool to used to set the icon of the target: auto (default), seticon, Rez.
+    /// Rez usually produces a smaller "resource fork" for the icon, but only works if
+    /// XCode command line tools are already installed and if you're using a folder target.
+    #[clap(long, verbatim_doc_comment)]
+    set_icon_using: bool,
+
+    /// Detailed output.
+    #[clap(short, long)]
+    verbose: bool,
+}
+
+#[derive(ValueEnum, Clone, Debug, PartialEq)]
+enum ColorScheme {
+    Auto,
+    Light,
+    Dark,
 }
 
 fn main() {
     let args = Args::parse();
 
-    println!("Target: {}", args.mask.display());
+    println!("Target: {}", args.color_scheme == ColorScheme::Auto);
 }
