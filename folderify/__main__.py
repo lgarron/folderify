@@ -164,6 +164,7 @@ XCode command line tools are already installed and if you're using a folder targ
     data_folder, "GenericFolderIcon.%s.iconset" % folder_style)
 
   convert_path = "convert"
+  identify_path = "identify"
   iconutil_path = "iconutil"
   sips_path = "sips"
   DeRez_path = "DeRez"
@@ -203,6 +204,12 @@ XCode command line tools are already installed and if you're using a folder targ
     if args.verbose:
       print("[%s] %s" % (print_prefix, name))
 
+    # Default density values seem to have have changed over time, and by format. We choose a conservatively low value, but well within an order of magnitude of e.g. 96dpi.
+    DEFAULT_DENSITY = 72
+    input_width = int(subprocess.check_output(p(identify_path, "-format", "%w", mask)))
+    input_height = int(subprocess.check_output(p(identify_path, "-format", "%h", mask)))
+    density = max(DEFAULT_DENSITY * centering_width // input_width, DEFAULT_DENSITY * centering_height // input_height)
+
     SIZED_MASK = os.path.join(temp_folder, "%s_1.0_SIZED_MASK.png" % name)
     try:
       subprocess.check_call(p(
@@ -213,6 +220,7 @@ XCode command line tools are already installed and if you're using a folder targ
           # pixel would extend to the right, making the right margin
           # 1px slimmer. This is quite noticable on 16x16.)
           "-background", "transparent",
+          "-density", ("%d" % density),
           mask,
           [] if args.no_trim else "-trim",
           "-resize", ("%dx%d" % (centering_width, centering_height)),
