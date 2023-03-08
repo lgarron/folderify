@@ -93,7 +93,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ## Dependencies
 
-- [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> on the commandline).
+- [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> and <code>identify</code> on the commandline).
 - Included with macOS:
   - Python (version 2 or 3).
   - `iconutil`
