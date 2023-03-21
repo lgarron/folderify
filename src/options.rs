@@ -75,35 +75,6 @@ enum SetIconUsingOrAuto {
     Rez,
 }
 
-// impl SetIconUsingOrAuto {
-//     fn value_variants<'a>() -> &'a [Self] {
-//         return &[Self::Auto, Self::SetIcon, Self::Rez];
-//     }
-//     fn to_possible_value(&self) -> Option<PossibleValue> {
-//         match self {
-//             Self::Auto => Some(PossibleValue::new("auto")),
-//             Self::SetIcon => Some(PossibleValue::new("seticon")),
-//             Self::Rez => Some(PossibleValue::new("Rez")),
-//         }
-//     }
-//     fn from_str(input: &str, ignore_case: bool) -> Result<Self, String> {
-//         match input {
-//             "auto" => Ok(Self::Auto),
-//             "seticon" => Ok(Self::SetIcon),
-//             "Rez" => Ok(Self::Rez),
-//             _ => Err("Invalid icon setter".into()),
-//         }
-//     }
-
-//     // pub fn value_variants<'a>(&self) -> Option<clap::PossibleValue<'a>> {
-//     //     match self {
-//     //         Auto => clap::PossibleValue::new(Some("auto")),
-//     //         SetIcon => clap::PossibleValue::new(Some("seticon")),
-//     //         Rez => clap::PossibleValue::new(Some("rez")),
-//     //     }
-//     // }
-// }
-
 #[derive(Debug)]
 pub struct Options {
     pub mask: std::path::PathBuf,
