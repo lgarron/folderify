@@ -41,8 +41,8 @@ struct Args {
     /// Tool to used to set the icon of the target: auto (default), seticon, Rez.
     /// Rez usually produces a smaller "resource fork" for the icon, but only works if
     /// XCode command line tools are already installed and if you're using a folder target.
-    #[clap(long, verbatim_doc_comment)]
-    set_icon_using: Option<SetIconUsingOrAuto>, // TODO: accept capitalized Rez
+    #[clap(long, verbatim_doc_comment, value_enum, default_value_t = SetIconUsingOrAuto::Auto)]
+    set_icon_using: SetIconUsingOrAuto, // TODO: accept capitalized Rez
 
     /// Detailed output.
     #[clap(short, long)]
@@ -50,10 +50,22 @@ struct Args {
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
+pub enum ColorScheme {
+    Light,
+    Dark,
+}
+
+#[derive(ValueEnum, Clone, Debug, PartialEq)]
 enum ColorSchemeOrAuto {
     Auto,
     Light,
     Dark,
+}
+
+#[derive(ValueEnum, Clone, Debug, PartialEq)]
+pub enum SetIconUsing {
+    SetIcon,
+    Rez,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
@@ -95,8 +107,8 @@ enum SetIconUsingOrAuto {
 #[derive(Debug)]
 pub struct Options {
     pub mask: std::path::PathBuf,
-    pub dark: bool,
-    pub use_rez: bool,
+    pub color_scheme: ColorScheme,
+    pub set_icon_using: SetIconUsing,
     pub no_trim: bool,
 }
 
@@ -104,16 +116,16 @@ pub fn get_options() -> Options {
     let args = Args::parse();
     Options {
         mask: args.mask,
-        dark: use_dark_scheme(args.color_scheme),
-        use_rez: args.set_icon_using == Some(SetIconUsingOrAuto::Rez),
+        color_scheme: map_color_scheme_auto(args.color_scheme),
+        set_icon_using: map_set_icon_using_auto(args.set_icon_using),
         no_trim: args.no_trim,
     }
 }
 
-fn use_dark_scheme(color_scheme: ColorSchemeOrAuto) -> bool {
+fn map_color_scheme_auto(color_scheme: ColorSchemeOrAuto) -> ColorScheme {
     match color_scheme {
-        ColorSchemeOrAuto::Dark => return true,
-        ColorSchemeOrAuto::Light => return false,
+        ColorSchemeOrAuto::Dark => return ColorScheme::Dark,
+        ColorSchemeOrAuto::Light => return ColorScheme::Light,
         ColorSchemeOrAuto::Auto => (),
     };
 
@@ -121,10 +133,23 @@ fn use_dark_scheme(color_scheme: ColorSchemeOrAuto) -> bool {
         .args(["defaults", "read", "-g", "AppleInterfaceStyle"])
         .output()
     {
-        Ok(val) => val.stdout == String::from("Dark\n").into_bytes(),
+        Ok(val) => {
+            if val.stdout == String::from("Dark\n").into_bytes() {
+                ColorScheme::Dark
+            } else {
+                ColorScheme::Light
+            }
+        }
         Err(_) => {
             println!("Could not compute auto color scheme. Assuming light mode.");
-            false
+            ColorScheme::Light
         }
     }
+}
+
+fn map_set_icon_using_auto(set_icon_using: SetIconUsingOrAuto) -> SetIconUsing {
+    if set_icon_using == SetIconUsingOrAuto::Rez {
+        return SetIconUsing::Rez;
+    }
+    SetIconUsing::SetIcon
 }
