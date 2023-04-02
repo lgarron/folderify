@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use convert::{full_mask, Dimensions};
+use convert::{full_mask, scaled_mask, Dimensions, ScaledMaskInputs};
 
 mod convert;
 mod error;
@@ -13,8 +13,21 @@ fn main() {
         width: 768,
         height: 384,
     };
-    let common_sized_mask = full_mask(&options, &centering_dimensions).unwrap();
+    let full_mask = full_mask(&options, &centering_dimensions).unwrap();
+    let scaled_mask = scaled_mask(
+        &full_mask,
+        &ScaledMaskInputs {
+            icon_size: 256,
+            mask_dimensions: Dimensions {
+                width: 192,
+                height: 96,
+            },
+            offset_y: 12,
+        },
+    )
+    .unwrap();
+
     std::io::stdout()
-        .write_all(&common_sized_mask)
+        .write_all(&scaled_mask)
         .expect("Could not write result");
 }
