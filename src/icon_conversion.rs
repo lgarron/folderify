@@ -10,7 +10,7 @@ const RETINA_SCALE: u32 = 2;
 use crate::{
     convert::{density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation},
     error::FolderifyError,
-    options::{self, ColorScheme},
+    options::{self, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
 };
 
@@ -27,12 +27,13 @@ pub struct BezelInputs {
     pub opacity: f32,
 }
 
-pub struct IconBezelInputs {
+pub struct EngravingInputs {
     pub fill_color: RGBColor,
     pub top_bezel: BezelInputs,
     pub bottom_bezel: BezelInputs,
 }
 
+#[derive(Debug)]
 pub struct WorkingDir {
     working_dir: Temp,
 }
@@ -46,7 +47,7 @@ impl WorkingDir {
 
     pub fn icon_conversion(&self, resolution_prefix: &str) -> IconConversion {
         IconConversion {
-            working_dir: &self.working_dir,
+            working_dir: self.working_dir.as_path().to_owned(),
             resolution_prefix: resolution_prefix.into(),
         }
     }
@@ -172,8 +173,8 @@ impl Display for IconResolution {
     }
 }
 
-pub struct IconConversion<'a> {
-    working_dir: &'a Temp,
+pub struct IconConversion {
+    working_dir: PathBuf,
     resolution_prefix: String,
 }
 
@@ -182,7 +183,7 @@ pub struct IconInputs {
     pub resolution: IconResolution,
 }
 
-impl IconConversion<'_> {
+impl IconConversion {
     fn output_path(&self, file_name: &str) -> PathBuf {
         let mut path = self.working_dir.to_path_buf();
         path.push(format!("{}_{}", self.resolution_prefix, file_name));
@@ -246,11 +247,11 @@ impl IconConversion<'_> {
         Ok(output_path)
     }
 
-    pub fn add_bezels(
+    pub fn engrave(
         &self,
         sized_mask: &Path,
         template_icon: &Path,
-        inputs: &IconBezelInputs,
+        inputs: &EngravingInputs,
     ) -> Result<(), FolderifyError> {
         let fill_colorized = self.simple_operation(
             sized_mask,
@@ -348,7 +349,16 @@ impl IconConversion<'_> {
     }
 
     // TODO
-    pub fn icon(&self, full_mask_path: &Path, inputs: &IconInputs) -> Result<(), FolderifyError> {
+    pub fn icon(
+        &self,
+        options: &Options,
+        full_mask_path: &Path,
+        inputs: &IconInputs,
+    ) -> Result<(), FolderifyError> {
+        if options.verbose {
+            println!("{}", inputs.resolution);
+        }
+
         let size = inputs.resolution.size();
         let offset_y = inputs.resolution.offset_y();
 
@@ -383,10 +393,10 @@ impl IconConversion<'_> {
             ColorScheme::Dark => RGBColor::new(6, 111, 194),
         };
 
-        self.add_bezels(
+        self.engrave(
             &sized_mask_path,
             &template_icon,
-            &IconBezelInputs {
+            &EngravingInputs {
                 fill_color,
                 top_bezel: BezelInputs {
                     color: RGBColor::new(58, 152, 208),

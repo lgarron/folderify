@@ -14,6 +14,8 @@ const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
 const DEFAULT_DENSITY: u32 = 72;
 
+const DEBUG_PRINT_ARGS: bool = false;
+
 pub(crate) struct CommandArgs {
     pub args: Vec<String>,
 }
@@ -157,7 +159,9 @@ pub(crate) fn run_command(
     command_name: &str,
     args: &CommandArgs,
 ) -> Result<Vec<u8>, FolderifyError> {
-    println!("args: {}", args.args.join(" "));
+    if DEBUG_PRINT_ARGS {
+        println!("args: {}", args.args.join(" "));
+    };
     let child = Command::new(command_name)
         .args(args.args.iter())
         .stdin(Stdio::piped())

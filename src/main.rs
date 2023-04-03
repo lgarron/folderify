@@ -1,3 +1,5 @@
+use std::thread::{self, JoinHandle};
+
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
 
 use crate::primitives::Dimensions;
@@ -25,17 +27,29 @@ fn main() {
         )
         .unwrap();
 
+    let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {
         let icon_conversion = working_dir.icon_conversion(&resolution.to_string());
-        icon_conversion
-            .icon(
-                &full_mask_path,
-                &IconInputs {
-                    color_scheme: options::ColorScheme::Dark,
-                    resolution,
-                },
-            )
-            .unwrap();
+        let options = options.clone();
+        let full_mask_path = full_mask_path.clone();
+        let handle = thread::spawn(move || {
+            icon_conversion
+                .icon(
+                    &options,
+                    &full_mask_path,
+                    &IconInputs {
+                        color_scheme: options::ColorScheme::Dark,
+                        resolution,
+                    },
+                )
+                .unwrap();
+        });
+        handles.push(handle);
     }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
     working_dir.release();
 }
