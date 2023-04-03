@@ -27,7 +27,7 @@ fn main() {
         )
         .unwrap();
 
-    let iconset_dir = working_dir.create_iconset_dir().unwrap();
+    let iconset_dir = working_dir.create_iconset_dir(&options).unwrap();
 
     let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {

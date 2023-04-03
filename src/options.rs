@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use std::process::Command;
+use std::{path::PathBuf, process::Command};
 
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
@@ -12,13 +12,13 @@ struct Args {
     /// - Make sure the non-transparent pixels span a height of 384px, using a 16px grid.
     /// If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
     #[clap(verbatim_doc_comment)]
-    mask: std::path::PathBuf,
+    mask: PathBuf,
     /// Target file or folder.
     /// If a target is specified, the resulting icon will be applied to the target file/folder.
     /// Else, a .iconset folder and .icns file will be created in the same folder as the mask
     /// (you can use "Get Info" in Finder to copy the icon from the .icns file).
     #[clap(verbatim_doc_comment)]
-    target: Option<std::path::PathBuf>,
+    target: Option<PathBuf>,
 
     /// Reveal the target (or resulting .icns file) in Finder.
     #[clap(short, long)]
@@ -77,10 +77,11 @@ enum SetIconUsingOrAuto {
 
 #[derive(Debug, Clone)]
 pub struct Options {
-    pub mask_path: std::path::PathBuf,
+    pub mask_path: PathBuf,
     pub color_scheme: ColorScheme,
     pub set_icon_using: SetIconUsing,
     pub no_trim: bool,
+    pub target: Option<PathBuf>,
     pub verbose: bool,
 }
 
@@ -91,6 +92,7 @@ pub fn get_options() -> Options {
         color_scheme: map_color_scheme_auto(args.color_scheme),
         set_icon_using: map_set_icon_using_auto(args.set_icon_using),
         no_trim: args.no_trim,
+        target: args.target,
         verbose: args.verbose,
     }
 }

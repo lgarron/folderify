@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    fs::create_dir,
+    fs::create_dir_all,
     path::{Path, PathBuf},
 };
 
@@ -63,11 +63,19 @@ impl WorkingDir {
         self.working_dir.release(); // TODO
     }
 
-    pub fn create_iconset_dir(&self) -> Result<PathBuf, FolderifyError> {
-        let iconset_dir = self.working_dir.to_path_buf().join("Icon.iconset");
-        if create_dir(&iconset_dir).is_err() {
+    pub fn create_iconset_dir(&self, options: &Options) -> Result<PathBuf, FolderifyError> {
+        let mut iconset_dir = options.mask_path.with_extension("iconset");
+        if options.target.is_some() {
+            let file_name = iconset_dir.file_name().unwrap(); // TODO
+            iconset_dir = self.working_dir.to_path_buf().join(file_name);
+        }
+        if options.verbose {
+            println!("[Iconset] {}", iconset_dir.display());
+        };
+        if let Err(e) = create_dir_all(&iconset_dir) {
+            println!("Error: {}", (e));
             return Err(FolderifyError::General(GeneralError {
-                message: "Could not crrate iconset dir".into(),
+                message: "Could not create iconset dir".into(),
             }));
         };
         Ok(iconset_dir)
@@ -372,7 +380,7 @@ impl IconConversion {
         inputs: &IconInputs,
     ) -> Result<(), FolderifyError> {
         if options.verbose {
-            println!("{}", inputs.resolution);
+            println!("[Starting] {}", inputs.resolution);
         }
 
         let size = inputs.resolution.size();
@@ -409,7 +417,7 @@ impl IconConversion {
             ColorScheme::Dark => RGBColor::new(6, 111, 194),
         };
 
-        self.engrave(
+        let engraved = self.engrave(
             &sized_mask_path,
             &template_icon,
             output_path,
@@ -431,6 +439,10 @@ impl IconConversion {
                     opacity: inputs.resolution.bottom_bezel_alpha(),
                 },
             },
-        )
+        );
+        if options.verbose {
+            println!("[Done] {}", inputs.resolution);
+        }
+        engraved
     }
 }
