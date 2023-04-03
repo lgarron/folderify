@@ -9,7 +9,10 @@ use mktemp::Temp;
 const RETINA_SCALE: u32 = 2;
 
 use crate::{
-    convert::{density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation},
+    convert::{
+        density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation,
+        ICONUTIL_COMMAND,
+    },
     error::{FolderifyError, GeneralError},
     options::{self, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
@@ -54,13 +57,22 @@ impl WorkingDir {
     }
     pub fn open_in_finder(&self) -> Result<(), FolderifyError> {
         let mut open_args = CommandArgs::new();
-        open_args.path(&self.working_dir);
+        open_args.push_path(&self.working_dir);
         run_command("open", &open_args)?;
         Ok(())
     }
 
     pub fn release(self) {
         self.working_dir.release(); // TODO
+    }
+
+    pub fn mask_with_extension(&self, options: &Options, extension: &str) -> PathBuf {
+        let mut iconset_dir = options.mask_path.with_extension(extension);
+        if options.target.is_some() {
+            let file_name = iconset_dir.file_name().unwrap(); // TODO
+            iconset_dir = self.working_dir.to_path_buf().join(file_name);
+        }
+        iconset_dir
     }
 
     pub fn create_iconset_dir(&self, options: &Options) -> Result<PathBuf, FolderifyError> {
@@ -217,7 +229,7 @@ impl IconConversion {
         let mut args = CommandArgs::new();
         args.background_transparent();
         args.density(density(&options.mask_path, centering_dimensions)?);
-        args.path(&options.mask_path);
+        args.push_path(&options.mask_path);
         if !options.no_trim {
             args.trim()
         }
@@ -225,7 +237,7 @@ impl IconConversion {
         args.center();
         args.extent(&Extent::no_offset(centering_dimensions));
         let output_path = self.output_path("0.0_FULL_MASK.png");
-        args.path(&output_path);
+        args.push_path(&output_path);
         run_convert(&args)?;
         Ok(output_path)
     }
@@ -237,7 +249,7 @@ impl IconConversion {
     ) -> Result<PathBuf, FolderifyError> {
         let mut args = CommandArgs::new();
         args.background_transparent();
-        args.path(input_path);
+        args.push_path(input_path);
         args.resize(&inputs.mask_dimensions);
         args.center();
         args.extent(&Extent {
@@ -245,7 +257,7 @@ impl IconConversion {
             offset: Offset::from_y(inputs.offset_y),
         });
         let output_path = self.output_path("1.0_SIZED_MASK.png");
-        args.path(&output_path);
+        args.push_path(&output_path);
         run_convert(&args)?;
         Ok(output_path)
     }
@@ -257,11 +269,11 @@ impl IconConversion {
         f: impl Fn(&mut CommandArgs),
     ) -> Result<PathBuf, FolderifyError> {
         let mut args = CommandArgs::new();
-        args.path(input_path);
+        args.push_path(input_path);
         f(&mut args);
         let file_name = format!("{}.png", output_filename);
         let output_path = self.output_path(&file_name);
-        args.path(&output_path);
+        args.push_path(&output_path);
         run_convert(&args)?;
         Ok(output_path)
     }
@@ -358,14 +370,14 @@ impl IconConversion {
         )?;
 
         let mut args = CommandArgs::new();
-        args.path(template_icon);
-        args.path(&bottom_bezel);
+        args.push_path(template_icon);
+        args.push_path(&bottom_bezel);
         args.composite(&CompositingOperation::dissolve);
-        args.path(&fill);
+        args.push_path(&fill);
         args.composite(&CompositingOperation::dissolve);
-        args.path(&top_bezel);
+        args.push_path(&top_bezel);
         args.composite(&CompositingOperation::dissolve);
-        args.path(output_path);
+        args.push_path(output_path);
         run_convert(&args)?;
 
         Ok(())
@@ -444,5 +456,16 @@ impl IconConversion {
             println!("[Done] {}", inputs.resolution);
         }
         engraved
+    }
+
+    pub fn to_icns(&self, iconset_dir: &Path, icns_path: &Path) -> Result<(), FolderifyError> {
+        let mut args = CommandArgs::new();
+        args.push_path(iconset_dir);
+        args.push("--convert");
+        args.push("icns");
+        args.push("--output");
+        args.push_path(icns_path);
+        run_command(ICONUTIL_COMMAND, &args)?;
+        Ok(())
     }
 }

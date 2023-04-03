@@ -16,8 +16,8 @@ fn main() {
     let working_dir = WorkingDir::new();
     working_dir.open_in_finder().unwrap();
 
-    let icon_conversion = working_dir.icon_conversion("shared");
-    let full_mask_path = icon_conversion
+    let shared_icon_conversion = working_dir.icon_conversion("shared");
+    let full_mask_path = shared_icon_conversion
         .full_mask(
             &options,
             &Dimensions {
@@ -28,6 +28,7 @@ fn main() {
         .unwrap();
 
     let iconset_dir = working_dir.create_iconset_dir(&options).unwrap();
+    let icns_path = working_dir.mask_with_extension(&options, "icns");
 
     let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {
@@ -54,6 +55,10 @@ fn main() {
     for handle in handles {
         handle.join().unwrap();
     }
+
+    shared_icon_conversion
+        .to_icns(&iconset_dir, &icns_path)
+        .unwrap();
 
     working_dir.release();
 }

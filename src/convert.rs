@@ -12,6 +12,7 @@ use crate::primitives::{Dimensions, Extent, Offset, RGBColor};
 
 const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
+pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
 const DEFAULT_DENSITY: u32 = 72;
 
 const DEBUG_PRINT_ARGS: bool = false;
@@ -25,12 +26,16 @@ impl CommandArgs {
         CommandArgs { args: vec![] }
     }
 
-    fn push_string(&mut self, s: String) {
+    pub fn push_string(&mut self, s: String) {
         self.args.push(s);
     }
 
-    fn push(&mut self, s: &str) {
+    pub fn push(&mut self, s: &str) {
         self.push_string(s.into());
+    }
+
+    pub fn push_path(&mut self, path: &Path) {
+        self.push(path.to_str().expect("Could not set path for command"));
     }
 
     pub fn background_transparent(&mut self) {
@@ -41,10 +46,6 @@ impl CommandArgs {
     pub fn background_none(&mut self) {
         self.push("-background");
         self.push("transparent");
-    }
-
-    pub fn path(&mut self, path: &Path) {
-        self.push(path.to_str().expect("Could not set path for command"));
     }
 
     pub fn resize(&mut self, dimensions: &Dimensions) {
@@ -136,7 +137,7 @@ impl CommandArgs {
     }
 
     pub fn mask_down(&mut self, mask_path: &Path, compositing_operation: &CompositingOperation) {
-        self.path(mask_path);
+        self.push_path(mask_path);
         self.push("-alpha");
         self.push("Set");
         self.composite(compositing_operation);
@@ -232,12 +233,12 @@ pub(crate) fn density(
 ) -> Result<u32, FolderifyError> {
     let mut width_args = CommandArgs::new();
     width_args.format_width();
-    width_args.path(mask_path);
+    width_args.push_path(mask_path);
     let input_width = identify_read_u32(&width_args)?;
 
     let mut height_args = CommandArgs::new();
     height_args.format_height();
-    height_args.path(mask_path);
+    height_args.push_path(mask_path);
     let input_height = identify_read_u32(&height_args)?;
 
     Ok(max(
