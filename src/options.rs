@@ -47,7 +47,7 @@ struct Args {
     verbose: bool,
 }
 
-#[derive(ValueEnum, Clone, Debug, PartialEq)]
+#[derive(ValueEnum, Clone, Debug, PartialEq, Copy)]
 pub enum ColorScheme {
     Light,
     Dark,

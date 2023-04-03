@@ -50,7 +50,7 @@ fn main() {
                     &full_mask_path,
                     &output_path,
                     &IconInputs {
-                        color_scheme: options::ColorScheme::Dark,
+                        color_scheme: options.color_scheme,
                         resolution,
                     },
                 )
