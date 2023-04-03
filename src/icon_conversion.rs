@@ -24,8 +24,8 @@ pub struct BezelInputs {
 
 pub struct IconInputs {
     pub fill_color: RGBColor,
-    pub dark_bezel: BezelInputs,
-    pub light_bezel: BezelInputs,
+    pub top_bezel: BezelInputs,
+    pub bottom_bezel: BezelInputs,
 }
 
 pub struct IconConversion {
@@ -133,78 +133,84 @@ impl IconConversion {
                 args.opacity(0.5);
             })?;
 
-        let dark_negated =
-            self.simple_operation(sized_mask, "3.1_DARK_NEGATED", |args: &mut CommandArgs| {
-                args.negate();
-            })?;
-
-        let dark_colorized = self.simple_operation(
-            &dark_negated,
-            "3.2_DARK_COLORIZED",
-            |args: &mut CommandArgs| {
-                args.fill_colorize(&inputs.dark_bezel.color);
-            },
-        )?;
-
-        let dark_blurred = self.simple_operation(
-            &dark_colorized,
-            "3.3_DARK_BLURRED",
-            |args: &mut CommandArgs| {
-                args.blur_down(&inputs.dark_bezel.blur);
-            },
-        )?;
-
-        let dark_masked = self.simple_operation(
-            &dark_blurred,
-            "3.4_DARK_MASKED",
-            |args: &mut CommandArgs| {
-                args.mask_down(sized_mask, &inputs.dark_bezel.mask_operation);
-            },
-        )?;
-
-        let dark_bezel =
-            self.simple_operation(&dark_masked, "3.5_DARK_BEZEL", |args: &mut CommandArgs| {
-                args.opacity(inputs.dark_bezel.opacity);
-            })?;
-
-        let light_colorized = self.simple_operation(
+        let top_bezel_negated = self.simple_operation(
             sized_mask,
-            "4.1_LIGHT_COLORIZED",
+            "3.1_TOP_BEZEL_NEGATED",
             |args: &mut CommandArgs| {
-                args.fill_colorize(&inputs.light_bezel.color);
+                args.negate();
             },
         )?;
 
-        let light_blurred = self.simple_operation(
-            &light_colorized,
-            "4.2_LIGHT_BLURRED",
+        let top_bezel_colorized = self.simple_operation(
+            &top_bezel_negated,
+            "3.2_TOP_BEZEL_COLORIZED",
             |args: &mut CommandArgs| {
-                args.blur_down(&inputs.light_bezel.blur);
+                args.fill_colorize(&inputs.top_bezel.color);
             },
         )?;
 
-        let light_masked = self.simple_operation(
-            &light_blurred,
-            "4.3_LIGHT_MASKED",
+        let top_bezel_blurred = self.simple_operation(
+            &top_bezel_colorized,
+            "3.3_TOP_BEZEL_BLURRED",
             |args: &mut CommandArgs| {
-                args.mask_down(sized_mask, &inputs.light_bezel.mask_operation);
+                args.blur_down(&inputs.top_bezel.blur);
             },
         )?;
 
-        let light_bezel = self.simple_operation(
-            &light_masked,
-            "4.4_LIGHT_BEZEL",
+        let top_bezel_masked = self.simple_operation(
+            &top_bezel_blurred,
+            "3.4_TOP_BEZEL_MASKED",
             |args: &mut CommandArgs| {
-                args.opacity(inputs.light_bezel.opacity);
+                args.mask_down(sized_mask, &inputs.top_bezel.mask_operation);
+            },
+        )?;
+
+        let top_bezel = self.simple_operation(
+            &top_bezel_masked,
+            "3.5_TOP_BEZEL",
+            |args: &mut CommandArgs| {
+                args.opacity(inputs.top_bezel.opacity);
+            },
+        )?;
+
+        let bottom_bezel_colorized = self.simple_operation(
+            sized_mask,
+            "4.1_BOTTOM_BEZEL_COLORIZED",
+            |args: &mut CommandArgs| {
+                args.fill_colorize(&inputs.bottom_bezel.color);
+            },
+        )?;
+
+        let bottom_bezel_blurred = self.simple_operation(
+            &bottom_bezel_colorized,
+            "4.2_BOTTOM_BEZEL_BLURRED",
+            |args: &mut CommandArgs| {
+                args.blur_down(&inputs.bottom_bezel.blur);
+            },
+        )?;
+
+        let bottom_bezel_masked = self.simple_operation(
+            &bottom_bezel_blurred,
+            "4.3_BOTTOM_BEZEL_MASKED",
+            |args: &mut CommandArgs| {
+                args.mask_down(sized_mask, &inputs.bottom_bezel.mask_operation);
+            },
+        )?;
+
+        let bottom_bezel = self.simple_operation(
+            &bottom_bezel_masked,
+            "4.4_bottom_bezel",
+            |args: &mut CommandArgs| {
+                args.opacity(inputs.bottom_bezel.opacity);
             },
         )?;
 
         self.simple_operation(template_icon, "final", |args: &mut CommandArgs| {
-            args.path(&light_bezel);
+            args.path(&bottom_bezel);
             args.composite(&CompositingOperation::dissolve);
             args.path(&fill);
             args.composite(&CompositingOperation::dissolve);
-            args.path(&dark_bezel);
+            args.path(&top_bezel);
             args.composite(&CompositingOperation::dissolve);
         })?;
         Ok(())

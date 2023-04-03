@@ -52,7 +52,7 @@ fn main() {
             &template_icon,
             &IconInputs {
                 fill_color: RGBColor::new(6, 111, 194), // light: 8, 134, 206),
-                dark_bezel: BezelInputs {
+                top_bezel: BezelInputs {
                     color: RGBColor::new(58, 152, 208),
                     blur: BlurDown {
                         spread_px: 0,
@@ -61,7 +61,7 @@ fn main() {
                     mask_operation: CompositingOperation::Dst_In,
                     opacity: 0.5,
                 },
-                light_bezel: BezelInputs {
+                bottom_bezel: BezelInputs {
                     color: RGBColor::new(174, 225, 253),
                     blur: BlurDown {
                         spread_px: 2,
