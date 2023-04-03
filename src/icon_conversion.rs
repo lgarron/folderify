@@ -1,5 +1,6 @@
 use std::{
     fmt::Display,
+    fs::create_dir,
     path::{Path, PathBuf},
 };
 
@@ -9,7 +10,7 @@ const RETINA_SCALE: u32 = 2;
 
 use crate::{
     convert::{density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation},
-    error::FolderifyError,
+    error::{FolderifyError, GeneralError},
     options::{self, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
 };
@@ -60,6 +61,16 @@ impl WorkingDir {
 
     pub fn release(self) {
         self.working_dir.release(); // TODO
+    }
+
+    pub fn create_iconset_dir(&self) -> Result<PathBuf, FolderifyError> {
+        let iconset_dir = self.working_dir.to_path_buf().join("Icon.iconset");
+        if create_dir(&iconset_dir).is_err() {
+            return Err(FolderifyError::General(GeneralError {
+                message: "Could not crrate iconset dir".into(),
+            }));
+        };
+        Ok(iconset_dir)
     }
 }
 
@@ -251,6 +262,7 @@ impl IconConversion {
         &self,
         sized_mask: &Path,
         template_icon: &Path,
+        output_path: &Path,
         inputs: &EngravingInputs,
     ) -> Result<(), FolderifyError> {
         let fill_colorized = self.simple_operation(
@@ -337,14 +349,17 @@ impl IconConversion {
             },
         )?;
 
-        self.simple_operation(template_icon, "final", |args: &mut CommandArgs| {
-            args.path(&bottom_bezel);
-            args.composite(&CompositingOperation::dissolve);
-            args.path(&fill);
-            args.composite(&CompositingOperation::dissolve);
-            args.path(&top_bezel);
-            args.composite(&CompositingOperation::dissolve);
-        })?;
+        let mut args = CommandArgs::new();
+        args.path(template_icon);
+        args.path(&bottom_bezel);
+        args.composite(&CompositingOperation::dissolve);
+        args.path(&fill);
+        args.composite(&CompositingOperation::dissolve);
+        args.path(&top_bezel);
+        args.composite(&CompositingOperation::dissolve);
+        args.path(output_path);
+        run_convert(&args)?;
+
         Ok(())
     }
 
@@ -353,6 +368,7 @@ impl IconConversion {
         &self,
         options: &Options,
         full_mask_path: &Path,
+        output_path: &Path,
         inputs: &IconInputs,
     ) -> Result<(), FolderifyError> {
         if options.verbose {
@@ -396,6 +412,7 @@ impl IconConversion {
         self.engrave(
             &sized_mask_path,
             &template_icon,
+            output_path,
             &EngravingInputs {
                 fill_color,
                 top_bezel: BezelInputs {

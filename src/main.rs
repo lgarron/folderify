@@ -27,16 +27,20 @@ fn main() {
         )
         .unwrap();
 
+    let iconset_dir = working_dir.create_iconset_dir().unwrap();
+
     let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {
         let icon_conversion = working_dir.icon_conversion(&resolution.to_string());
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
+        let output_path = iconset_dir.join(format!("icon_{}.png", resolution));
         let handle = thread::spawn(move || {
             icon_conversion
                 .icon(
                     &options,
                     &full_mask_path,
+                    &output_path,
                     &IconInputs {
                         color_scheme: options::ColorScheme::Dark,
                         resolution,
