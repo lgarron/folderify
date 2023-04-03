@@ -1,7 +1,6 @@
 use std::cmp::max;
 use std::fmt;
 use std::fmt::Display;
-use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
@@ -17,22 +16,71 @@ const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
 const DEFAULT_DENSITY: u32 = 72;
 
-pub fn run_command(
-    command_name: &str,
-    args: Vec<&str>,
-    stdin_buf: Option<&Vec<u8>>,
-) -> Result<Vec<u8>, FolderifyError> {
-    println!(
-        "\n\n\n<<<<<<<<<\n{} {}\n>>>>>>>>\n\n\n",
-        command_name,
-        args.join(" ")
-    );
+pub struct CommandArgs {
+    pub args: Vec<String>,
+}
+
+impl CommandArgs {
+    pub fn background_transparent(&mut self) {
+        self.args.push("-background".into());
+        self.args.push("transparent".into());
+    }
+
+    pub fn path(&mut self, path: &Path) {
+        self.args.push(
+            path.to_str()
+                .expect("Could not set path for command")
+                .into(),
+        );
+    }
+
+    pub fn resize(&mut self, dimensions: &Dimensions) {
+        self.args.push("-resize".into());
+        self.args.push(dimensions.to_string());
+    }
+
+    pub fn extent(&mut self, extent: &Extent) {
+        self.args.push("-extent".into());
+        self.args.push(extent.to_string());
+    }
+
+    pub fn format_width(&mut self) {
+        self.args.push("-format".into());
+        self.args.push("%w".into());
+    }
+
+    pub fn format_height(&mut self) {
+        self.args.push("-format".into());
+        self.args.push("%h".into());
+    }
+
+    pub fn density(&mut self, d: u32) {
+        self.args.push("-density".into());
+        self.args.push(d.to_string());
+    }
+
+    pub fn trim(&mut self) {
+        self.args.push("-trim".into());
+    }
+
+    pub fn center(&mut self) {
+        self.args.push("-gravity".into());
+        self.args.push("Center".into());
+    }
+
+    fn default() -> Self {
+        CommandArgs { args: vec![] }
+    }
+}
+
+pub fn run_command(command_name: &str, args: &CommandArgs) -> Result<Vec<u8>, FolderifyError> {
+    println!("args: {}", args.args.join(" "));
     let child = Command::new(command_name)
-        .args(args)
+        .args(args.args.iter())
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn();
-    let mut child = match child {
+    let child = match child {
         Ok(child) => child,
         Err(_) => {
             return Err(FolderifyError::CommandInvalid(CommandInvalidError {
@@ -40,27 +88,6 @@ pub fn run_command(
             }));
         }
     };
-
-    // if let Some(stdin_buf) = stdin_buf {
-    let stdin = match child.stdin.as_mut() {
-        Some(stdin) => stdin,
-        None => {
-            return Err(FolderifyError::CommandInvalid(CommandInvalidError {
-                command_name: command_name.into(),
-            }));
-        }
-    };
-    let empty_buf = Vec::<u8>::new();
-    let buf = stdin_buf.unwrap_or(&empty_buf);
-    match stdin.write(buf) {
-        Ok(_) => (),
-        Err(_) => {
-            return Err(FolderifyError::CommandInvalid(CommandInvalidError {
-                command_name: command_name.into(),
-            }));
-        }
-    };
-    // }
 
     let output = match child.wait_with_output() {
         Ok(output) => output,
@@ -81,18 +108,13 @@ pub fn run_command(
     Ok(output.stdout)
 }
 
-pub fn convert_to_stdout(
-    args: Vec<&str>,
-    stdin_buf: Option<&Vec<u8>>,
-) -> Result<Vec<u8>, FolderifyError> {
-    // TODO: test if the `convert` command exists
-    // args.push("png:-");
-    println!("{:?}", args.clone().join(" "));
-    run_command(CONVERT_COMMAND, args, stdin_buf)
+pub fn run_convert(args: &CommandArgs) -> Result<(), FolderifyError> {
+    run_command(CONVERT_COMMAND, args)?;
+    Ok(())
 }
 
-pub fn identify_read_u32(args: Vec<&str>) -> Result<u32, FolderifyError> {
-    let stdout = run_command(IDENTIFY_COMMAND, args, None)?;
+pub fn identify_read_u32(args: &CommandArgs) -> Result<u32, FolderifyError> {
+    let stdout = run_command(IDENTIFY_COMMAND, args)?;
     let s: &str = match from_utf8(&stdout) {
         Ok(s) => s,
         Err(s) => {
@@ -117,6 +139,7 @@ pub fn identify_read_u32(args: Vec<&str>) -> Result<u32, FolderifyError> {
     Ok(value)
 }
 
+#[derive(Clone)]
 pub struct Dimensions {
     pub width: u32,
     pub height: u32,
@@ -137,9 +160,17 @@ impl Display for Dimensions {
     }
 }
 
-fn density(mask_path: &str, centering_dimensions: &Dimensions) -> Result<u32, FolderifyError> {
-    let input_width = identify_read_u32(vec!["-format", "%w", mask_path])?;
-    let input_height = identify_read_u32(vec!["-format", "%w", mask_path])?;
+fn density(mask_path: &Path, centering_dimensions: &Dimensions) -> Result<u32, FolderifyError> {
+    let mut width_args = CommandArgs::default();
+    width_args.format_width();
+    width_args.path(mask_path);
+    let input_width = identify_read_u32(&width_args)?;
+
+    let mut height_args = CommandArgs::default();
+    height_args.format_height();
+    height_args.path(mask_path);
+    let input_height = identify_read_u32(&height_args)?;
+
     Ok(max(
         DEFAULT_DENSITY * centering_dimensions.width / input_width,
         DEFAULT_DENSITY * centering_dimensions.height / input_height,
@@ -151,32 +182,18 @@ pub fn full_mask(
     centering_dimensions: &Dimensions,
     output_path: &Path,
 ) -> Result<(), FolderifyError> {
-    let mask_path = options.mask.to_str().expect("Invalid mask path");
-
-    let density_string = density(mask_path, centering_dimensions)?.to_string();
-    let mut args = vec![
-        "-background",
-        "transparent",
-        "-density",
-        &density_string,
-        mask_path,
-    ];
+    let mut args = CommandArgs::default();
+    args.background_transparent();
+    args.density(density(&options.mask_path, centering_dimensions)?);
+    args.path(&options.mask_path);
     if !options.no_trim {
-        args.push("-trim")
+        args.trim()
     }
-    let centering_dimensions_string = centering_dimensions.to_string();
-    args.extend([
-        "-resize",
-        &centering_dimensions_string,
-        "-gravity",
-        "Center",
-        "-extent",
-        &centering_dimensions_string,
-        output_path.to_str().expect("Invalid temp path name???"),
-    ]);
-
-    convert_to_stdout(args, None)?;
-    Ok(())
+    args.resize(centering_dimensions);
+    args.center();
+    args.extent(&Extent::no_offset(centering_dimensions));
+    args.path(output_path);
+    run_convert(&args)
 }
 
 pub struct Offset {
@@ -187,6 +204,10 @@ pub struct Offset {
 impl Offset {
     pub fn from_y(y: i32) -> Self {
         Offset { x: 0, y }
+    }
+
+    fn default() -> Offset {
+        Offset { x: 0, y: 0 }
     }
 }
 
@@ -216,6 +237,15 @@ pub struct Extent {
     pub offset: Offset,
 }
 
+impl Extent {
+    pub fn no_offset(size: &Dimensions) -> Self {
+        Self {
+            size: size.clone(),
+            offset: Offset::default(),
+        }
+    }
+}
+
 impl Display for Extent {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}{}", self.size, self.offset)
@@ -233,28 +263,15 @@ pub fn scaled_mask(
     inputs: &ScaledMaskInputs,
     output_path: &Path,
 ) -> Result<(), FolderifyError> {
-    let extent = Extent {
+    let mut args = CommandArgs::default();
+    args.background_transparent();
+    args.path(input_path);
+    args.resize(&inputs.mask_dimensions);
+    args.center();
+    args.extent(&Extent {
         size: Dimensions::square(inputs.icon_size),
         offset: Offset::from_y(inputs.offset_y),
-    };
-    convert_to_stdout(
-        vec![
-            //
-            "-background",
-            "transparent",
-            input_path.to_str().expect("Invalid temp path name???"),
-            //
-            "-resize",
-            &inputs.mask_dimensions.to_string(),
-            //
-            "-gravity",
-            "Center",
-            //
-            "-extent",
-            &extent.to_string(),
-            output_path.to_str().expect("Invalid temp path name???"),
-        ],
-        None,
-    )?;
-    Ok(())
+    });
+    args.path(output_path);
+    run_convert(&args)
 }

@@ -14,6 +14,9 @@ fn main() {
     let mut scaled_mask_path = working_dir.to_path_buf();
     scaled_mask_path.push("SCALED_MASK.png");
 
+    println!("full_mask_path: {}", full_mask_path.display());
+    println!("scaled_mask_path: {}", scaled_mask_path.display());
+
     let centering_dimensions = Dimensions {
         width: 768,
         height: 384,

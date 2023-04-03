@@ -77,7 +77,7 @@ enum SetIconUsingOrAuto {
 
 #[derive(Debug)]
 pub struct Options {
-    pub mask: std::path::PathBuf,
+    pub mask_path: std::path::PathBuf,
     pub color_scheme: ColorScheme,
     pub set_icon_using: SetIconUsing,
     pub no_trim: bool,
@@ -86,7 +86,7 @@ pub struct Options {
 pub fn get_options() -> Options {
     let args = Args::parse();
     Options {
-        mask: args.mask,
+        mask_path: args.mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
         set_icon_using: map_set_icon_using_auto(args.set_icon_using),
         no_trim: args.no_trim,
