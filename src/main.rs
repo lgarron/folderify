@@ -1,9 +1,12 @@
 use std::thread::{self, JoinHandle};
 
+use command::{run_command, OPEN_COMMAND};
+use convert::CommandArgs;
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
 
 use crate::primitives::Dimensions;
 
+mod command;
 mod convert;
 mod error;
 mod icon_conversion;
@@ -64,10 +67,18 @@ fn main() {
         .to_icns(&iconset_dir, &icns_path)
         .unwrap();
 
-    if let Some(target) = options.target {
+    if let Some(target) = &options.target {
         shared_icon_conversion
-            .assign_icns(&icns_path, &target)
+            .assign_icns(&icns_path, target)
             .unwrap();
+    }
+
+    if options.reveal {
+        let reveal_path = options.target.unwrap_or(icns_path);
+        let mut args = CommandArgs::new();
+        args.push("-R");
+        args.push_path(&reveal_path);
+        run_command(OPEN_COMMAND, &args).unwrap();
     }
 
     if DEBUG {

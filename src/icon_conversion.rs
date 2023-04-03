@@ -9,10 +9,11 @@ use mktemp::Temp;
 const RETINA_SCALE: u32 = 2;
 
 use crate::{
-    convert::{
-        density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation, DEREZ_PATH,
-        ICONUTIL_COMMAND, REZ_PATH, SETFILE_PATH, SIPS_PATH,
+    command::{
+        run_command, run_convert, DEREZ_COMMAND, ICONUTIL_COMMAND, REZ_COMMAND, SETFILE_COMMAND,
+        SIPS_COMMAND,
     },
+    convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
     options::{self, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
@@ -111,16 +112,16 @@ impl IconResolution {
     // TODO: return iterator?
     pub fn values() -> Vec<IconResolution> {
         vec![
-            Self::NonRetina16,
-            Self::Retina16,
-            Self::NonRetina32,
-            Self::Retina32,
-            Self::NonRetina128,
-            Self::Retina128,
-            Self::NonRetina256,
-            Self::Retina256,
             Self::NonRetina512,
             Self::Retina512,
+            Self::Retina256,
+            Self::NonRetina256,
+            Self::Retina128,
+            Self::NonRetina128,
+            Self::Retina32,
+            Self::NonRetina32,
+            Self::Retina16,
+            Self::NonRetina16,
         ]
     }
 
@@ -474,7 +475,7 @@ impl IconConversion {
             .expect("Target does not exist!")
             .is_dir(); // TODO: Return `FolderifyError`
 
-        let target_path = if target_is_dir {
+        let target_resource_path = if target_is_dir {
             target_path.join("Icon\r")
         } else {
             target_path.to_owned()
@@ -484,14 +485,14 @@ impl IconConversion {
         let mut args = CommandArgs::new();
         args.push("-i");
         args.push_path(icns_path);
-        run_command(SIPS_PATH, &args)?;
+        run_command(SIPS_COMMAND, &args)?;
 
         // DeRez: export the icns resource from the icns file
         let mut args = CommandArgs::new();
         args.push("-only");
         args.push("icns");
         args.push_path(icns_path);
-        let derezzed = run_command(DEREZ_PATH, &args)?;
+        let derezzed = run_command(DEREZ_COMMAND, &args)?;
         let derezzed_path = self.output_path("derezzed.data");
         if fs::write(&derezzed_path, derezzed).is_err() {
             return Err(FolderifyError::General(GeneralError {
@@ -504,23 +505,23 @@ impl IconConversion {
         args.push("-append");
         args.push_path(&derezzed_path);
         args.push("-o");
-        args.push_path(&target_path);
-        run_command(REZ_PATH, &args)?;
+        args.push_path(&target_resource_path);
+        run_command(REZ_COMMAND, &args)?;
 
         // SetFile: set custom icon attribute
         let mut args = CommandArgs::new();
         args.push("-a");
         args.push("-C");
-        args.push_path(&target_path);
-        run_command(SETFILE_PATH, &args)?;
+        args.push_path(target_path);
+        run_command(SETFILE_COMMAND, &args)?;
 
         if target_is_dir {
             // SetFile: set invisible file attribute
             let mut args = CommandArgs::new();
             args.push("-a");
             args.push("-V");
-            args.push_path(&target_path);
-            run_command(SETFILE_PATH, &args)?;
+            args.push_path(&target_resource_path);
+            run_command(SETFILE_COMMAND, &args)?;
         }
 
         Ok(())

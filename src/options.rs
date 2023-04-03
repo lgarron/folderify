@@ -79,6 +79,7 @@ pub struct Options {
     pub color_scheme: ColorScheme,
     pub no_trim: bool,
     pub target: Option<PathBuf>,
+    pub reveal: bool,
     pub verbose: bool,
 }
 
@@ -89,6 +90,7 @@ pub fn get_options() -> Options {
         color_scheme: map_color_scheme_auto(args.color_scheme),
         no_trim: args.no_trim,
         target: args.target,
+        reveal: args.reveal,
         verbose: args.verbose,
     }
 }
