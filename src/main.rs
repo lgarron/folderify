@@ -1,13 +1,15 @@
 use std::path::PathBuf;
 
-use convert::{Dimensions, ScaledMaskInputs};
+use convert::Dimensions;
 
-use crate::convert::{
-    BezelInputs, BlurDown, CompositingOperation, IconConversion, IconInputs, RGBColor,
+use crate::{
+    convert::{BlurDown, CompositingOperation, RGBColor},
+    icon_conversion::{BezelInputs, IconConversion, IconInputs, ScaledMaskInputs},
 };
 
 mod convert;
 mod error;
+mod icon_conversion;
 mod options;
 
 fn main() {
