@@ -1,5 +1,6 @@
-use convert::{full_mask, scaled_mask, Dimensions, ScaledMaskInputs};
-use mktemp::Temp;
+use convert::{Dimensions, ScaledMaskInputs};
+
+use crate::convert::{BlurDown, DarkShadowInputs, IconConversion, IconInputs, RGBColor};
 
 mod convert;
 mod error;
@@ -8,35 +9,51 @@ mod options;
 fn main() {
     let options = options::get_options();
 
-    let working_dir = Temp::new_dir().expect("Couldn't create a temp dir.");
-    let mut full_mask_path = working_dir.to_path_buf();
-    full_mask_path.push("FULL_MASK.png");
-    let mut scaled_mask_path = working_dir.to_path_buf();
-    scaled_mask_path.push("SCALED_MASK.png");
+    let icon_conversion = IconConversion::new("256x256".into());
+    icon_conversion.open_working_dir().unwrap();
+
+    let full_mask_path = icon_conversion
+        .full_mask(
+            &options,
+            &Dimensions {
+                width: 768,
+                height: 384,
+            },
+        )
+        .unwrap();
+    let sized_mask_path = icon_conversion
+        .sized_mask(
+            &full_mask_path,
+            &ScaledMaskInputs {
+                icon_size: 256,
+                mask_dimensions: Dimensions {
+                    width: 192,
+                    height: 96,
+                },
+                offset_y: -12,
+            },
+        )
+        .unwrap();
 
     println!("full_mask_path: {}", full_mask_path.display());
-    println!("scaled_mask_path: {}", scaled_mask_path.display());
+    println!("sized_mask_path: {}", sized_mask_path.display());
 
-    let centering_dimensions = Dimensions {
-        width: 768,
-        height: 384,
-    };
-    full_mask(&options, &centering_dimensions, &full_mask_path).unwrap();
-    scaled_mask(
-        &full_mask_path,
-        &ScaledMaskInputs {
-            icon_size: 256,
-            mask_dimensions: Dimensions {
-                width: 192,
-                height: 96,
+    icon_conversion
+        .icon(
+            &sized_mask_path,
+            &IconInputs {
+                fill_color: RGBColor::new(6, 111, 194), // light: 8, 134, 206),
+                dark_shadow: DarkShadowInputs {
+                    color: RGBColor::new(58, 152, 208),
+                    blur: BlurDown {
+                        spread_px: 0,
+                        page_y: 2,
+                    },
+                },
             },
-            offset_y: 12,
-        },
-        &scaled_mask_path,
-    )
-    .unwrap();
-
-    working_dir.release();
+        )
+        .unwrap();
+    icon_conversion.release_working_dir();
     // std::io::stdout()
     //     .write_all(&scaled_mask)
     //     .expect("Could not write result");
