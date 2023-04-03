@@ -144,21 +144,6 @@ impl CommandArgs {
         self.push("Set");
         self.composite(compositing_operation);
     }
-
-    // def colorize(step_name, fill, input):
-    //   return process(step_name, g(input, "-fill", fill, "-colorize", "100, 100, 100"))
-
-    // def opacity(step_name, fraction, input):
-    //   return process(step_name, g(input, "-channel", "Alpha", "-evaluate", "multiply", fraction))
-
-    // def blur_down(step_name, blur_px, offset_px, input):
-    //   return process(step_name, g(input, "-motion-blur", ("0x%d-90" % blur_px), "-page", ("+0+%d" % offset_px), "-background", "none", "-flatten"))
-
-    // def mask_down(step_name, mask_operation, input, mask):
-    //   return process(step_name, g(input, mask, "-alpha", "Set", "-compose", mask_operation, "-composite"))
-
-    // def negate(step_name, input):
-    //   return process(step_name, g(input, "-negate"))
 }
 
 pub struct BlurDown {
