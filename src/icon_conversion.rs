@@ -367,9 +367,16 @@ impl IconConversion<'_> {
             .unwrap();
 
         // TODO
-        let template_icon = PathBuf::from(
-            format!("/Users/lgarron/Code/git/github.com/lgarron/folderify/old/folderify/GenericFolderIcon.BigSur.iconset/icon_{}.png", inputs.resolution),
-        );
+        let template_icon = match inputs.color_scheme {
+            ColorScheme::Light => PathBuf::from(format!(
+                "./old/folderify/GenericFolderIcon.BigSur.iconset/icon_{}.png",
+                inputs.resolution
+            )),
+            ColorScheme::Dark => PathBuf::from(format!(
+                "./old/folderify/GenericFolderIcon.BigSur.dark.iconset/icon_{}.png",
+                inputs.resolution
+            )),
+        };
 
         let fill_color = match inputs.color_scheme {
             ColorScheme::Light => RGBColor::new(8, 134, 206),

@@ -38,7 +38,4 @@ fn main() {
             .unwrap();
     }
     working_dir.release();
-    // std::io::stdout()
-    //     .write_all(&scaled_mask)
-    //     .expect("Could not write result");
 }
