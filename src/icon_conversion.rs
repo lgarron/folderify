@@ -3,12 +3,10 @@ use std::path::{Path, PathBuf};
 use mktemp::Temp;
 
 use crate::{
-    convert::{
-        density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation, Dimensions,
-        Extent, Offset, RGBColor,
-    },
+    convert::{density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation},
     error::FolderifyError,
     options,
+    primitives::{Dimensions, Extent, Offset, RGBColor},
 };
 
 pub struct ScaledMaskInputs {

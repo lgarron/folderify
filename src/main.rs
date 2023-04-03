@@ -1,16 +1,16 @@
 use std::path::PathBuf;
 
-use convert::Dimensions;
-
 use crate::{
-    convert::{BlurDown, CompositingOperation, RGBColor},
+    convert::{BlurDown, CompositingOperation},
     icon_conversion::{BezelInputs, IconConversion, IconInputs, ScaledMaskInputs},
+    primitives::{Dimensions, RGBColor},
 };
 
 mod convert;
 mod error;
 mod icon_conversion;
 mod options;
+mod primitives;
 
 fn main() {
     let options = options::get_options();
