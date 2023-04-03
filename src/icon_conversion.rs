@@ -470,8 +470,6 @@ impl IconConversion {
     }
 
     pub fn assign_icns(&self, icns_path: &Path, target_path: &Path) -> Result<(), FolderifyError> {
-        let target_icon_resource_fork_path = target_path.join("Icon\r");
-
         // sips: add an icns resource fork to the icns file
         let mut args = CommandArgs::new();
         args.push("-i");
@@ -496,7 +494,7 @@ impl IconConversion {
         args.push("-append");
         args.push_path(&derezzed_path);
         args.push("-o");
-        args.push_path(&target_icon_resource_fork_path);
+        args.push_path(target_path);
         run_command(REZ_PATH, &args)?;
 
         // SetFile: set custom icon attribute
@@ -504,13 +502,6 @@ impl IconConversion {
         args.push("-a");
         args.push("-C");
         args.push_path(target_path);
-        run_command(SETFILE_PATH, &args)?;
-
-        // SetFile: set invisible file attribute
-        let mut args = CommandArgs::new();
-        args.push("-a");
-        args.push("-V");
-        args.push_path(&target_icon_resource_fork_path);
         run_command(SETFILE_PATH, &args)?;
 
         Ok(())
