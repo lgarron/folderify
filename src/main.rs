@@ -10,11 +10,15 @@ mod icon_conversion;
 mod options;
 mod primitives;
 
+const DEBUG: bool = false;
+
 fn main() {
     let options = options::get_options();
 
     let working_dir = WorkingDir::new();
-    working_dir.open_in_finder().unwrap();
+    if DEBUG {
+        working_dir.open_in_finder().unwrap();
+    }
 
     let shared_icon_conversion = working_dir.icon_conversion("shared");
     let full_mask_path = shared_icon_conversion
@@ -66,5 +70,7 @@ fn main() {
             .unwrap();
     }
 
-    working_dir.release();
+    if DEBUG {
+        working_dir.release();
+    }
 }

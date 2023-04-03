@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    fs::{self, create_dir_all},
+    fs::{self, create_dir_all, metadata},
     path::{Path, PathBuf},
 };
 
@@ -470,6 +470,16 @@ impl IconConversion {
     }
 
     pub fn assign_icns(&self, icns_path: &Path, target_path: &Path) -> Result<(), FolderifyError> {
+        let target_is_dir = metadata(target_path)
+            .expect("Target does not exist!")
+            .is_dir(); // TODO: Return `FolderifyError`
+
+        let target_path = if target_is_dir {
+            target_path.join("Icon\r")
+        } else {
+            target_path.to_owned()
+        };
+
         // sips: add an icns resource fork to the icns file
         let mut args = CommandArgs::new();
         args.push("-i");
@@ -494,15 +504,24 @@ impl IconConversion {
         args.push("-append");
         args.push_path(&derezzed_path);
         args.push("-o");
-        args.push_path(target_path);
+        args.push_path(&target_path);
         run_command(REZ_PATH, &args)?;
 
         // SetFile: set custom icon attribute
         let mut args = CommandArgs::new();
         args.push("-a");
         args.push("-C");
-        args.push_path(target_path);
+        args.push_path(&target_path);
         run_command(SETFILE_PATH, &args)?;
+
+        if target_is_dir {
+            // SetFile: set invisible file attribute
+            let mut args = CommandArgs::new();
+            args.push("-a");
+            args.push("-V");
+            args.push_path(&target_path);
+            run_command(SETFILE_PATH, &args)?;
+        }
 
         Ok(())
     }
