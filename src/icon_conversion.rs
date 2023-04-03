@@ -1,11 +1,16 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 use mktemp::Temp;
+
+const RETINA_SCALE: u32 = 2;
 
 use crate::{
     convert::{density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation},
     error::FolderifyError,
-    options,
+    options::{self, ColorScheme},
     primitives::{Dimensions, Extent, Offset, RGBColor},
 };
 
@@ -22,36 +27,162 @@ pub struct BezelInputs {
     pub opacity: f32,
 }
 
-pub struct IconInputs {
+pub struct IconBezelInputs {
     pub fill_color: RGBColor,
     pub top_bezel: BezelInputs,
     pub bottom_bezel: BezelInputs,
 }
 
-pub struct IconConversion {
+pub struct WorkingDir {
     working_dir: Temp,
-    resolution_prefix: String,
 }
 
-impl IconConversion {
-    pub fn new(resolution_prefix: String) -> Self {
-        IconConversion {
+impl WorkingDir {
+    pub fn new() -> Self {
+        Self {
             working_dir: Temp::new_dir().expect("Couldn't create a temp dir."),
-            resolution_prefix,
         }
     }
 
-    pub fn open_working_dir(&self) -> Result<(), FolderifyError> {
+    pub fn icon_conversion(&self, resolution_prefix: &str) -> IconConversion {
+        IconConversion {
+            working_dir: &self.working_dir,
+            resolution_prefix: resolution_prefix.into(),
+        }
+    }
+    pub fn open_in_finder(&self) -> Result<(), FolderifyError> {
         let mut open_args = CommandArgs::new();
         open_args.path(&self.working_dir);
         run_command("open", &open_args)?;
         Ok(())
     }
 
-    pub fn release_working_dir(self) {
+    pub fn release(self) {
         self.working_dir.release(); // TODO
     }
+}
 
+pub enum IconResolution {
+    NonRetina16,
+    Retina16,
+    NonRetina32,
+    Retina32,
+    NonRetina128,
+    Retina128,
+    NonRetina256,
+    Retina256,
+    NonRetina512,
+    Retina512,
+}
+
+impl IconResolution {
+    // TODO: return iterator?
+    pub fn values() -> Vec<IconResolution> {
+        vec![
+            Self::NonRetina16,
+            Self::Retina16,
+            Self::NonRetina32,
+            Self::Retina32,
+            Self::NonRetina128,
+            Self::Retina128,
+            Self::NonRetina256,
+            Self::Retina256,
+            Self::NonRetina512,
+            Self::Retina512,
+        ]
+    }
+
+    pub fn size(&self) -> u32 {
+        match self {
+            IconResolution::NonRetina16 => 16,
+            IconResolution::Retina16 => 16 * RETINA_SCALE,
+            IconResolution::NonRetina32 => 32,
+            IconResolution::Retina32 => 32 * RETINA_SCALE,
+            IconResolution::NonRetina128 => 128,
+            IconResolution::Retina128 => 128 * RETINA_SCALE,
+            IconResolution::NonRetina256 => 256,
+            IconResolution::Retina256 => 256 * RETINA_SCALE,
+            IconResolution::NonRetina512 => 512,
+            IconResolution::Retina512 => 512 * RETINA_SCALE,
+        }
+    }
+
+    pub fn offset_y(&self) -> i32 {
+        match self {
+            IconResolution::NonRetina16 => -2,
+            IconResolution::Retina16 => -2,
+            IconResolution::NonRetina32 => -2,
+            IconResolution::Retina32 => -3,
+            IconResolution::NonRetina128 => -6,
+            IconResolution::Retina128 => -12,
+            IconResolution::NonRetina256 => -12,
+            IconResolution::Retina256 => -24,
+            IconResolution::NonRetina512 => -24,
+            IconResolution::Retina512 => -48,
+        }
+    }
+
+    pub fn bottom_bezel_blur_down(&self) -> BlurDown {
+        match self {
+            IconResolution::NonRetina16 => BlurDown {
+                spread_px: 1,
+                page_y: 0,
+            },
+            _ => BlurDown {
+                spread_px: 2,
+                page_y: 1,
+            },
+        }
+    }
+
+    pub fn bottom_bezel_alpha(&self) -> f32 {
+        match self {
+            IconResolution::NonRetina16 => 0.5,
+            IconResolution::Retina16 => 0.35,
+            IconResolution::NonRetina32 => 0.35,
+            IconResolution::Retina32 => 0.6,
+            IconResolution::NonRetina128 => 0.6,
+            IconResolution::Retina128 => 0.6,
+            IconResolution::NonRetina256 => 0.6,
+            IconResolution::Retina256 => 0.75,
+            IconResolution::NonRetina512 => 0.75,
+            IconResolution::Retina512 => 0.75,
+        }
+    }
+}
+
+impl Display for IconResolution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::NonRetina16 => "16x16",
+                Self::Retina16 => "16x16@2x",
+                Self::NonRetina32 => "32x32",
+                Self::Retina32 => "32x32@2x",
+                Self::NonRetina128 => "128x128",
+                Self::Retina128 => "128x128@2x",
+                Self::NonRetina256 => "256x256",
+                Self::Retina256 => "256x256@2x",
+                Self::NonRetina512 => "512x512",
+                Self::Retina512 => "512x512@2x",
+            }
+        )
+    }
+}
+
+pub struct IconConversion<'a> {
+    working_dir: &'a Temp,
+    resolution_prefix: String,
+}
+
+pub struct IconInputs {
+    pub color_scheme: ColorScheme,
+    pub resolution: IconResolution,
+}
+
+impl IconConversion<'_> {
     fn output_path(&self, file_name: &str) -> PathBuf {
         let mut path = self.working_dir.to_path_buf();
         path.push(format!("{}_{}", self.resolution_prefix, file_name));
@@ -115,11 +246,11 @@ impl IconConversion {
         Ok(output_path)
     }
 
-    pub fn icon(
+    pub fn add_bezels(
         &self,
         sized_mask: &Path,
         template_icon: &Path,
-        inputs: &IconInputs,
+        inputs: &IconBezelInputs,
     ) -> Result<(), FolderifyError> {
         let fill_colorized = self.simple_operation(
             sized_mask,
@@ -214,5 +345,58 @@ impl IconConversion {
             args.composite(&CompositingOperation::dissolve);
         })?;
         Ok(())
+    }
+
+    // TODO
+    pub fn icon(&self, full_mask_path: &Path, inputs: &IconInputs) -> Result<(), FolderifyError> {
+        let size = inputs.resolution.size();
+        let offset_y = inputs.resolution.offset_y();
+
+        let sized_mask_path = self
+            .sized_mask(
+                full_mask_path,
+                &ScaledMaskInputs {
+                    icon_size: size,
+                    mask_dimensions: Dimensions {
+                        width: size * 3 / 4,
+                        height: size / 2,
+                    },
+                    offset_y,
+                },
+            )
+            .unwrap();
+
+        // TODO
+        let template_icon = PathBuf::from(
+            format!("/Users/lgarron/Code/git/github.com/lgarron/folderify/old/folderify/GenericFolderIcon.BigSur.iconset/icon_{}.png", inputs.resolution),
+        );
+
+        let fill_color = match inputs.color_scheme {
+            ColorScheme::Light => RGBColor::new(8, 134, 206),
+            ColorScheme::Dark => RGBColor::new(6, 111, 194),
+        };
+
+        self.add_bezels(
+            &sized_mask_path,
+            &template_icon,
+            &IconBezelInputs {
+                fill_color,
+                top_bezel: BezelInputs {
+                    color: RGBColor::new(58, 152, 208),
+                    blur: BlurDown {
+                        spread_px: 0,
+                        page_y: 2,
+                    },
+                    mask_operation: CompositingOperation::Dst_In,
+                    opacity: 0.5,
+                },
+                bottom_bezel: BezelInputs {
+                    color: RGBColor::new(174, 225, 253),
+                    blur: inputs.resolution.bottom_bezel_blur_down(),
+                    mask_operation: CompositingOperation::Dst_Out,
+                    opacity: inputs.resolution.bottom_bezel_alpha(),
+                },
+            },
+        )
     }
 }
