@@ -127,16 +127,22 @@ impl CommandArgs {
         self.flatten();
     }
 
-    pub fn mask_down(&mut self, mask_path: &Path, mask_operation: MaskOperation) {
+    // TODO: take `CompositingOperation` instead of `&CompositingOperation`?
+    pub fn composite(&mut self, compositing_operation: &CompositingOperation) {
+        self.push("-compose");
+        self.push(match compositing_operation {
+            CompositingOperation::Dst_In => "Dst_In",
+            CompositingOperation::Dst_Out => "Dst_Out",
+            CompositingOperation::dissolve => "dissolve",
+        });
+        self.push("-composite");
+    }
+
+    pub fn mask_down(&mut self, mask_path: &Path, compositing_operation: &CompositingOperation) {
         self.path(mask_path);
         self.push("-alpha");
         self.push("Set");
-        self.push("-compose");
-        self.push(match mask_operation {
-            MaskOperation::Dst_In => "Dst_In",
-            MaskOperation::Dst_Out => "Dst_Out",
-        });
-        self.push("-composite");
+        self.composite(compositing_operation);
     }
 
     // def colorize(step_name, fill, input):
@@ -161,9 +167,10 @@ pub struct BlurDown {
 }
 
 #[allow(non_camel_case_types)] // Match ImageMagick args
-pub enum MaskOperation {
+pub enum CompositingOperation {
     Dst_In,
     Dst_Out,
+    dissolve,
 }
 
 pub fn run_command(command_name: &str, args: &CommandArgs) -> Result<Vec<u8>, FolderifyError> {
@@ -350,14 +357,17 @@ pub struct ScaledMaskInputs {
     pub offset_y: i32,
 }
 
-pub struct DarkShadowInputs {
+pub struct BezelInputs {
     pub color: RGBColor,
     pub blur: BlurDown,
+    pub mask_operation: CompositingOperation,
+    pub opacity: f32,
 }
 
 pub struct IconInputs {
     pub fill_color: RGBColor,
-    pub dark_shadow: DarkShadowInputs,
+    pub dark_bezel: BezelInputs,
+    pub light_bezel: BezelInputs,
 }
 
 pub struct IconConversion {
@@ -447,7 +457,12 @@ impl IconConversion {
         Ok(output_path)
     }
 
-    pub fn icon(&self, sized_mask: &Path, inputs: &IconInputs) -> Result<(), FolderifyError> {
+    pub fn icon(
+        &self,
+        sized_mask: &Path,
+        template_icon: &Path,
+        inputs: &IconInputs,
+    ) -> Result<(), FolderifyError> {
         let fill_colorized = self.simple_operation(
             sized_mask,
             "2.1_FILL_COLORIZED",
@@ -460,66 +475,80 @@ impl IconConversion {
                 args.opacity(0.5);
             })?;
 
-        let black_negated =
-            self.simple_operation(sized_mask, "3.1_BLACK_NEGATED", |args: &mut CommandArgs| {
+        let dark_negated =
+            self.simple_operation(sized_mask, "3.1_DARK_NEGATED", |args: &mut CommandArgs| {
                 args.negate();
             })?;
 
-        let black_colorized = self.simple_operation(
-            &black_negated,
-            "3.2_BLACK_COLORIZED",
+        let dark_colorized = self.simple_operation(
+            &dark_negated,
+            "3.2_DARK_COLORIZED",
             |args: &mut CommandArgs| {
-                args.fill_colorize(&inputs.dark_shadow.color);
+                args.fill_colorize(&inputs.dark_bezel.color);
             },
         )?;
 
-        let black_blurred = self.simple_operation(
-            &black_colorized,
-            "3.3_BLACK_BLURRED",
+        let dark_blurred = self.simple_operation(
+            &dark_colorized,
+            "3.3_DARK_BLURRED",
             |args: &mut CommandArgs| {
-                args.blur_down(&inputs.dark_shadow.blur);
+                args.blur_down(&inputs.dark_bezel.blur);
             },
         )?;
 
-        let black_masked = self.simple_operation(
-            &black_blurred,
-            "3.4_BLACK_MASKED",
+        let dark_masked = self.simple_operation(
+            &dark_blurred,
+            "3.4_DARK_MASKED",
             |args: &mut CommandArgs| {
-                args.mask_down(sized_mask, MaskOperation::Dst_In);
+                args.mask_down(sized_mask, &inputs.dark_bezel.mask_operation);
             },
         )?;
 
-        let black_shadow = self.simple_operation(
-            &black_masked,
-            "3.5_BLACK_SHADOW",
+        let dark_bezel =
+            self.simple_operation(&dark_masked, "3.5_DARK_BEZEL", |args: &mut CommandArgs| {
+                args.opacity(inputs.dark_bezel.opacity);
+            })?;
+
+        let light_colorized = self.simple_operation(
+            sized_mask,
+            "4.1_LIGHT_COLORIZED",
             |args: &mut CommandArgs| {
-                args.opacity(0.5);
+                args.fill_colorize(&inputs.light_bezel.color);
             },
         )?;
 
-        println!("{}{}", fill.display(), black_shadow.display());
-        // WHITE_COLORIZED = colorize("4.1_WHITE_COLORIZED", "rgb(174, 225, 253)", SIZED_MASK)
-        // WHITE_BLURRED = blur_down("4.2_WHITE_BLURRED", white_blur, white_offset, WHITE_COLORIZED)
-        // WHITE_MASKED = mask_down("4.3_WHITE_MASKED", "Dst_Out", WHITE_BLURRED, SIZED_MASK)
-        // WHITE_SHADOW = opacity("4.4_WHITE_SHADOW", white_opacity, WHITE_MASKED)
+        let light_blurred = self.simple_operation(
+            &light_colorized,
+            "4.2_LIGHT_BLURRED",
+            |args: &mut CommandArgs| {
+                args.blur_down(&inputs.light_bezel.blur);
+            },
+        )?;
 
-        // COMPOSITE = g(
-        //   template_icon,
-        //   WHITE_SHADOW,
-        //   "-compose", "dissolve", "-composite",
-        //   FILL,
-        //   "-compose", "dissolve", "-composite",
-        //   BLACK_SHADOW,
-        //   "-compose", "dissolve", "-composite"
-        // )
+        let light_masked = self.simple_operation(
+            &light_blurred,
+            "4.3_LIGHT_MASKED",
+            |args: &mut CommandArgs| {
+                args.mask_down(sized_mask, &inputs.light_bezel.mask_operation);
+            },
+        )?;
 
-        // command = p(
-        //   convert_path,
-        //   COMPOSITE, # can be replaced with an intermediate step for debugging.
-        //   FILE_OUT
-        // )
+        let light_bezel = self.simple_operation(
+            &light_masked,
+            "4.4_LIGHT_BEZEL",
+            |args: &mut CommandArgs| {
+                args.opacity(inputs.light_bezel.opacity);
+            },
+        )?;
 
-        // return subprocess.Popen(command)
+        self.simple_operation(template_icon, "final", |args: &mut CommandArgs| {
+            args.path(&light_bezel);
+            args.composite(&CompositingOperation::dissolve);
+            args.path(&fill);
+            args.composite(&CompositingOperation::dissolve);
+            args.path(&dark_bezel);
+            args.composite(&CompositingOperation::dissolve);
+        })?;
         Ok(())
     }
 }

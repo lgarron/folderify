@@ -1,6 +1,10 @@
+use std::path::PathBuf;
+
 use convert::{Dimensions, ScaledMaskInputs};
 
-use crate::convert::{BlurDown, DarkShadowInputs, IconConversion, IconInputs, RGBColor};
+use crate::convert::{
+    BezelInputs, BlurDown, CompositingOperation, IconConversion, IconInputs, RGBColor,
+};
 
 mod convert;
 mod error;
@@ -38,17 +42,31 @@ fn main() {
     println!("full_mask_path: {}", full_mask_path.display());
     println!("sized_mask_path: {}", sized_mask_path.display());
 
+    let template_icon = PathBuf::from("/Users/lgarron/Code/git/github.com/lgarron/folderify/old/folderify/GenericFolderIcon.BigSur.iconset/icon_256x256.png");
+
     icon_conversion
         .icon(
             &sized_mask_path,
+            &template_icon,
             &IconInputs {
                 fill_color: RGBColor::new(6, 111, 194), // light: 8, 134, 206),
-                dark_shadow: DarkShadowInputs {
+                dark_bezel: BezelInputs {
                     color: RGBColor::new(58, 152, 208),
                     blur: BlurDown {
                         spread_px: 0,
                         page_y: 2,
                     },
+                    mask_operation: CompositingOperation::Dst_In,
+                    opacity: 0.5,
+                },
+                light_bezel: BezelInputs {
+                    color: RGBColor::new(174, 225, 253),
+                    blur: BlurDown {
+                        spread_px: 2,
+                        page_y: 1,
+                    },
+                    mask_operation: CompositingOperation::Dst_Out,
+                    opacity: 0.6,
                 },
             },
         )
