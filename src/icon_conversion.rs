@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    fs::create_dir_all,
+    fs::{self, create_dir_all},
     path::{Path, PathBuf},
 };
 
@@ -10,8 +10,8 @@ const RETINA_SCALE: u32 = 2;
 
 use crate::{
     convert::{
-        density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation,
-        ICONUTIL_COMMAND,
+        density, run_command, run_convert, BlurDown, CommandArgs, CompositingOperation, DEREZ_PATH,
+        ICONUTIL_COMMAND, REZ_PATH, SETFILE_PATH, SIPS_PATH,
     },
     error::{FolderifyError, GeneralError},
     options::{self, ColorScheme, Options},
@@ -466,6 +466,53 @@ impl IconConversion {
         args.push("--output");
         args.push_path(icns_path);
         run_command(ICONUTIL_COMMAND, &args)?;
+        Ok(())
+    }
+
+    pub fn assign_icns(&self, icns_path: &Path, target_path: &Path) -> Result<(), FolderifyError> {
+        let target_icon_resource_fork_path = target_path.join("Icon\r");
+
+        // sips: add an icns resource fork to the icns file
+        let mut args = CommandArgs::new();
+        args.push("-i");
+        args.push_path(icns_path);
+        run_command(SIPS_PATH, &args)?;
+
+        // DeRez: export the icns resource from the icns file
+        let mut args = CommandArgs::new();
+        args.push("-only");
+        args.push("icns");
+        args.push_path(icns_path);
+        let derezzed = run_command(DEREZ_PATH, &args)?;
+        let derezzed_path = self.output_path("derezzed.data");
+        if fs::write(&derezzed_path, derezzed).is_err() {
+            return Err(FolderifyError::General(GeneralError {
+                message: "Could not write derezzed data".into(),
+            }));
+        }
+
+        // Rez: add exported icns resource to the resource fork of target/Icon^M
+        let mut args = CommandArgs::new();
+        args.push("-append");
+        args.push_path(&derezzed_path);
+        args.push("-o");
+        args.push_path(&target_icon_resource_fork_path);
+        run_command(REZ_PATH, &args)?;
+
+        // SetFile: set custom icon attribute
+        let mut args = CommandArgs::new();
+        args.push("-a");
+        args.push("-C");
+        args.push_path(target_path);
+        run_command(SETFILE_PATH, &args)?;
+
+        // SetFile: set invisible file attribute
+        let mut args = CommandArgs::new();
+        args.push("-a");
+        args.push("-V");
+        args.push_path(&target_icon_resource_fork_path);
+        run_command(SETFILE_PATH, &args)?;
+
         Ok(())
     }
 }

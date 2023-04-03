@@ -13,6 +13,12 @@ use crate::primitives::{Dimensions, Extent, Offset, RGBColor};
 const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
 pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
+
+pub(crate) const SIPS_PATH: &str = "sips";
+pub(crate) const DEREZ_PATH: &str = "DeRez";
+pub(crate) const REZ_PATH: &str = "Rez";
+pub(crate) const SETFILE_PATH: &str = "SetFile";
+
 const DEFAULT_DENSITY: u32 = 72;
 
 const DEBUG_PRINT_ARGS: bool = false;

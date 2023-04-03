@@ -60,5 +60,11 @@ fn main() {
         .to_icns(&iconset_dir, &icns_path)
         .unwrap();
 
+    if let Some(target) = options.target {
+        shared_icon_conversion
+            .assign_icns(&icns_path, &target)
+            .unwrap();
+    }
+
     working_dir.release();
 }
