@@ -2,6 +2,7 @@ use std::cmp::max;
 use std::fmt;
 use std::fmt::Display;
 use std::io::Write;
+use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
 use std::str::from_utf8;
@@ -81,11 +82,11 @@ pub fn run_command(
 }
 
 pub fn convert_to_stdout(
-    mut args: Vec<&str>,
+    args: Vec<&str>,
     stdin_buf: Option<&Vec<u8>>,
 ) -> Result<Vec<u8>, FolderifyError> {
     // TODO: test if the `convert` command exists
-    args.push("png:-");
+    // args.push("png:-");
     println!("{:?}", args.clone().join(" "));
     run_command(CONVERT_COMMAND, args, stdin_buf)
 }
@@ -121,6 +122,15 @@ pub struct Dimensions {
     pub height: u32,
 }
 
+impl Dimensions {
+    pub fn square(side_size: u32) -> Self {
+        Dimensions {
+            width: side_size,
+            height: side_size,
+        }
+    }
+}
+
 impl Display for Dimensions {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}x{}", self.width, self.height)
@@ -139,7 +149,8 @@ fn density(mask_path: &str, centering_dimensions: &Dimensions) -> Result<u32, Fo
 pub fn full_mask(
     options: &options::Options,
     centering_dimensions: &Dimensions,
-) -> Result<Vec<u8>, FolderifyError> {
+    output_path: &Path,
+) -> Result<(), FolderifyError> {
     let mask_path = options.mask.to_str().expect("Invalid mask path");
 
     let density_string = density(mask_path, centering_dimensions)?.to_string();
@@ -161,14 +172,22 @@ pub fn full_mask(
         "Center",
         "-extent",
         &centering_dimensions_string,
+        output_path.to_str().expect("Invalid temp path name???"),
     ]);
 
-    convert_to_stdout(args, None)
+    convert_to_stdout(args, None)?;
+    Ok(())
 }
 
 pub struct Offset {
     pub x: i32,
     pub y: i32,
+}
+
+impl Offset {
+    pub fn from_y(y: i32) -> Self {
+        Offset { x: 0, y }
+    }
 }
 
 fn sign(v: i32) -> char {
@@ -210,25 +229,20 @@ pub struct ScaledMaskInputs {
 }
 
 pub fn scaled_mask(
-    full_mask: &Vec<u8>,
+    input_path: &Path,
     inputs: &ScaledMaskInputs,
-) -> Result<Vec<u8>, FolderifyError> {
+    output_path: &Path,
+) -> Result<(), FolderifyError> {
     let extent = Extent {
-        size: Dimensions {
-            width: inputs.icon_size,
-            height: inputs.icon_size,
-        },
-        offset: Offset {
-            x: 0,
-            y: inputs.offset_y,
-        },
+        size: Dimensions::square(inputs.icon_size),
+        offset: Offset::from_y(inputs.offset_y),
     };
     convert_to_stdout(
         vec![
             //
             "-background",
             "transparent",
-            "-",
+            input_path.to_str().expect("Invalid temp path name???"),
             //
             "-resize",
             &inputs.mask_dimensions.to_string(),
@@ -238,7 +252,9 @@ pub fn scaled_mask(
             //
             "-extent",
             &extent.to_string(),
+            output_path.to_str().expect("Invalid temp path name???"),
         ],
-        Some(full_mask),
-    )
+        None,
+    )?;
+    Ok(())
 }
