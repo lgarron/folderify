@@ -330,7 +330,7 @@ impl IconConversion<'_> {
 
         let bottom_bezel = self.simple_operation(
             &bottom_bezel_masked,
-            "4.4_bottom_bezel",
+            "4.4_BOTTOM_BEZEL",
             |args: &mut CommandArgs| {
                 args.opacity(inputs.bottom_bezel.opacity);
             },
