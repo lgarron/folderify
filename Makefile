@@ -14,3 +14,7 @@ format:
 .PHONY: test
 test:
 	./test/test.sh
+
+.PHONY: publish
+publish:
+	cargo publish
