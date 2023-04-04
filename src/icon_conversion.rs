@@ -15,6 +15,7 @@ use crate::{
     },
     convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
+    generic_folder_icon::get_folder_icon,
     options::{self, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
 };
@@ -59,7 +60,7 @@ impl WorkingDir {
     pub fn open_in_finder(&self) -> Result<(), FolderifyError> {
         let mut open_args = CommandArgs::new();
         open_args.push_path(&self.working_dir);
-        run_command("open", &open_args)?;
+        run_command("open", &open_args, None)?;
         Ok(())
     }
 
@@ -182,6 +183,10 @@ impl IconResolution {
             IconResolution::Retina512 => 0.75,
         }
     }
+
+    pub fn icon_file(&self) -> String {
+        format!("icon_{}.png", self)
+    }
 }
 
 impl Display for IconResolution {
@@ -239,7 +244,7 @@ impl IconConversion {
         args.extent(&Extent::no_offset(centering_dimensions));
         let output_path = self.output_path("0.0_FULL_MASK.png");
         args.push_path(&output_path);
-        run_convert(&args)?;
+        run_convert(&args, None)?;
         Ok(output_path)
     }
 
@@ -259,7 +264,7 @@ impl IconConversion {
         });
         let output_path = self.output_path("1.0_SIZED_MASK.png");
         args.push_path(&output_path);
-        run_convert(&args)?;
+        run_convert(&args, None)?;
         Ok(output_path)
     }
 
@@ -275,14 +280,14 @@ impl IconConversion {
         let file_name = format!("{}.png", output_filename);
         let output_path = self.output_path(&file_name);
         args.push_path(&output_path);
-        run_convert(&args)?;
+        run_convert(&args, None)?;
         Ok(output_path)
     }
 
     pub fn engrave(
         &self,
         sized_mask: &Path,
-        template_icon: &Path,
+        template_icon: &[u8],
         output_path: &Path,
         inputs: &EngravingInputs,
     ) -> Result<(), FolderifyError> {
@@ -371,7 +376,7 @@ impl IconConversion {
         )?;
 
         let mut args = CommandArgs::new();
-        args.push_path(template_icon);
+        args.push("-");
         args.push_path(&bottom_bezel);
         args.composite(&CompositingOperation::dissolve);
         args.push_path(&fill);
@@ -379,7 +384,7 @@ impl IconConversion {
         args.push_path(&top_bezel);
         args.composite(&CompositingOperation::dissolve);
         args.push_path(output_path);
-        run_convert(&args)?;
+        run_convert(&args, Some(template_icon))?;
 
         Ok(())
     }
@@ -414,16 +419,7 @@ impl IconConversion {
             .unwrap();
 
         // TODO
-        let template_icon = match inputs.color_scheme {
-            ColorScheme::Light => PathBuf::from(format!(
-                "./src/resources/GenericFolderIcon.BigSur.iconset/icon_{}.png",
-                inputs.resolution
-            )),
-            ColorScheme::Dark => PathBuf::from(format!(
-                "./src/resources/GenericFolderIcon.BigSur.dark.iconset/icon_{}.png",
-                inputs.resolution
-            )),
-        };
+        let template_icon = get_folder_icon(inputs.color_scheme, &inputs.resolution);
 
         let fill_color = match inputs.color_scheme {
             ColorScheme::Light => RGBColor::new(8, 134, 206),
@@ -432,7 +428,7 @@ impl IconConversion {
 
         let engraved = self.engrave(
             &sized_mask_path,
-            &template_icon,
+            template_icon,
             output_path,
             &EngravingInputs {
                 fill_color,
@@ -466,7 +462,7 @@ impl IconConversion {
         args.push("icns");
         args.push("--output");
         args.push_path(icns_path);
-        run_command(ICONUTIL_COMMAND, &args)?;
+        run_command(ICONUTIL_COMMAND, &args, None)?;
         Ok(())
     }
 
@@ -485,14 +481,14 @@ impl IconConversion {
         let mut args = CommandArgs::new();
         args.push("-i");
         args.push_path(icns_path);
-        run_command(SIPS_COMMAND, &args)?;
+        run_command(SIPS_COMMAND, &args, None)?;
 
         // DeRez: export the icns resource from the icns file
         let mut args = CommandArgs::new();
         args.push("-only");
         args.push("icns");
         args.push_path(icns_path);
-        let derezzed = run_command(DEREZ_COMMAND, &args)?;
+        let derezzed = run_command(DEREZ_COMMAND, &args, None)?;
         let derezzed_path = self.output_path("derezzed.data");
         if fs::write(&derezzed_path, derezzed).is_err() {
             return Err(FolderifyError::General(GeneralError {
@@ -506,14 +502,14 @@ impl IconConversion {
         args.push_path(&derezzed_path);
         args.push("-o");
         args.push_path(&target_resource_path);
-        run_command(REZ_COMMAND, &args)?;
+        run_command(REZ_COMMAND, &args, None)?;
 
         // SetFile: set custom icon attribute
         let mut args = CommandArgs::new();
         args.push("-a");
         args.push("-C");
         args.push_path(target_path);
-        run_command(SETFILE_COMMAND, &args)?;
+        run_command(SETFILE_COMMAND, &args, None)?;
 
         if target_is_dir {
             // SetFile: set invisible file attribute
@@ -521,7 +517,7 @@ impl IconConversion {
             args.push("-a");
             args.push("-V");
             args.push_path(&target_resource_path);
-            run_command(SETFILE_COMMAND, &args)?;
+            run_command(SETFILE_COMMAND, &args, None)?;
         }
 
         Ok(())

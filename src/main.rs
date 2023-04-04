@@ -9,6 +9,7 @@ use crate::primitives::Dimensions;
 mod command;
 mod convert;
 mod error;
+mod generic_folder_icon;
 mod icon_conversion;
 mod options;
 mod primitives;
@@ -42,7 +43,7 @@ fn main() {
         let icon_conversion = working_dir.icon_conversion(&resolution.to_string());
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
-        let output_path = iconset_dir.join(format!("icon_{}.png", resolution));
+        let output_path = iconset_dir.join(resolution.icon_file());
         let handle = thread::spawn(move || {
             icon_conversion
                 .icon(
@@ -78,7 +79,7 @@ fn main() {
         let mut args = CommandArgs::new();
         args.push("-R");
         args.push_path(&reveal_path);
-        run_command(OPEN_COMMAND, &args).unwrap();
+        run_command(OPEN_COMMAND, &args, None).unwrap();
     }
 
     if DEBUG {

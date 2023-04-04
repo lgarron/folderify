@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::process::Command;
 use std::process::Stdio;
 use std::str::from_utf8;
@@ -23,6 +24,7 @@ pub(crate) const SETFILE_COMMAND: &str = "SetFile";
 pub(crate) fn run_command(
     command_name: &str,
     args: &CommandArgs,
+    stdin: Option<&[u8]>,
 ) -> Result<Vec<u8>, FolderifyError> {
     if DEBUG_PRINT_ARGS {
         println!("args: {}", args.args.join(" "));
@@ -32,7 +34,7 @@ pub(crate) fn run_command(
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn();
-    let child = match child {
+    let mut child = match child {
         Ok(child) => child,
         Err(_) => {
             return Err(FolderifyError::CommandInvalid(CommandInvalidError {
@@ -40,6 +42,18 @@ pub(crate) fn run_command(
             }));
         }
     };
+
+    if let Some(stdin) = stdin {
+        let child_stdin = child.stdin.as_mut().unwrap(); // TODO
+        match child_stdin.write_all(stdin) {
+            Ok(output) => output,
+            Err(_) => {
+                return Err(FolderifyError::General(GeneralError {
+                    message: "Could not write to stdin for a command.".into(),
+                }))
+            }
+        }
+    }
 
     let output = match child.wait_with_output() {
         Ok(output) => output,
@@ -60,13 +74,13 @@ pub(crate) fn run_command(
     Ok(output.stdout)
 }
 
-pub(crate) fn run_convert(args: &CommandArgs) -> Result<(), FolderifyError> {
-    run_command(CONVERT_COMMAND, args)?;
+pub(crate) fn run_convert(args: &CommandArgs, stdin: Option<&[u8]>) -> Result<(), FolderifyError> {
+    run_command(CONVERT_COMMAND, args, stdin)?;
     Ok(())
 }
 
 pub(crate) fn identify_read_u32(args: &CommandArgs) -> Result<u32, FolderifyError> {
-    let stdout = run_command(IDENTIFY_COMMAND, args)?;
+    let stdout = run_command(IDENTIFY_COMMAND, args, None)?;
     let s: &str = match from_utf8(&stdout) {
         Ok(s) => s,
         Err(s) => {
