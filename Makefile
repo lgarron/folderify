@@ -10,3 +10,7 @@ lint:
 .PHONY: format
 format:
 	cargo fmt
+
+.PHONY: test
+test:
+	./test/test.sh

@@ -416,11 +416,11 @@ impl IconConversion {
         // TODO
         let template_icon = match inputs.color_scheme {
             ColorScheme::Light => PathBuf::from(format!(
-                "./old/folderify/GenericFolderIcon.BigSur.iconset/icon_{}.png",
+                "./src/resources/GenericFolderIcon.BigSur.iconset/icon_{}.png",
                 inputs.resolution
             )),
             ColorScheme::Dark => PathBuf::from(format!(
-                "./old/folderify/GenericFolderIcon.BigSur.dark.iconset/icon_{}.png",
+                "./src/resources/GenericFolderIcon.BigSur.dark.iconset/icon_{}.png",
                 inputs.resolution
             )),
         };
