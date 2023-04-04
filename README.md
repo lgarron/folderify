@@ -157,12 +157,12 @@ Options:
   -v, --verbose
           Detailed output
 
-      --completions <COMPLETIONS>
-          Print completions for the given shell (instead of generating any icons). These can be loaded/stored permanently (e.g. when using Homebrew), but they can also be sourced directly, e.g.:
+      --completions <SHELL>
+          Print completions for the given shell (instead of generating any icons).
+          These can be loaded/stored permanently (e.g. when using Homebrew), but they can also be sourced directly, e.g.:
           
-          folderify --completions fish | source # fish
-          
-          source <(folderify --completions zsh) # zsh
+           folderify --completions fish | source # fish
+           source <(folderify --completions zsh) # zsh
           
           [possible values: bash, elvish, fish, powershell, zsh]
 

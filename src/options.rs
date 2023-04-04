@@ -66,10 +66,9 @@ struct FolderifyArgs {
     /// Print completions for the given shell (instead of generating any icons).
     /// These can be loaded/stored permanently (e.g. when using Homebrew), but they can also be sourced directly, e.g.:
     ///
-    ///     folderify --completions fish | source # fish
-    ///
-    ///     source <(folderify --completions zsh) # zsh
-    #[clap(long, id = "SHELL")]
+    ///  folderify --completions fish | source # fish
+    ///  source <(folderify --completions zsh) # zsh
+    #[clap(long, verbatim_doc_comment, id = "SHELL")]
     completions: Option<Shell>,
 }
 
