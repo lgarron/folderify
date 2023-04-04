@@ -120,12 +120,21 @@ Arguments:
           If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
 
   [TARGET]
-          Target file or folder.
-          If a target is specified, the resulting icon will be applied to the target file/folder.
-          Else, a .iconset folder and .icns file will be created in the same folder as the mask
-          (you can use "Get Info" in Finder to copy the icon from the .icns file).
+          Target file or folder. If a target is specified, the resulting icon will
+          be applied to the target file/folder. Else (unless --output-icns or
+          --output-iconset is specified), a .iconset folder and .icns file will be
+          created in the same folder as the mask (you can use "Get Info" in Finder
+          to copy the icon from the .icns file).
 
 Options:
+      --output-icns <OUTPUT_ICNS>
+          Write the `.icns` file to the given path.
+          (Will be written even if a target is also specified.)
+
+      --output-iconset <OUTPUT_ICONSET>
+          Write the `.iconset` folder to the given path.
+          (Will be written even if a target is also specified.)
+
   -r, --reveal
           Reveal the target (or resulting .icns file) in Finder
 
