@@ -173,4 +173,4 @@ Options:
 ---
 
 Example generated from the Apple logo:
-![Icons from apple.iconset at resolutions from 16x16  up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
+![Icons from apple.iconset at resolutions from 16x16 up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
