@@ -18,6 +18,7 @@ struct Args {
     /// If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
     #[clap(verbatim_doc_comment)]
     mask: Option<PathBuf>,
+
     /// Target file or folder.
     /// If a target is specified, the resulting icon will be applied to the target file/folder.
     /// Else, a .iconset folder and .icns file will be created in the same folder as the mask
