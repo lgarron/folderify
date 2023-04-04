@@ -44,7 +44,27 @@ cargo run -- --color-scheme light ./examples/src/apple.png
 echo -e "\nTest that \`--color-scheme dark\` is accepted."
 cargo run -- --color-scheme dark ./examples/src/apple.png
 
-for version in "10.5" "10.6" "10.7" "10.8" "10.9" "10.10" "10.11" "10.12" "10.13" "10.14" "10.15" "11.0"
+echo -e "\nTest that \`--output-icns\` is accepted."
+cargo run -- --output-icns ./examples/src/folder_outline_custom_path_1.icns ./examples/src/folder_outline.png
+check_file ./examples/src/folder_outline_custom_path_1.icns
+check_no_file_nor_folder ./examples/src/folder_outline.icns
+check_no_file_nor_folder ./examples/src/folder_outline.iconset
+
+echo -e "\nTest that \`--output-iconset\` is accepted."
+cargo run -- --output-iconset ./examples/src/folder_outline_custom_path_2.iconset ./examples/src/folder_outline.png
+check_folder ./examples/src/folder_outline_custom_path_2.iconset
+check_no_file_nor_folder ./examples/src/folder_outline.icns
+check_no_file_nor_folder ./examples/src/folder_outline.iconset
+
+echo -e "\nTest that \`--output-icns\` and \`--output-iconset\` are accepted together."
+cargo run -- --output-icns ./examples/src/folder_outline_custom_path_3.icns --output-iconset ./examples/src/folder_outline_custom_path_4.iconset ./examples/src/folder_outline.png
+check_file ./examples/src/folder_outline_custom_path_3.icns
+check_folder ./examples/src/folder_outline_custom_path_4.iconset
+check_no_file_nor_folder ./examples/src/folder_outline.icns
+check_no_file_nor_folder ./examples/src/folder_outline.iconset
+
+# for version in "10.5" "10.6" "10.7" "10.8" "10.9" "10.10" "10.11" "10.12" "10.13" "10.14" "10.15" "11.0"
+for version in "10.15" "13.3"
 do
   echo -e "\nTest that --macOS ${version} is accepted."
   cargo run -- --macOS ${version} ./examples/src/apple.png

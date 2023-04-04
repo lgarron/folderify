@@ -49,3 +49,18 @@ function check_folder_icon {
   fi
   echo "✅ Folder ${FILE} has an icon as expected."
 }
+
+function check_no_file_nor_folder {
+  local TEST_PATH="${1}"
+  if test -f "${TEST_PATH}"
+  then
+    echo "❌ Path ${TEST_PATH} should not exist, but is a file."
+    exit 1
+  elif test -d "${TEST_PATH}"
+  then
+    echo "❌ Path ${TEST_PATH} should not exist, but is a folder."
+    exit 1
+  else
+    echo "✅ Path ${TEST_PATH} does not exist, as expected."
+  fi
+}
