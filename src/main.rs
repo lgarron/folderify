@@ -52,6 +52,11 @@ fn main() {
         "[{}] Using folder style: BigSur",
         options.mask_path.display()
     );
+    println!(
+        "[{}] Using color scheme: {}",
+        options.mask_path.display(),
+        options.color_scheme
+    );
 
     let working_dir = WorkingDir::new();
     if options.debug {

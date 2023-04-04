@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use std::{env::var, path::PathBuf, process::Command};
+use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
@@ -51,6 +51,19 @@ struct Args {
 pub enum ColorScheme {
     Light,
     Dark,
+}
+
+impl Display for ColorScheme {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Light => "light",
+                Self::Dark => "dark",
+            }
+        )
+    }
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
