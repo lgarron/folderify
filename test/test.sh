@@ -15,6 +15,17 @@ echo -e "\nCheck generated files."
 check_file "./examples/src/apple.icns"
 check_folder "./examples/src/apple.iconset"
 
+check_file "./examples/src/apple.iconset/icon_512x512@2x.png"
+check_file "./examples/src/apple.iconset/icon_256x256@2x.png"
+check_file "./examples/src/apple.iconset/icon_512x512.png"
+check_file "./examples/src/apple.iconset/icon_128x128@2x.png"
+check_file "./examples/src/apple.iconset/icon_256x256.png"
+check_file "./examples/src/apple.iconset/icon_128x128.png"
+check_file "./examples/src/apple.iconset/icon_16x16@2x.png"
+check_file "./examples/src/apple.iconset/icon_16x16.png"
+check_file "./examples/src/apple.iconset/icon_32x32@2x.png"
+check_file "./examples/src/apple.iconset/icon_32x32.png"
+
 TEMP_DIR=$(make_temp_folder)
 echo -e "\nAssign folder icon."
 cargo run -- ./examples/src/apple.png "${TEMP_DIR}"
