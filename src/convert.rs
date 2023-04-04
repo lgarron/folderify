@@ -5,7 +5,7 @@ use crate::command::identify_read_u32;
 use crate::error::FolderifyError;
 use crate::primitives::{Dimensions, Extent, Offset, RGBColor};
 
-const DEFAULT_DENSITY: u32 = 72;
+const DEFAULT_DENSITY: u32 = 144;
 
 // TODO: Place a version of this in `command.rs`
 pub(crate) struct CommandArgs {

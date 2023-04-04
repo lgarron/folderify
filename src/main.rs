@@ -14,13 +14,11 @@ mod icon_conversion;
 mod options;
 mod primitives;
 
-const DEBUG: bool = false;
-
 fn main() {
     let options = options::get_options();
 
     let working_dir = WorkingDir::new();
-    if DEBUG {
+    if options.debug {
         working_dir.open_in_finder().unwrap();
     }
 
@@ -82,7 +80,7 @@ fn main() {
         run_command(OPEN_COMMAND, &args, None).unwrap();
     }
 
-    if DEBUG {
+    if options.debug {
         working_dir.release();
     }
 }

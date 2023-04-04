@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use std::{path::PathBuf, process::Command};
+use std::{env::var, path::PathBuf, process::Command};
 
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
@@ -81,6 +81,7 @@ pub struct Options {
     pub target: Option<PathBuf>,
     pub reveal: bool,
     pub verbose: bool,
+    pub debug: bool,
 }
 
 pub fn get_options() -> Options {
@@ -88,13 +89,15 @@ pub fn get_options() -> Options {
     if args.mac_os.is_some() {
         println!("Warning: macOS version was specified, but this is not supported yet. Defaulting to the latest (Big Sur and later).")
     }
+    let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
     Options {
         mask_path: args.mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
         no_trim: args.no_trim,
         target: args.target,
         reveal: args.reveal,
-        verbose: args.verbose,
+        verbose: args.verbose || debug,
+        debug,
     }
 }
 
