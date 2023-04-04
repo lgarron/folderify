@@ -136,7 +136,7 @@ Options:
           (Will be written even if a target is also specified.)
 
   -r, --reveal
-          Reveal the target (or resulting .icns file) in Finder
+          Reveal either the target, `.icns`, or `.iconset` (in that order of preference) in Finder
 
       --macOS <MAC_OS>
           Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running

@@ -37,7 +37,7 @@ struct FolderifyArgs {
     #[clap(verbatim_doc_comment, long)]
     output_iconset: Option<PathBuf>,
 
-    /// Reveal the target (or resulting .icns file) in Finder.
+    /// Reveal either the target, `.icns`, or `.iconset` (in that order of preference) in Finder.
     #[clap(short, long)]
     reveal: bool,
 
