@@ -151,9 +151,6 @@ Options:
           Don't trim margins from the mask.
           By default, transparent margins are trimmed from all 4 sides.
 
-      --set-icon-using <SET_ICON_USING>
-          Legacy argument. Now ignored.
-
   -v, --verbose
           Detailed output
 

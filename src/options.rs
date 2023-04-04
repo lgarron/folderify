@@ -56,7 +56,7 @@ struct FolderifyArgs {
     no_trim: bool,
 
     /// Legacy argument. Now ignored.
-    #[clap(long, verbatim_doc_comment)]
+    #[arg(long, hide(true))]
     set_icon_using: Option<String>,
 
     /// Detailed output.
