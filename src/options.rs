@@ -69,7 +69,7 @@ struct FolderifyArgs {
     ///     folderify --completions fish | source # fish
     ///
     ///     source <(folderify --completions zsh) # zsh
-    #[clap(long)]
+    #[clap(long, id = "SHELL")]
     completions: Option<Shell>,
 }
 
