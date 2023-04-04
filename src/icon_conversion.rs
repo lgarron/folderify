@@ -481,7 +481,7 @@ impl IconConversion {
             println!(
                 "[{}] Assigning icon to target: {}",
                 options.mask_path.display(),
-                icns_path.display(),
+                target_path.display(),
             );
         }
         let target_is_dir = metadata(target_path)
