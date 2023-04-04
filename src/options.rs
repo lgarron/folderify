@@ -8,7 +8,7 @@ use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-#[clap(name = "folderify")]
+#[clap(name = "value_hints_derive")]
 struct Args {
     /// Mask image file. For best results:
     /// - Use a .png mask.
