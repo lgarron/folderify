@@ -397,9 +397,9 @@ impl IconConversion {
         output_path: &Path,
         inputs: &IconInputs,
     ) -> Result<(), FolderifyError> {
-        if options.verbose {
-            println!("[Starting] {}", inputs.resolution);
-        }
+        // if options.verbose {
+        //     println!("[Starting] {}", inputs.resolution);
+        // }
 
         let size = inputs.resolution.size();
         let offset_y = inputs.resolution.offset_y();
@@ -450,12 +450,23 @@ impl IconConversion {
             },
         );
         if options.verbose {
-            println!("[Done] {}", inputs.resolution);
+            println!("[{}] {}", options.mask_path.display(), inputs.resolution);
         }
         engraved
     }
 
-    pub fn to_icns(&self, iconset_dir: &Path, icns_path: &Path) -> Result<(), FolderifyError> {
+    pub fn to_icns(
+        &self,
+        options: &Options,
+        iconset_dir: &Path,
+        icns_path: &Path,
+    ) -> Result<(), FolderifyError> {
+        if options.verbose {
+            println!(
+                "[{}] Creating the .icns file...",
+                options.mask_path.display()
+            );
+        }
         let mut args = CommandArgs::new();
         args.push_path(iconset_dir);
         args.push("--convert");
@@ -466,7 +477,19 @@ impl IconConversion {
         Ok(())
     }
 
-    pub fn assign_icns(&self, icns_path: &Path, target_path: &Path) -> Result<(), FolderifyError> {
+    pub fn assign_icns(
+        &self,
+        options: &Options,
+        icns_path: &Path,
+        target_path: &Path,
+    ) -> Result<(), FolderifyError> {
+        if options.verbose {
+            println!(
+                "[{}] Assigning icon to target: {}",
+                options.mask_path.display(),
+                icns_path.display(),
+            );
+        }
         let target_is_dir = metadata(target_path)
             .expect("Target does not exist!")
             .is_dir(); // TODO: Return `FolderifyError`
