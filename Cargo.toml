@@ -11,3 +11,6 @@ license = "MIT"
 clap = { version = "4.1.8", features = ["derive"] }
 include_dir = "0.7.3"
 mktemp = "0.5.0"
+
+[[bin]]
+name = "folderify"
