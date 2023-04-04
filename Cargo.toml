@@ -2,6 +2,8 @@
 name = "folderify"
 version = "3.0.0-pre1"
 edition = "2021"
+description = "Generate a native-style macOS folder icon from a mask file."
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
