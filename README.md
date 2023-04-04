@@ -106,38 +106,60 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 # Full options
 
 ```
-Generate a native-style macOS folder icon from a mask file
+Generate a native-style macOS folder icon from a mask file.
 
-Usage: folderify [OPTIONS] <MASK> [TARGET]
+Usage: folderify [OPTIONS] [MASK] [TARGET]
 
 Arguments:
-  <MASK>    Mask image file. For best results:
-            - Use a .png mask.
-            - Use a solid black design over a transparent background.
-            - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.
-            - Make sure the non-transparent pixels span a height of 384px, using a 16px grid.
-            If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
-  [TARGET]  Target file or folder.
-            If a target is specified, the resulting icon will be applied to the target file/folder.
-            Else, a .iconset folder and .icns file will be created in the same folder as the mask
-            (you can use "Get Info" in Finder to copy the icon from the .icns file).
+  [MASK]
+          Mask image file. For best results:
+          - Use a .png mask.
+          - Use a solid black design over a transparent background.
+          - Make sure the corner pixels of the mask image are transparent. They are used for empty margins.
+          - Make sure the non-transparent pixels span a height of 384px, using a 16px grid.
+          If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
+
+  [TARGET]
+          Target file or folder.
+          If a target is specified, the resulting icon will be applied to the target file/folder.
+          Else, a .iconset folder and .icns file will be created in the same folder as the mask
+          (you can use "Get Info" in Finder to copy the icon from the .icns file).
 
 Options:
   -r, --reveal
           Reveal the target (or resulting .icns file) in Finder
+
       --macOS <MAC_OS>
           Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running
+
       --color-scheme <COLOR_SCHEME>
-          Color scheme — auto matches the current system value [default: auto] [possible values: auto, light, dark]
+          Color scheme — auto matches the current system value
+          
+          [default: auto]
+          [possible values: auto, light, dark]
+
       --no-trim
           Don't trim margins from the mask.
           By default, transparent margins are trimmed from all 4 sides.
+
       --set-icon-using <SET_ICON_USING>
           Legacy argument. Now ignored.
+
   -v, --verbose
           Detailed output
+
+      --completions <COMPLETIONS>
+          Print completions for the given shell (instead of generating any icons). These can be loaded/stored permanently (e.g. when using Homebrew), but they can also be sourced directly, e.g.:
+          
+          folderify --completions fish | source # fish
+          
+          source <(folderify --completions zsh) # zsh
+          
+          [possible values: bash, elvish, fish, powershell, zsh]
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
+
   -V, --version
           Print version
 ```
