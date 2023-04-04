@@ -74,36 +74,39 @@ fn main() {
         handle.join().unwrap();
     }
 
-    shared_icon_conversion
-        .to_icns(
-            &options,
-            &final_output_paths.iconset_dir,
-            &final_output_paths.icns_path,
-        )
-        .unwrap();
+    let reveal_path = match (
+        &options.target,
+        &options.output_icns,
+        &options.output_iconset,
+    ) {
+        (None, None, Some(output_iconset)) => output_iconset, // TODO: avoid `.icns assignment entirely?
+        _ => {
+            shared_icon_conversion
+                .to_icns(
+                    &options,
+                    &final_output_paths.iconset_dir,
+                    &final_output_paths.icns_path,
+                )
+                .unwrap();
 
-    let icns_assignment_path = options
-        .target
-        .as_ref()
-        .unwrap_or(&final_output_paths.icns_path);
+            let icns_assignment_path = options
+                .target
+                .as_ref()
+                .unwrap_or(&final_output_paths.icns_path);
 
-    shared_icon_conversion
-        .assign_icns(
-            &options,
-            &final_output_paths.icns_path,
-            icns_assignment_path,
-        )
-        .unwrap();
+            shared_icon_conversion
+                .assign_icns(
+                    &options,
+                    &final_output_paths.icns_path,
+                    icns_assignment_path,
+                )
+                .unwrap();
+
+            icns_assignment_path
+        }
+    };
 
     if options.reveal {
-        let reveal_path = match (
-            &options.target,
-            &options.output_icns,
-            &options.output_iconset,
-        ) {
-            (None, None, Some(output_iconset)) => output_iconset,
-            _ => icns_assignment_path,
-        };
         let mut args = CommandArgs::new();
         args.push("-R");
         args.push_path(reveal_path);
