@@ -29,12 +29,12 @@ struct FolderifyArgs {
 
     /// Write the `.icns` file to the given path.
     /// (Will be written even if a target is also specified.)
-    #[clap(verbatim_doc_comment, long)]
+    #[clap(verbatim_doc_comment, long, id = "ICNS_FILE")]
     output_icns: Option<PathBuf>,
 
     /// Write the `.iconset` folder to the given path.
     /// (Will be written even if a target is also specified.)
-    #[clap(verbatim_doc_comment, long)]
+    #[clap(verbatim_doc_comment, long, id = "ICONSET_FOLDER")]
     output_iconset: Option<PathBuf>,
 
     /// Reveal either the target, `.icns`, or `.iconset` (in that order of preference) in Finder.
@@ -43,7 +43,7 @@ struct FolderifyArgs {
 
     /// Version of the macOS folder icon, e.g. "10.13".
     /// Defaults to the version currently running.
-    #[clap(long = "macOS", alias = "osx", short_alias = 'x')]
+    #[clap(long = "macOS", alias = "osx", short_alias = 'x', id = "MACOS_VERSION")]
     mac_os: Option<String>, // TODO: enum, default?
 
     /// Color scheme — auto matches the current system value.
