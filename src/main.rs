@@ -96,9 +96,17 @@ fn main() {
         .unwrap();
 
     if options.reveal {
+        let reveal_path = match (
+            &options.target,
+            &options.output_icns,
+            &options.output_iconset,
+        ) {
+            (None, None, Some(output_iconset)) => output_iconset,
+            _ => icns_assignment_path,
+        };
         let mut args = CommandArgs::new();
         args.push("-R");
-        args.push_path(icns_assignment_path);
+        args.push_path(reveal_path);
         run_command(OPEN_COMMAND, &args, None).unwrap();
     }
 
