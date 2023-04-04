@@ -1,4 +1,4 @@
-use clap::{ArgGroup, CommandFactory, Parser, ValueEnum};
+use clap::{CommandFactory, Parser, ValueEnum};
 use clap_complete::generator::generate;
 use clap_complete::{Generator, Shell};
 use std::io::stdout;
@@ -8,7 +8,7 @@ use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-#[clap(name = "value_hints_derive")]
+#[clap(name = "folderify")]
 struct Args {
     /// Mask image file. For best results:
     /// - Use a .png mask.
@@ -116,12 +116,7 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
 }
 
 pub fn get_options() -> Options {
-    let command = Args::command();
-    let mut command = command.group(
-        ArgGroup::new("action")
-            .args(["mask", "completions"])
-            .required(true),
-    );
+    let mut command = Args::command();
 
     let args = Args::parse();
     if let Some(shell) = args.completions {
@@ -132,7 +127,7 @@ pub fn get_options() -> Options {
     let mask = match args.mask {
         Some(mask) => mask,
         None => {
-            Args::command().print_help().unwrap();
+            command.print_help().unwrap();
             exit(0);
         }
     };
