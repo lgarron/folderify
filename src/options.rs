@@ -9,7 +9,7 @@ use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 #[clap(name = "value_hints_derive")]
-struct Args {
+struct FolderifyArgs {
     /// Mask image file. For best results:
     /// - Use a .png mask.
     /// - Use a solid black design over a transparent background.
@@ -117,9 +117,9 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
 }
 
 pub fn get_options() -> Options {
-    let mut command = Args::command();
+    let mut command = FolderifyArgs::command();
 
-    let args = Args::parse();
+    let args = FolderifyArgs::parse();
     if let Some(shell) = args.completions {
         completions_for_shell(&mut command, shell);
         exit(0);
