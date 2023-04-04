@@ -82,27 +82,23 @@ fn main() {
         )
         .unwrap();
 
-    match &options.target {
-        Some(target) => {
-            shared_icon_conversion
-                .assign_icns(&options, &final_output_paths.icns_path, target)
-                .unwrap();
-        }
-        // TODO: merge calculation with the `Some` path using `reveal_path`.
-        None => shared_icon_conversion
-            .assign_icns(
-                &options,
-                &final_output_paths.icns_path,
-                &final_output_paths.icns_path,
-            )
-            .unwrap(),
-    }
+    let icns_assignment_path = options
+        .target
+        .as_ref()
+        .unwrap_or(&final_output_paths.icns_path);
+
+    shared_icon_conversion
+        .assign_icns(
+            &options,
+            &final_output_paths.icns_path,
+            icns_assignment_path,
+        )
+        .unwrap();
 
     if options.reveal {
-        let reveal_path = options.target.unwrap_or(final_output_paths.icns_path);
         let mut args = CommandArgs::new();
         args.push("-R");
-        args.push_path(&reveal_path);
+        args.push_path(icns_assignment_path);
         run_command(OPEN_COMMAND, &args, None).unwrap();
     }
 
