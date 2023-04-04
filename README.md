@@ -101,7 +101,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 - [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> and <code>identify</code> on the commandline).
 - Included with macOS:
   - `iconutil`
-- `sips`, `DeRez`, `Rez`, `SetFile` (You need XCode command line tools for some of these.)
+- `sips`, `DeRez`, `Rez`, `SetFile` (You need Xcode command line tools for some of these.)
 
 # Full options
 
