@@ -18,3 +18,10 @@ test:
 .PHONY: publish
 publish:
 	cargo publish
+
+.PHONY: install
+install:
+	cargo install --path .
+
+.PHONY: uninstall
+	cargo uninstall folderify

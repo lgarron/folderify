@@ -1,9 +1,14 @@
-use clap::{Parser, ValueEnum};
+use clap::{ArgGroup, CommandFactory, Parser, ValueEnum};
+use clap_complete::generator::generate;
+use clap_complete::{Generator, Shell};
+use std::io::stdout;
+use std::process::exit;
 use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
+#[clap(name = "value_hints_derive")]
 struct Args {
     /// Mask image file. For best results:
     /// - Use a .png mask.
@@ -12,7 +17,7 @@ struct Args {
     /// - Make sure the non-transparent pixels span a height of 384px, using a 16px grid.
     /// If the height is 384px and the width is a multiple of 128px, each 64x64 tile will exactly align with 1 pixel at the smallest folder size.
     #[clap(verbatim_doc_comment)]
-    mask: PathBuf,
+    mask: Option<PathBuf>,
     /// Target file or folder.
     /// If a target is specified, the resulting icon will be applied to the target file/folder.
     /// Else, a .iconset folder and .icns file will be created in the same folder as the mask
@@ -45,6 +50,15 @@ struct Args {
     /// Detailed output.
     #[clap(short, long)]
     verbose: bool,
+
+    /// Print completions for the given shell (instead of generating any icons).
+    /// These can be loaded/stored permanently (e.g. when using Homebrew), but they can also be sourced directly, e.g.:
+    ///
+    ///     folderify --completions fish | source # fish
+    ///
+    ///     source <(folderify --completions zsh) # zsh
+    #[clap(long)]
+    completions: Option<Shell>,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq, Copy)]
@@ -97,14 +111,38 @@ pub struct Options {
     pub debug: bool,
 }
 
+fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
+    generate(generator, cmd, "folderify", &mut stdout());
+}
+
 pub fn get_options() -> Options {
+    let command = Args::command();
+    let mut command = command.group(
+        ArgGroup::new("action")
+            .args(["mask", "completions"])
+            .required(true),
+    );
+
     let args = Args::parse();
+    if let Some(shell) = args.completions {
+        completions_for_shell(&mut command, shell);
+        exit(0);
+    }
+
+    let mask = match args.mask {
+        Some(mask) => mask,
+        None => {
+            Args::command().print_help().unwrap();
+            exit(0);
+        }
+    };
+
     if args.mac_os.is_some() {
         println!("Warning: macOS version was specified, but this is not supported yet. Defaulting to the latest (Big Sur and later).")
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
     Options {
-        mask_path: args.mask,
+        mask_path: mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
         no_trim: args.no_trim,
         target: args.target,

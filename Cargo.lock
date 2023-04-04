@@ -36,6 +36,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_complete"
+version = "4.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01c22dcfb410883764b29953103d9ef7bb8fe21b3fa1158bc99986c2067294bd"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "clap_derive"
 version = "4.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -83,6 +92,7 @@ name = "folderify"
 version = "3.0.1"
 dependencies = [
  "clap",
+ "clap_complete",
  "include_dir",
  "mktemp",
 ]
