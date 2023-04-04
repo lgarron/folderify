@@ -85,6 +85,9 @@ pub struct Options {
 
 pub fn get_options() -> Options {
     let args = Args::parse();
+    if args.mac_os.is_some() {
+        println!("Warning: macOS version was specified, but this is not supported yet. Defaulting to the latest (Big Sur and later).")
+    }
     Options {
         mask_path: args.mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
