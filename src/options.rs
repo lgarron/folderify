@@ -19,12 +19,23 @@ struct FolderifyArgs {
     #[clap(verbatim_doc_comment)]
     mask: Option<PathBuf>,
 
-    /// Target file or folder.
-    /// If a target is specified, the resulting icon will be applied to the target file/folder.
-    /// Else, a .iconset folder and .icns file will be created in the same folder as the mask
-    /// (you can use "Get Info" in Finder to copy the icon from the .icns file).
+    /// Target file or folder. If a target is specified, the resulting icon will
+    /// be applied to the target file/folder. Else (unless --output-icns or
+    /// --output-iconset is specified), a .iconset folder and .icns file will be
+    /// created in the same folder as the mask (you can use "Get Info" in Finder
+    /// to copy the icon from the .icns file).
     #[clap(verbatim_doc_comment)]
     target: Option<PathBuf>,
+
+    /// Write the `.icns` file to the given path.
+    /// (Will be written even if a target is also specified.)
+    #[clap(verbatim_doc_comment, long)]
+    output_icns: Option<PathBuf>,
+
+    /// Write the `.iconset` folder to the given path.
+    /// (Will be written even if a target is also specified.)
+    #[clap(verbatim_doc_comment, long)]
+    output_iconset: Option<PathBuf>,
 
     /// Reveal the target (or resulting .icns file) in Finder.
     #[clap(short, long)]
@@ -107,6 +118,8 @@ pub struct Options {
     pub color_scheme: ColorScheme,
     pub no_trim: bool,
     pub target: Option<PathBuf>,
+    pub output_icns: Option<PathBuf>,
+    pub output_iconset: Option<PathBuf>,
     pub reveal: bool,
     pub verbose: bool,
     pub debug: bool,
@@ -142,6 +155,8 @@ pub fn get_options() -> Options {
         color_scheme: map_color_scheme_auto(args.color_scheme),
         no_trim: args.no_trim,
         target: args.target,
+        output_icns: args.output_icns,
+        output_iconset: args.output_iconset,
         reveal: args.reveal,
         verbose: args.verbose || debug,
         debug,

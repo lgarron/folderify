@@ -68,21 +68,15 @@ impl WorkingDir {
         self.working_dir.release(); // TODO
     }
 
-    pub fn mask_with_extension(&self, options: &Options, extension: &str) -> PathBuf {
-        let mut iconset_dir = options.mask_path.with_extension(extension);
-        if options.target.is_some() {
-            let file_name = iconset_dir.file_name().unwrap(); // TODO
-            iconset_dir = self.working_dir.to_path_buf().join(file_name);
-        }
-        iconset_dir
+    pub fn icon_file_with_extension(&self, extension: &str) -> PathBuf {
+        self.working_dir
+            .as_path()
+            .join("icon")
+            .with_extension(extension)
     }
 
     pub fn create_iconset_dir(&self, options: &Options) -> Result<PathBuf, FolderifyError> {
-        let mut iconset_dir = options.mask_path.with_extension("iconset");
-        if options.target.is_some() {
-            let file_name = iconset_dir.file_name().unwrap(); // TODO
-            iconset_dir = self.working_dir.to_path_buf().join(file_name);
-        }
+        let iconset_dir = self.icon_file_with_extension("iconset");
         if options.verbose {
             println!("[Iconset] {}", iconset_dir.display());
         };
