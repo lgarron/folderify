@@ -107,8 +107,8 @@ impl IconResolution {
     // TODO: return iterator?
     pub fn values() -> Vec<IconResolution> {
         vec![
-            Self::NonRetina512,
             Self::Retina512,
+            Self::NonRetina512,
             Self::Retina256,
             Self::NonRetina256,
             Self::Retina128,
