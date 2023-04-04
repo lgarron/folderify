@@ -80,7 +80,7 @@ dependencies = [
 
 [[package]]
 name = "folderify"
-version = "0.1.0"
+version = "3.0.0-pre1"
 dependencies = [
  "clap",
  "include_dir",
