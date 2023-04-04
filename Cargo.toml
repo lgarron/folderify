@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.1.8", features = ["derive"] }
-command-fds = "0.2.2"
 include_dir = "0.7.3"
 mktemp = "0.5.0"
