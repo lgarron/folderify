@@ -4,6 +4,10 @@ version = "3.0.7"
 edition = "2021"
 description = "Generate a native-style macOS folder icon from a mask file."
 license = "MIT"
+homepage = "https://github.com/lgarron/folderify"
+documentation = "https://github.com/lgarron/folderify"
+repository = "https://github.com/lgarron/folderify"
+keywords = ["macos", "icons"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
