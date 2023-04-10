@@ -61,8 +61,8 @@ impl WorkingDir {
     ) -> IconConversion {
         let progress_bar = match multi_progress_bar {
             Some(multi_progress_bar) => {
-                let progress_bar = multi_progress_bar
-                    .insert_from_back(1, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
+                let progress_bar =
+                    multi_progress_bar.insert(0, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
                 progress_bar.set_prefix(format!("[{}]", resolution_prefix));
                 // TODO share the progress bar style?
                 let progress_bar_style = ProgressStyle::with_template(
@@ -71,6 +71,7 @@ impl WorkingDir {
                 .expect("Could not construct progress bar.")
                 .progress_chars("=> ");
                 progress_bar.set_style(progress_bar_style);
+                progress_bar.set_message("Preparing");
                 Some(progress_bar)
             }
             None => None,
@@ -232,7 +233,7 @@ impl Display for IconResolution {
 pub struct IconConversion {
     working_dir: PathBuf,
     resolution_prefix: String,
-    progress_bar: Option<ProgressBar>,
+    pub progress_bar: Option<ProgressBar>,
 }
 
 pub struct IconInputs {
