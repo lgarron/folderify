@@ -242,6 +242,12 @@ pub struct IconInputs {
 }
 
 impl IconConversion {
+    fn step_unincremented(&self, step_desciption: &str) {
+        if let Some(progress_bar) = &self.progress_bar {
+            progress_bar.set_message(step_desciption.to_owned());
+        }
+    }
+
     fn step(&self, step_desciption: &str) {
         if let Some(progress_bar) = &self.progress_bar {
             progress_bar.set_message(step_desciption.to_owned());
@@ -427,6 +433,8 @@ impl IconConversion {
         args.push_path(output_path);
         run_convert(&args, Some(template_icon))?;
 
+        self.step("");
+
         Ok(())
     }
 
@@ -445,7 +453,7 @@ impl IconConversion {
         let size = inputs.resolution.size();
         let offset_y = inputs.resolution.offset_y();
 
-        self.step("Sizing mask");
+        self.step_unincremented("Sizing mask");
         let sized_mask_path = self
             .sized_mask(
                 full_mask_path,
