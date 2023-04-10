@@ -55,11 +55,15 @@ struct FolderifyArgs {
     #[clap(long, verbatim_doc_comment)]
     no_trim: bool,
 
+    /// Don't show progress bars.
+    #[arg(long)]
+    no_progress: bool,
+
     /// Legacy argument. Now ignored.
     #[arg(long, hide(true))]
     set_icon_using: Option<String>,
 
-    /// Detailed output.
+    /// Detailed output. Also sets `--no-progress`.
     #[clap(short, long)]
     verbose: bool,
 
@@ -119,6 +123,7 @@ pub struct Options {
     pub target: Option<PathBuf>,
     pub output_icns: Option<PathBuf>,
     pub output_iconset: Option<PathBuf>,
+    pub show_progress: bool,
     pub reveal: bool,
     pub verbose: bool,
     pub debug: bool,
@@ -149,6 +154,7 @@ pub fn get_options() -> Options {
         println!("Warning: macOS version was specified, but this is not supported yet. Defaulting to the latest (Big Sur and later).")
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
+    let show_progress = !args.no_progress && !args.verbose;
     Options {
         mask_path: mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
@@ -156,6 +162,7 @@ pub fn get_options() -> Options {
         target: args.target,
         output_icns: args.output_icns,
         output_iconset: args.output_iconset,
+        show_progress,
         reveal: args.reveal,
         verbose: args.verbose || debug,
         debug,

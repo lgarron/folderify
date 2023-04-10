@@ -127,18 +127,18 @@ Arguments:
           to copy the icon from the .icns file).
 
 Options:
-      --output-icns <OUTPUT_ICNS>
+      --output-icns <ICNS_FILE>
           Write the `.icns` file to the given path.
           (Will be written even if a target is also specified.)
 
-      --output-iconset <OUTPUT_ICONSET>
+      --output-iconset <ICONSET_FOLDER>
           Write the `.iconset` folder to the given path.
           (Will be written even if a target is also specified.)
 
   -r, --reveal
           Reveal either the target, `.icns`, or `.iconset` (in that order of preference) in Finder
 
-      --macOS <MAC_OS>
+      --macOS <MACOS_VERSION>
           Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running
 
       --color-scheme <COLOR_SCHEME>
@@ -151,8 +151,11 @@ Options:
           Don't trim margins from the mask.
           By default, transparent margins are trimmed from all 4 sides.
 
+      --no-progress
+          Don't show progress bars
+
   -v, --verbose
-          Detailed output
+          Detailed output. Also sets `--no-progress`
 
       --completions <SHELL>
           Print completions for the given shell (instead of generating any icons).
