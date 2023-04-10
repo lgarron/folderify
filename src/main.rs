@@ -3,6 +3,7 @@ use std::thread::{self, JoinHandle};
 use command::{run_command, OPEN_COMMAND};
 use convert::CommandArgs;
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
+use indicatif::MultiProgress;
 
 use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
 
@@ -35,7 +36,7 @@ fn main() {
         working_dir.open_in_finder().unwrap();
     }
 
-    let shared_icon_conversion = working_dir.icon_conversion("shared");
+    let shared_icon_conversion = working_dir.icon_conversion("shared", None);
     let full_mask_path = shared_icon_conversion
         .full_mask(
             &options,
@@ -48,9 +49,12 @@ fn main() {
 
     let final_output_paths = potential_output_paths.finalize(&options, &working_dir);
 
+    let multi_progress_bar = MultiProgress::new();
+
     let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {
-        let icon_conversion = working_dir.icon_conversion(&resolution.to_string());
+        let icon_conversion =
+            working_dir.icon_conversion(&resolution.to_string(), Some(multi_progress_bar.clone()));
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
         let output_path = final_output_paths.iconset_dir.join(resolution.icon_file());

@@ -15,6 +15,7 @@ keywords = ["macos", "icons"]
 clap = { version = "4.1.8", features = ["derive"] }
 clap_complete = "4.2.0"
 include_dir = "0.7.3"
+indicatif = "0.17.3"
 mktemp = "0.5.0"
 
 [[bin]]

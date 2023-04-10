@@ -4,9 +4,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use mktemp::Temp;
 
 const RETINA_SCALE: u32 = 2;
+
+pub const NUM_ICON_CONVERSION_STEPS: u64 = 13;
 
 use crate::{
     command::{
@@ -51,12 +54,34 @@ impl WorkingDir {
         }
     }
 
-    pub fn icon_conversion(&self, resolution_prefix: &str) -> IconConversion {
+    pub fn icon_conversion(
+        &self,
+        resolution_prefix: &str,
+        multi_progress_bar: Option<MultiProgress>,
+    ) -> IconConversion {
+        let progress_bar = match multi_progress_bar {
+            Some(multi_progress_bar) => {
+                let progress_bar = multi_progress_bar
+                    .insert_from_back(1, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
+                progress_bar.set_prefix(format!("[{}]", resolution_prefix));
+                // TODO share the progress bar style?
+                let progress_bar_style = ProgressStyle::with_template(
+                    "{prefix:12} | {bar:12.cyan/blue} | {pos:>2}/{len:2} | {msg}",
+                )
+                .expect("Could not construct progress bar.")
+                .progress_chars("=> ");
+                progress_bar.set_style(progress_bar_style);
+                Some(progress_bar)
+            }
+            None => None,
+        };
         IconConversion {
             working_dir: self.working_dir.as_path().to_owned(),
             resolution_prefix: resolution_prefix.into(),
+            progress_bar,
         }
     }
+
     pub fn open_in_finder(&self) -> Result<(), FolderifyError> {
         let mut open_args = CommandArgs::new();
         open_args.push_path(&self.working_dir);
@@ -207,6 +232,7 @@ impl Display for IconResolution {
 pub struct IconConversion {
     working_dir: PathBuf,
     resolution_prefix: String,
+    progress_bar: Option<ProgressBar>,
 }
 
 pub struct IconInputs {
@@ -215,6 +241,13 @@ pub struct IconInputs {
 }
 
 impl IconConversion {
+    fn step(&self, step_desciption: &str) {
+        if let Some(progress_bar) = &self.progress_bar {
+            progress_bar.set_message(step_desciption.to_owned());
+            progress_bar.inc(1);
+        }
+    }
+
     fn output_path(&self, file_name: &str) -> PathBuf {
         let mut path = self.working_dir.to_path_buf();
         path.push(format!("{}_{}", self.resolution_prefix, file_name));
@@ -285,6 +318,7 @@ impl IconConversion {
         output_path: &Path,
         inputs: &EngravingInputs,
     ) -> Result<(), FolderifyError> {
+        self.step("Creating colorized fill");
         let fill_colorized = self.simple_operation(
             sized_mask,
             "2.1_FILL_COLORIZED",
@@ -292,27 +326,32 @@ impl IconConversion {
                 args.fill_colorize(&inputs.fill_color);
             },
         )?;
+
+        self.step("Setting fill opacity");
         let fill =
             self.simple_operation(&fill_colorized, "2.2_FILL", |args: &mut CommandArgs| {
                 args.opacity(0.5);
             })?;
 
-        let top_bezel_negated = self.simple_operation(
+        self.step("Complementing mask for top bezel");
+        let top_bezel_complement = self.simple_operation(
             sized_mask,
-            "3.1_TOP_BEZEL_NEGATED",
+            "3.1_TOP_BEZEL_COMPLEMENT",
             |args: &mut CommandArgs| {
                 args.negate();
             },
         )?;
 
+        self.step("Colorizing top bezel");
         let top_bezel_colorized = self.simple_operation(
-            &top_bezel_negated,
+            &top_bezel_complement,
             "3.2_TOP_BEZEL_COLORIZED",
             |args: &mut CommandArgs| {
                 args.fill_colorize(&inputs.top_bezel.color);
             },
         )?;
 
+        self.step("Blurring top bezel");
         let top_bezel_blurred = self.simple_operation(
             &top_bezel_colorized,
             "3.3_TOP_BEZEL_BLURRED",
@@ -321,6 +360,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Compositing top bezel");
         let top_bezel_masked = self.simple_operation(
             &top_bezel_blurred,
             "3.4_TOP_BEZEL_MASKED",
@@ -329,6 +369,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Setting top bezel opacity");
         let top_bezel = self.simple_operation(
             &top_bezel_masked,
             "3.5_TOP_BEZEL",
@@ -337,6 +378,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Colorizing bottom bezel");
         let bottom_bezel_colorized = self.simple_operation(
             sized_mask,
             "4.1_BOTTOM_BEZEL_COLORIZED",
@@ -345,6 +387,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Blurring bottom bezel");
         let bottom_bezel_blurred = self.simple_operation(
             &bottom_bezel_colorized,
             "4.2_BOTTOM_BEZEL_BLURRED",
@@ -353,6 +396,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Compositing bottom bezel");
         let bottom_bezel_masked = self.simple_operation(
             &bottom_bezel_blurred,
             "4.3_BOTTOM_BEZEL_MASKED",
@@ -361,6 +405,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Setting bottom bezel opacity");
         let bottom_bezel = self.simple_operation(
             &bottom_bezel_masked,
             "4.4_BOTTOM_BEZEL",
@@ -369,6 +414,7 @@ impl IconConversion {
             },
         )?;
 
+        self.step("Engraving bezels");
         let mut args = CommandArgs::new();
         args.push("-");
         args.push_path(&bottom_bezel);
@@ -398,6 +444,7 @@ impl IconConversion {
         let size = inputs.resolution.size();
         let offset_y = inputs.resolution.offset_y();
 
+        self.step("Sizing mask");
         let sized_mask_path = self
             .sized_mask(
                 full_mask_path,
