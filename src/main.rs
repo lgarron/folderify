@@ -3,7 +3,7 @@ use std::thread::{self, JoinHandle};
 use command::{run_command, OPEN_COMMAND};
 use convert::CommandArgs;
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
-use indicatif::{MultiProgress, ProgressBar};
+use indicatif::MultiProgress;
 
 use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
 
@@ -55,12 +55,9 @@ fn main() {
     };
 
     let mut handles = Vec::<JoinHandle<()>>::new();
-    // We keep around references to the progress bars to prevent the fast ones from disappearing super quickly.
-    let mut _progress_bars = Vec::<Option<ProgressBar>>::new();
     for resolution in IconResolution::values() {
         let icon_conversion =
             working_dir.icon_conversion(&resolution.to_string(), multi_progress_bar.clone());
-        _progress_bars.push(icon_conversion.progress_bar.clone());
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
         let output_path = final_output_paths.iconset_dir.join(resolution.icon_file());

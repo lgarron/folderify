@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use indicatif::{MultiProgress, ProgressBar, ProgressFinish, ProgressStyle};
 use mktemp::Temp;
 
 const RETINA_SCALE: u32 = 2;
@@ -63,6 +63,7 @@ impl WorkingDir {
             Some(multi_progress_bar) => {
                 let progress_bar =
                     multi_progress_bar.insert(0, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
+                let progress_bar = progress_bar.with_finish(ProgressFinish::AndLeave);
                 progress_bar.set_prefix(format!("[{}]", resolution_prefix));
                 // TODO share the progress bar style?
                 let progress_bar_style = ProgressStyle::with_template(
