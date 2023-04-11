@@ -64,10 +64,9 @@ impl WorkingDir {
                 let progress_bar =
                     multi_progress_bar.insert(0, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
                 let progress_bar = progress_bar.with_finish(ProgressFinish::AndLeave);
-                progress_bar.set_prefix(format!("[{}]", resolution_prefix));
                 // TODO share the progress bar style?
                 let progress_bar_style = ProgressStyle::with_template(
-                    "{prefix:12} | {bar:12.cyan/blue} | {pos:>2}/{len:2} | {wide_msg}",
+                    "{bar:12.cyan/blue} | {pos:>2}/{len:2} | {wide_msg}",
                 )
                 .expect("Could not construct progress bar.")
                 .progress_chars("=> ");
@@ -243,15 +242,16 @@ pub struct IconInputs {
 }
 
 impl IconConversion {
-    fn step_unincremented(&self, step_desciption: &str) {
+    fn step_unincremented(&self, step_description: &str) {
         if let Some(progress_bar) = &self.progress_bar {
-            progress_bar.set_message(step_desciption.to_owned());
+            let wide_msg = format!("{:10} | {}", self.resolution_prefix, step_description);
+            progress_bar.set_message(wide_msg);
         }
     }
 
     fn step(&self, step_desciption: &str) {
         if let Some(progress_bar) = &self.progress_bar {
-            progress_bar.set_message(step_desciption.to_owned());
+            self.step_unincremented(step_desciption);
             progress_bar.inc(1);
         }
     }
