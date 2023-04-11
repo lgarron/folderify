@@ -67,7 +67,7 @@ impl WorkingDir {
                 progress_bar.set_prefix(format!("[{}]", resolution_prefix));
                 // TODO share the progress bar style?
                 let progress_bar_style = ProgressStyle::with_template(
-                    "{prefix:12} | {bar:12.cyan/blue} | {pos:>2}/{len:2} | {msg}",
+                    "{prefix:12} | {bar:12.cyan/blue} | {pos:>2}/{len:2} | {wide_msg}",
                 )
                 .expect("Could not construct progress bar.")
                 .progress_chars("=> ");
