@@ -9,7 +9,12 @@ use mktemp::Temp;
 
 const RETINA_SCALE: u32 = 2;
 
+pub const INPUT_PREFIX: &str = "(Input)";
+pub const OUTPUT_PREFIX: &str = "(Output)";
+
+pub const NUM_INPUT_STEPS: u64 = 1;
 pub const NUM_ICON_CONVERSION_STEPS: u64 = 13;
+pub const NUM_ICON_ASSIGNMENT_STEPS: u64 = 7;
 
 use crate::{
     command::{
@@ -61,8 +66,12 @@ impl WorkingDir {
     ) -> IconConversion {
         let progress_bar = match multi_progress_bar {
             Some(multi_progress_bar) => {
-                let progress_bar =
-                    multi_progress_bar.insert(0, ProgressBar::new(NUM_ICON_CONVERSION_STEPS));
+                let progress_bar = match resolution_prefix {
+                    INPUT_PREFIX => multi_progress_bar.insert(0, ProgressBar::new(NUM_INPUT_STEPS)),
+                    OUTPUT_PREFIX => multi_progress_bar
+                        .insert_from_back(0, ProgressBar::new(NUM_ICON_ASSIGNMENT_STEPS)),
+                    _ => multi_progress_bar.insert(1, ProgressBar::new(NUM_ICON_CONVERSION_STEPS)),
+                };
                 let progress_bar = progress_bar.with_finish(ProgressFinish::AndLeave);
                 // TODO share the progress bar style?
                 let progress_bar_style = ProgressStyle::with_template(
@@ -71,7 +80,7 @@ impl WorkingDir {
                 .expect("Could not construct progress bar.")
                 .progress_chars("=> ");
                 progress_bar.set_style(progress_bar_style);
-                progress_bar.set_message("Preparing");
+                progress_bar.tick();
                 Some(progress_bar)
             }
             None => None,
@@ -242,14 +251,14 @@ pub struct IconInputs {
 }
 
 impl IconConversion {
-    fn step_unincremented(&self, step_description: &str) {
+    pub fn step_unincremented(&self, step_description: &str) {
         if let Some(progress_bar) = &self.progress_bar {
             let wide_msg = format!("{:10} | {}", self.resolution_prefix, step_description);
             progress_bar.set_message(wide_msg);
         }
     }
 
-    fn step(&self, step_desciption: &str) {
+    pub fn step(&self, step_desciption: &str) {
         if let Some(progress_bar) = &self.progress_bar {
             self.step_unincremented(step_desciption);
             progress_bar.inc(1);
@@ -267,6 +276,7 @@ impl IconConversion {
         options: &options::Options,
         centering_dimensions: &Dimensions,
     ) -> Result<PathBuf, FolderifyError> {
+        self.step_unincremented("Preparing icon mask");
         let mut args = CommandArgs::new();
         args.background_transparent();
         args.density(density(&options.mask_path, centering_dimensions)?);
@@ -280,6 +290,7 @@ impl IconConversion {
         let output_path = self.output_path("0.0_FULL_MASK.png");
         args.push_path(&output_path);
         run_convert(&args, None)?;
+        self.step("");
         Ok(output_path)
     }
 
@@ -512,6 +523,7 @@ impl IconConversion {
         iconset_dir: &Path,
         icns_path: &Path,
     ) -> Result<(), FolderifyError> {
+        self.step("Creating .icns file");
         if options.verbose {
             println!(
                 "[{}] Creating the .icns file...",
@@ -552,12 +564,14 @@ impl IconConversion {
         };
 
         // sips: add an icns resource fork to the icns file
+        self.step("Adding resource fork to .icns file");
         let mut args = CommandArgs::new();
         args.push("-i");
         args.push_path(icns_path);
         run_command(SIPS_COMMAND, &args, None)?;
 
         // DeRez: export the icns resource from the icns file
+        self.step("Exporting .icns resource using DeRez");
         let mut args = CommandArgs::new();
         args.push("-only");
         args.push("icns");
@@ -571,6 +585,7 @@ impl IconConversion {
         }
 
         // Rez: add exported icns resource to the resource fork of target/Icon^M
+        self.step("Add .icns resource target using Rez");
         let mut args = CommandArgs::new();
         args.push("-append");
         args.push_path(&derezzed_path);
@@ -579,6 +594,7 @@ impl IconConversion {
         run_command(REZ_COMMAND, &args, None)?;
 
         // SetFile: set custom icon attribute
+        self.step("Setting custom icon attribute");
         let mut args = CommandArgs::new();
         args.push("-a");
         args.push("-C");
@@ -586,13 +602,18 @@ impl IconConversion {
         run_command(SETFILE_COMMAND, &args, None)?;
 
         if target_is_dir {
+            self.step("Setting invisible file attribute");
             // SetFile: set invisible file attribute
             let mut args = CommandArgs::new();
             args.push("-a");
             args.push("-V");
             args.push_path(&target_resource_path);
             run_command(SETFILE_COMMAND, &args, None)?;
+        } else {
+            self.step("Skipping invisible file attribute for file target");
         }
+
+        self.step("");
 
         Ok(())
     }

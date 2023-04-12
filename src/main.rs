@@ -5,7 +5,11 @@ use convert::CommandArgs;
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
 use indicatif::MultiProgress;
 
-use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
+use crate::{
+    icon_conversion::{INPUT_PREFIX, OUTPUT_PREFIX},
+    output_paths::PotentialOutputPaths,
+    primitives::Dimensions,
+};
 
 mod command;
 mod convert;
@@ -36,8 +40,14 @@ fn main() {
         working_dir.open_in_finder().unwrap();
     }
 
-    let shared_icon_conversion = working_dir.icon_conversion("shared", None);
-    let full_mask_path = shared_icon_conversion
+    let multi_progress_bar = match options.show_progress {
+        true => Some(MultiProgress::new()),
+        false => None,
+    };
+
+    let input_icon_conversion =
+        working_dir.icon_conversion(INPUT_PREFIX, multi_progress_bar.clone());
+    let full_mask_path = input_icon_conversion
         .full_mask(
             &options,
             &Dimensions {
@@ -48,11 +58,6 @@ fn main() {
         .unwrap();
 
     let final_output_paths = potential_output_paths.finalize(&options, &working_dir);
-
-    let multi_progress_bar = match options.show_progress {
-        true => Some(MultiProgress::new()),
-        false => None,
-    };
 
     let mut handles = Vec::<JoinHandle<()>>::new();
     for resolution in IconResolution::values() {
@@ -77,6 +82,9 @@ fn main() {
         handles.push(handle);
     }
 
+    let output_icon_conversion = working_dir.icon_conversion(OUTPUT_PREFIX, multi_progress_bar);
+    output_icon_conversion.step_unincremented("Waiting…");
+
     for handle in handles {
         handle.join().unwrap();
     }
@@ -86,9 +94,13 @@ fn main() {
         &options.output_icns,
         &options.output_iconset,
     ) {
-        (None, None, Some(output_iconset)) => output_iconset, // TODO: avoid `.icns assignment entirely?
+        (None, None, Some(output_iconset)) => {
+            // TODO: avoid `.icns assignment entirely?
+            // TODO: Change the number of output steps?
+            output_iconset
+        }
         _ => {
-            shared_icon_conversion
+            output_icon_conversion
                 .to_icns(
                     &options,
                     &final_output_paths.iconset_dir,
@@ -101,7 +113,7 @@ fn main() {
                 .as_ref()
                 .unwrap_or(&final_output_paths.icns_path);
 
-            shared_icon_conversion
+            output_icon_conversion
                 .assign_icns(
                     &options,
                     &final_output_paths.icns_path,
@@ -114,6 +126,7 @@ fn main() {
     };
 
     if options.reveal {
+        output_icon_conversion.step_unincremented("Revealing in Finder…");
         let mut args = CommandArgs::new();
         args.push("-R");
         args.push_path(reveal_path);
