@@ -9,12 +9,23 @@ use mktemp::Temp;
 
 const RETINA_SCALE: u32 = 2;
 
-pub const INPUT_PREFIX: &str = "(Input)";
-pub const OUTPUT_PREFIX: &str = "(Output)";
+pub enum ProgressBarType {
+    Input,
+    Conversion,
+    OutputWithIcns,
+    OutputWithoutIcns,
+}
 
-pub const NUM_INPUT_STEPS: u64 = 1;
-pub const NUM_ICON_CONVERSION_STEPS: u64 = 13;
-pub const NUM_ICON_ASSIGNMENT_STEPS: u64 = 7;
+impl ProgressBarType {
+    pub fn num_steps(&self) -> u64 {
+        match self {
+            ProgressBarType::Input => 1,
+            ProgressBarType::Conversion => 13,
+            ProgressBarType::OutputWithIcns => 7,
+            ProgressBarType::OutputWithoutIcns => 1,
+        }
+    }
+}
 
 use crate::{
     command::{
@@ -61,16 +72,16 @@ impl WorkingDir {
 
     pub fn icon_conversion(
         &self,
-        resolution_prefix: &str,
+        progress_bar_type: ProgressBarType,
+        stage_description: &str,
         multi_progress_bar: Option<MultiProgress>,
     ) -> IconConversion {
         let progress_bar = match multi_progress_bar {
             Some(multi_progress_bar) => {
-                let progress_bar = match resolution_prefix {
-                    INPUT_PREFIX => multi_progress_bar.insert(0, ProgressBar::new(NUM_INPUT_STEPS)),
-                    OUTPUT_PREFIX => multi_progress_bar
-                        .insert_from_back(0, ProgressBar::new(NUM_ICON_ASSIGNMENT_STEPS)),
-                    _ => multi_progress_bar.insert(1, ProgressBar::new(NUM_ICON_CONVERSION_STEPS)),
+                let progress_bar = ProgressBar::new(progress_bar_type.num_steps());
+                let progress_bar = match progress_bar_type {
+                    ProgressBarType::Conversion => multi_progress_bar.insert(1, progress_bar),
+                    _ => multi_progress_bar.insert_from_back(0, progress_bar),
                 };
                 let progress_bar = progress_bar.with_finish(ProgressFinish::AndLeave);
                 // TODO share the progress bar style?
@@ -87,7 +98,7 @@ impl WorkingDir {
         };
         IconConversion {
             working_dir: self.working_dir.as_path().to_owned(),
-            resolution_prefix: resolution_prefix.into(),
+            resolution_prefix: stage_description.into(),
             progress_bar,
         }
     }
@@ -564,7 +575,7 @@ impl IconConversion {
         };
 
         // sips: add an icns resource fork to the icns file
-        self.step("Adding resource fork to .icns file");
+        self.step("Adding resource fork to .icns file using sips");
         let mut args = CommandArgs::new();
         args.push("-i");
         args.push_path(icns_path);
