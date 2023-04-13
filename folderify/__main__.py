@@ -103,15 +103,16 @@ XCode command line tools are already installed and if you're using a folder targ
 
   ################################################################
 
-  print("""
+  print("""\033[93m
 --------
 
-You are using folderify v2, which is no longer officially supported. Unless you need folder icons for macOS 10.15 or earlier, please consider updating to folderify v3:
+You are using folderify v2, which is no longer officially supported.
+Unless you need folder icons for macOS 10.15 or earlier, please consider updating to folderify v3:
 
 https://github.com/lgarron/folderify/tree/main#install
 
 --------
-""")
+\033[0m""")
   time.sleep(2)
 
   args = parser.parse_args()
