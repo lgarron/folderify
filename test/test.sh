@@ -77,8 +77,7 @@ check_folder ./examples/src/folder_outline_custom_path_4.iconset
 check_no_file_nor_folder ./examples/src/folder_outline.icns
 check_no_file_nor_folder ./examples/src/folder_outline.iconset
 
-# for version in "10.5" "10.6" "10.7" "10.8" "10.9" "10.10" "10.11" "10.12" "10.13" "10.14" "10.15" "11.0"
-for version in "10.15" "13.3"
+for version in "11.0" "12.1" "13.3"
 do
   echo -e "\nTest that --macOS ${version} is accepted."
   cargo run -- --macOS ${version} ./examples/src/apple.png
