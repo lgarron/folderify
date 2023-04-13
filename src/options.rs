@@ -133,6 +133,15 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
     generate(generator, cmd, "folderify", &mut stdout());
 }
 
+fn known_mac_os_version(mac_os: &str) -> bool {
+    for prefix in ["13.", "12.", "11."] {
+        if mac_os.starts_with(prefix) {
+            return true;
+        }
+    }
+    false
+}
+
 pub fn get_options() -> Options {
     let mut command = FolderifyArgs::command();
 
@@ -171,7 +180,7 @@ pub fn get_options() -> Options {
             eprintln!("Warning: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
             exit(1)
         }
-        if !mac_os.starts_with("11.") || !mac_os.starts_with("12.") || !mac_os.starts_with("13.") {
+        if !known_mac_os_version(mac_os) {
             eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11.0 (Big Sur)");
         }
     }

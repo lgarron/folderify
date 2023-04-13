@@ -102,8 +102,13 @@ do
   fi
 done
 
-# for version in "11.0" "12.1" "13.3"
-# do
-#   echo -e "\nTest that --macOS ${version} is accepted."
-#   cargo run -- --macOS ${version} ./examples/src/apple.png
-# done
+for version in "11.0" "12.1" "13.3"
+do
+  echo -e "\nTest that --macOS ${version} is accepted without warning"
+  if (cargo run -- --macOS ${version} ./examples/src/apple.png 2>&1 | grep "Warning: Unknown macOS version specified\.")
+  then
+    failure "Command failed or unexpected warning."
+  else
+    success "Accepted without warning."
+  fi
+done
