@@ -12,7 +12,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import warnings
 
 from string import Template
 
@@ -104,7 +103,7 @@ XCode command line tools are already installed and if you're using a folder targ
 
   ################################################################
 
-  warnings.warn("""
+  print("""
 --------
 
 You are using folderify v2, which is no longer officially supported. Unless you need folder icons for macOS 10.15 or earlier, please consider updating to folderify v3:
@@ -112,7 +111,7 @@ You are using folderify v2, which is no longer officially supported. Unless you 
 https://github.com/lgarron/folderify/tree/main#install
 
 --------
-""", DeprecationWarning)
+""")
   time.sleep(2)
 
   args = parser.parse_args()
