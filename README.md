@@ -4,7 +4,6 @@
 
 Generate pixel-perfect macOS folder icons in the native style.
 
-- Works for OS X 10.5 (Leopard) through macOS 13 (Ventura).
 - Automatically includes all icon sizes from `16x16` through `512x512@2x`.
 - Light or dark mode (automatically selected by default).
 
@@ -30,23 +29,15 @@ Generate `mask.icns` and `mask.iconset` files:
 folderify mask.png
 ```
 
-Generate icon files for a specific version of macOS (the default is your current
-version):
-
-```shell
-folderify --macOS 11.0 mask.png
-```
-
 By default, `folderify` uses your system's current light/dark mode. Use `--color-scheme` to override this:
 
 ```shell
-folderify --macOS 11.0 --color-scheme dark mask.png
+folderify --color-scheme dark mask.png
 ```
 
 Note:
 
 - There is currently no simple way to set an icon that will automatically switch between light and dark when you switch the entire OS. You can only assign one version of an icon to a folder.
-- Dark color scheme is only supported for macOS 11.0 (and later) right now.
 
 ## Tips
 
@@ -60,6 +51,20 @@ For best results:
   - with a width that is a multiple of 128px (up to 768px),
   - using a 16px grid.
   - Each 64x64 tile will exactly align with 1 pixel at the smallest icon size.
+
+## OS X (macOS 10)
+
+Folder styles from OS X / macOS 10 are no longer supported by `folderify` as of v3:
+
+- Leopard-style (OS X 10.5 to OS X 10.9)
+- Yosemite-style (OS X 10.10 to macOS 10.15)
+
+To generate these, please use `folderify` v2. For example:
+
+```shell
+pip3 install folderify
+python3 -m folderify --macOS 10.5 path/to/icon.png
+```
 
 # Other installation options
 
