@@ -1,3 +1,9 @@
+# ⚠️ `folderify` v2 ⚠️
+
+This is folderify v2 (implemented in Python and published to PyPI), which is no longer officially supported. Unless you need folder icons for macOS 10.15 or earlier, please consider updating to folderify v3: https://github.com/lgarron/folderify/tree/main#install
+
+--------
+
 # folderify
 
 ![mask.png + folder = folderified!](examples/png/explanation.png)
