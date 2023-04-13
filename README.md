@@ -9,11 +9,17 @@ Generate pixel-perfect macOS folder icons in the native style.
 
 **Using `folderify`?** [Let me know](https://mastodon.social/@lgarron) or [let me know](https://github.com/lgarron/folderify/issues/new) and I'd love to feature some real-world uses!
 
-# Install using [Homebrew](https://formulae.brew.sh/formula/folderify)
+# Install
+
+Install `folderify` using [Homebrew](https://formulae.brew.sh/formula/folderify):
 
 ```shell
 brew install folderify
 ```
+
+Homebrew install is recommended, and automatically installs `folderify` argument completions for your shell.
+
+See below for other installation options.
 
 # Usage
 
