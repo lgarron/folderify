@@ -171,6 +171,9 @@ pub fn get_options() -> Options {
             eprintln!("Warning: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
             exit(1)
         }
+        if !mac_os.starts_with("11.") || !mac_os.starts_with("12.") || !mac_os.starts_with("13.") {
+            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11.0 (Big Sur)");
+        }
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
     let verbose = args.verbose || debug;
