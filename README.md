@@ -9,7 +9,7 @@ Generate pixel-perfect macOS folder icons in the native style.
 
 **Using `folderify`?** [Let me know](https://mastodon.social/@lgarron) or [let me know](https://github.com/lgarron/folderify/issues/new) and I'd love to feature some real-world uses!
 
-# Install
+## Install
 
 Install `folderify` using [Homebrew](https://formulae.brew.sh/formula/folderify):
 
@@ -21,7 +21,7 @@ Homebrew install is recommended, and automatically installs `folderify` argument
 
 See below for other installation options.
 
-# Usage
+## Usage
 
 Use a mask to assign an icon to a folder:
 
@@ -45,7 +45,7 @@ Note:
 
 - There is currently no simple way to set an icon that will automatically switch between light and dark when you switch the entire OS. You can only assign one version of an icon to a folder.
 
-## Tips
+### Tips
 
 For best results:
 
@@ -58,7 +58,7 @@ For best results:
   - using a 16px grid.
   - Each 64x64 tile will exactly align with 1 pixel at the smallest icon size.
 
-## OS X (macOS 10)
+### OS X (macOS 10)
 
 Folder styles from OS X / macOS 10 are no longer supported by `folderify` as of v3:
 
@@ -72,18 +72,18 @@ pip3 install folderify
 python3 -m folderify --macOS 10.5 path/to/icon.png
 ```
 
-# Other installation options
+## Other installation options
 
 If you don't have Homebrew but you already have ImageMagick (the `convert`
 binary) on your system, you can use the following:
 
-## Install using Rust
+### Install using Rust
 
 ```shell
 cargo install folderify
 ```
 
-## From source
+### From source
 
 Or download the code directly:
 
@@ -107,14 +107,14 @@ open examples/src/
 
 You should see a bunch of new `.iconset` folders and `.icns` files that were automatically generated from the `.png` masks.
 
-## Dependencies
+### Dependencies
 
 - [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> and <code>identify</code> on the commandline).
 - Included with macOS:
   - `iconutil`
 - `sips`, `DeRez`, `Rez`, `SetFile` (You need Xcode command line tools for some of these.)
 
-# Full options
+## Full options
 
 ```
 Generate a native-style macOS folder icon from a mask file.
@@ -184,7 +184,7 @@ Options:
           Print version
 ```
 
----
+## Example
 
 Example generated from the Apple logo:
 ![Icons from apple.iconset at resolutions from 16x16 up to 512x5125@2x, shown in Quicklook on macOS](examples/png/apple.gif)
