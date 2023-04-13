@@ -17,6 +17,16 @@ jobs:
           GITHUB_REF=${{ github.ref }}
           RELEASE_NAME=${GITHUB_REF#"refs/tags/"}
           echo "RELEASE_NAME=${RELEASE_NAME}" >> $GITHUB_ENV
+      # We'd use `github.event.head_commit.message`, but that includes the first line of the message. So we check out the code.
+      - name: Check out code for release body calculation using `git` itself
+        uses: actions/checkout@v3
+      - name: Calculate release body
+        run: |
+          # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "RELEASE_BODY<<$EOF" >> $GITHUB_ENV
+          git log --format=%b -n 1 HEAD >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
       - name: Publish release
         uses: actions/create-release@v1
         env:
@@ -24,5 +34,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ env.RELEASE_NAME }}
+          body: ${{ env.RELEASE_BODY }}
           draft: false
           prerelease: false
