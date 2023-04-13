@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+function success {
+  MESSAGE="${1}"
+  echo "✅ ${MESSAGE}"
+}
+
+function failure {
+  MESSAGE="${1}"
+  echo "❌ ${MESSAGE}"
+  exit 1
+}
+
 function make_temp_folder {
   mktemp -d
 }

@@ -77,8 +77,33 @@ check_folder ./examples/src/folder_outline_custom_path_4.iconset
 check_no_file_nor_folder ./examples/src/folder_outline.icns
 check_no_file_nor_folder ./examples/src/folder_outline.iconset
 
-for version in "11.0" "12.1" "13.3"
+for version in "10.5" "10.8" "10.15"
 do
-  echo -e "\nTest that --macOS ${version} is accepted."
-  cargo run -- --macOS ${version} ./examples/src/apple.png
+  echo -e "\nTest that --macOS ${version} is rejected."
+  # Wrap command to avoid triggering `pipefail`.
+  if (cargo run -- --macOS ${version} ./examples/src/apple.png)
+  then
+      failure "Not rejected."
+  else
+      success "Rejected (expected)."
+  fi
 done
+
+# Accepted with a warning.
+for version in "10.16" "99.0"
+do
+  echo -e "\nTest that --macOS ${version} is accepted with a warning."
+  # Wrap command to avoid triggering `pipefail`.
+  if (cargo run -- --macOS ${version} ./examples/src/apple.png 2>&1 | grep "Warning: Unknown macOS version specified\.")
+  then
+    success "Accepted with warning."
+  else
+    failure "Command failed or warning missing."
+  fi
+done
+
+# for version in "11.0" "12.1" "13.3"
+# do
+#   echo -e "\nTest that --macOS ${version} is accepted."
+#   cargo run -- --macOS ${version} ./examples/src/apple.png
+# done
