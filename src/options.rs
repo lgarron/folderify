@@ -150,13 +150,26 @@ pub fn get_options() -> Options {
         }
     };
 
-    if let Some(mac_os) = args.mac_os {
-        if mac_os.starts_with("10.") {
+    if let Some(mac_os) = &args.mac_os {
+        let mac_os: &str = mac_os;
+        // macOS 11.0 reports itself as macOS 10.16 in some APIs. Someone might pass such a value on to `folderify`, so we can't just check for major version 10.
+        // Insstead, we denylist the versions that previously had different folder icons, so that we don't accidentally apply the Big Sur style when one of these versions was specified.
+        if matches!(
+            mac_os,
+            "10.5"
+                | "10.6"
+                | "10.7"
+                | "10.8"
+                | "10.9"
+                | "10.10"
+                | "10.11"
+                | "10.12"
+                | "10.13"
+                | "10.14"
+                | "10.15"
+        ) {
             eprintln!("Warning: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
             exit(1)
-        }
-        if !mac_os.starts_with("11.") {
-            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11.0 (Big Sur)");
         }
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
