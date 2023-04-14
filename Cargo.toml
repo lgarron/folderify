@@ -1,6 +1,6 @@
 [package]
 name = "folderify"
-version = "3.0.10"
+version = "3.0.11"
 edition = "2021"
 description = "Generate a native-style macOS folder icon from a mask file."
 license = "MIT"
