@@ -177,7 +177,7 @@ pub fn get_options() -> Options {
                 | "10.14"
                 | "10.15"
         ) {
-            eprintln!("Warning: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
+            eprintln!("Error: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
             exit(1)
         }
         if !known_mac_os_version(mac_os) {
