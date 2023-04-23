@@ -63,6 +63,10 @@ struct FolderifyArgs {
     #[arg(long, hide(true))]
     set_icon_using: Option<String>,
 
+    /// Add a badge to the icon. Currently only supports one badge at a time.
+    #[arg(long)]
+    badge: Option<Badge>,
+
     /// Detailed output. Also sets `--no-progress`.
     #[clap(short, long)]
     verbose: bool,
@@ -80,6 +84,12 @@ struct FolderifyArgs {
 pub enum ColorScheme {
     Light,
     Dark,
+}
+
+#[derive(ValueEnum, Clone, Debug, PartialEq, Copy)]
+pub enum Badge {
+    Alias,
+    Locked,
 }
 
 impl Display for ColorScheme {
@@ -124,6 +134,7 @@ pub struct Options {
     pub output_icns: Option<PathBuf>,
     pub output_iconset: Option<PathBuf>,
     pub show_progress: bool,
+    pub badge: Option<Badge>,
     pub reveal: bool,
     pub verbose: bool,
     pub debug: bool,
@@ -194,6 +205,7 @@ pub fn get_options() -> Options {
         target: args.target,
         output_icns: args.output_icns,
         output_iconset: args.output_iconset,
+        badge: args.badge,
         show_progress,
         reveal: args.reveal,
         verbose,

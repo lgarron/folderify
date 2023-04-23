@@ -10,11 +10,11 @@ use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
 mod command;
 mod convert;
 mod error;
-mod generic_folder_icon;
 mod icon_conversion;
 mod options;
 mod output_paths;
 mod primitives;
+mod resources;
 
 fn main() {
     let options = options::get_options();
@@ -45,6 +45,7 @@ fn main() {
         icon_conversion::ProgressBarType::Input,
         "(Input)",
         multi_progress_bar.clone(),
+        false,
     );
     let full_mask_path = input_icon_conversion
         .full_mask(
@@ -64,6 +65,7 @@ fn main() {
             icon_conversion::ProgressBarType::Conversion,
             &resolution.to_string(),
             multi_progress_bar.clone(),
+            true,
         );
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
@@ -98,8 +100,12 @@ fn main() {
         Some(_) => icon_conversion::ProgressBarType::OutputWithoutIcns,
         None => icon_conversion::ProgressBarType::OutputWithIcns,
     };
-    let output_icon_conversion =
-        working_dir.icon_conversion(output_progress_bar_type, "(Output)", multi_progress_bar);
+    let output_icon_conversion = working_dir.icon_conversion(
+        output_progress_bar_type,
+        "(Output)",
+        multi_progress_bar,
+        false,
+    );
     output_icon_conversion.step_unincremented("Waiting…");
 
     for handle in handles {

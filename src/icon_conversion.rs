@@ -17,10 +17,10 @@ pub enum ProgressBarType {
 }
 
 impl ProgressBarType {
-    pub fn num_steps(&self) -> u64 {
+    pub fn num_steps(&self, includes_badge: bool) -> u64 {
         match self {
             ProgressBarType::Input => 1,
-            ProgressBarType::Conversion => 13,
+            ProgressBarType::Conversion => 13 + if includes_badge { 1 } else { 0 },
             ProgressBarType::OutputWithIcns => 7,
             ProgressBarType::OutputWithoutIcns => 1,
         }
@@ -34,9 +34,9 @@ use crate::{
     },
     convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
-    generic_folder_icon::get_folder_icon,
-    options::{self, ColorScheme, Options},
+    options::{self, Badge, ColorScheme, Options},
     primitives::{Dimensions, Extent, Offset, RGBColor},
+    resources::{get_badge_icon, get_folder_icon},
 };
 
 pub struct ScaledMaskInputs {
@@ -75,10 +75,11 @@ impl WorkingDir {
         progress_bar_type: ProgressBarType,
         stage_description: &str,
         multi_progress_bar: Option<MultiProgress>,
+        includes_badge: bool,
     ) -> IconConversion {
         let progress_bar = match multi_progress_bar {
             Some(multi_progress_bar) => {
-                let progress_bar = ProgressBar::new(progress_bar_type.num_steps());
+                let progress_bar = ProgressBar::new(progress_bar_type.num_steps(includes_badge));
                 let progress_bar = match progress_bar_type {
                     ProgressBarType::Conversion => multi_progress_bar.insert(1, progress_bar),
                     _ => multi_progress_bar.insert_from_back(0, progress_bar),
@@ -455,10 +456,25 @@ impl IconConversion {
         args.composite(&CompositingOperation::dissolve);
         args.push_path(output_path);
         run_convert(&args, Some(template_icon))?;
-
-        self.step("");
-
         Ok(())
+    }
+
+    pub fn badge_in_place(
+        &self,
+        icon_path: &Path,
+        badge: Badge,
+        resolution: &IconResolution,
+    ) -> Result<(), FolderifyError> {
+        self.step("Adding badge"); // TODO: increase maximum step counter.
+
+        let badge_icon = get_badge_icon(badge, resolution);
+
+        let mut args = CommandArgs::new();
+        args.push_path(icon_path);
+        args.push("-");
+        args.composite(&CompositingOperation::dissolve);
+        args.push_path(icon_path);
+        run_convert(&args, Some(badge_icon))
     }
 
     // TODO
@@ -522,6 +538,12 @@ impl IconConversion {
                 },
             },
         );
+        if let Some(badge) = options.badge {
+            self.badge_in_place(output_path, badge, &inputs.resolution)?;
+        };
+
+        self.step("");
+
         if options.verbose {
             println!("[{}] {}", options.mask_path.display(), inputs.resolution);
         }
