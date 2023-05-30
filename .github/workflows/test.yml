@@ -4,7 +4,6 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: [2.7, 3.9]
         os: [macos-11, macos-12, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
