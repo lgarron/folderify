@@ -25,3 +25,7 @@ install:
 
 .PHONY: uninstall
 	cargo uninstall folderify
+
+.PHONY: clean
+clean:
+	rm -rf ./target
