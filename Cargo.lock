@@ -91,7 +91,7 @@ dependencies = [
 
 [[package]]
 name = "folderify"
-version = "3.0.12"
+version = "3.0.13"
 dependencies = [
  "clap",
  "clap_complete",
