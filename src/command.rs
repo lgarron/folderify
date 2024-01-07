@@ -14,13 +14,14 @@ const DEBUG_PRINT_ARGS: bool = false;
 const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
 pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
-pub(crate) const FILEICON_COMMAND: &str = "fileicon";
 pub(crate) const OPEN_COMMAND: &str = "open";
 
 pub(crate) const SIPS_COMMAND: &str = "sips";
 pub(crate) const DEREZ_COMMAND: &str = "DeRez";
 pub(crate) const REZ_COMMAND: &str = "Rez";
 pub(crate) const SETFILE_COMMAND: &str = "SetFile";
+
+pub(crate) const FILEICON_COMMAND: &str = "fileicon";
 
 pub(crate) fn run_command(
     command_name: &str,

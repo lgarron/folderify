@@ -94,9 +94,14 @@ fn main() {
     };
 
     // Deduplicate this `match` with the one that happens after handle joining.
-    let output_progress_bar_type = match output_iconset_only {
-        Some(_) => icon_conversion::ProgressBarType::OutputWithoutIcns,
-        None => icon_conversion::ProgressBarType::OutputWithIcns,
+    let output_progress_bar_type = match (output_iconset_only, &options.set_icon_using) {
+        (Some(_), _) => icon_conversion::ProgressBarType::OutputIcns,
+        (None, options::SetIconUsing::Fileicon) => {
+            icon_conversion::ProgressBarType::OutputWithAssignmentUsingFileicon
+        }
+        (None, options::SetIconUsing::Rez) => {
+            icon_conversion::ProgressBarType::OutputWithAssignmentUsingRez
+        }
     };
     let output_icon_conversion =
         working_dir.icon_conversion(output_progress_bar_type, "(Output)", multi_progress_bar);
