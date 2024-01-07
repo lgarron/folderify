@@ -12,8 +12,9 @@ const RETINA_SCALE: u32 = 2;
 pub enum ProgressBarType {
     Input,
     Conversion,
-    OutputWithIcns,
-    OutputWithoutIcns,
+    OutputWithAssignmentDefault,
+    OutputWithAssignmentUsingRez,
+    OutputIcns,
 }
 
 impl ProgressBarType {
@@ -21,21 +22,22 @@ impl ProgressBarType {
         match self {
             ProgressBarType::Input => 1,
             ProgressBarType::Conversion => 13,
-            ProgressBarType::OutputWithIcns => 7,
-            ProgressBarType::OutputWithoutIcns => 1,
+            ProgressBarType::OutputWithAssignmentDefault => 2,
+            ProgressBarType::OutputWithAssignmentUsingRez => 7,
+            ProgressBarType::OutputIcns => 1,
         }
     }
 }
 
 use crate::{
     command::{
-        run_command, run_convert, DEREZ_COMMAND, ICONUTIL_COMMAND, REZ_COMMAND, SETFILE_COMMAND,
-        SIPS_COMMAND,
+        run_command, run_convert, DEREZ_COMMAND, FILEICON_COMMAND, ICONUTIL_COMMAND,
+        OSASCRIPT_COMMAND, REZ_COMMAND, SETFILE_COMMAND, SIPS_COMMAND,
     },
     convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
     generic_folder_icon::get_folder_icon,
-    options::{self, ColorScheme, Options},
+    options::{self, ColorScheme, Options, SetIconUsing},
     primitives::{Dimensions, Extent, Offset, RGBColor},
 };
 
@@ -564,6 +566,71 @@ impl IconConversion {
                 target_path.display(),
             );
         }
+
+        let assignment_fn = match options.set_icon_using {
+            SetIconUsing::Fileicon => Self::assign_icns_using_rez,
+            SetIconUsing::Osascript => Self::assign_icns_using_osascript,
+            SetIconUsing::Rez => Self::assign_icns_using_fileicon,
+        };
+        assignment_fn(self, options, icns_path, target_path)?;
+
+        self.step("");
+
+        Ok(())
+    }
+
+    pub fn assign_icns_using_osascript(
+        &self,
+        _options: &Options,
+        icns_path: &Path,
+        target_path: &Path,
+    ) -> Result<(), FolderifyError> {
+        self.step("Using `osascript` to assign the `.icns` file.");
+
+        // Adapted from:
+        // - https://github.com/mklement0/fileicon/blob/9c41a44fac462f66a1194e223aa26e4c3b9b5ae3/bin/fileicon#L268-L276
+        // - https://github.com/mklement0/fileicon/issues/32#issuecomment-1074124748
+        // - https://apple.stackexchange.com/a/161984
+        let stdin = format!("use framework \"Cocoa\"
+
+            set sourcePath to \"{}\"
+            set destPath to \"{}\"
+            
+            set imageData to (current application's NSImage's alloc()'s initWithContentsOfFile:sourcePath)
+            (current application's NSWorkspace's sharedWorkspace()'s setIcon:imageData forFile:destPath options:2)",
+            icns_path.to_string_lossy(), target_path.to_string_lossy()
+        );
+
+        let args = CommandArgs::new();
+        run_command(OSASCRIPT_COMMAND, &args, Some(stdin.as_bytes()))?;
+
+        // TODO: verify that the icon file exists
+
+        Ok(())
+    }
+
+    pub fn assign_icns_using_fileicon(
+        &self,
+        _options: &Options,
+        icns_path: &Path,
+        target_path: &Path,
+    ) -> Result<(), FolderifyError> {
+        self.step("Using `fileicon` to assign the `.icns` file.");
+        let mut args = CommandArgs::new();
+        args.push("set");
+        args.push_path(target_path);
+        args.push_path(icns_path);
+        run_command(FILEICON_COMMAND, &args, None)?;
+
+        Ok(())
+    }
+
+    pub fn assign_icns_using_rez(
+        &self,
+        _options: &Options,
+        icns_path: &Path,
+        target_path: &Path,
+    ) -> Result<(), FolderifyError> {
         let target_is_dir = metadata(target_path)
             .expect("Target does not exist!")
             .is_dir(); // TODO: Return `FolderifyError`
@@ -622,9 +689,7 @@ impl IconConversion {
             run_command(SETFILE_COMMAND, &args, None)?;
         } else {
             self.step("Skipping invisible file attribute for file target");
-        }
-
-        self.step("");
+        };
 
         Ok(())
     }
