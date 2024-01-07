@@ -59,9 +59,9 @@ struct FolderifyArgs {
     #[arg(long)]
     no_progress: bool,
 
-    /// Legacy argument. Now ignored.
+    /// Program used to set the icon. `osascript` should work in most circumstances, `fileicon` performs more checks, and `rez` produces smaller but less accurate icons.
     #[arg(long, hide(true))]
-    set_icon_using: Option<String>,
+    set_icon_using: Option<SetIconUsingOrAuto>,
 
     /// Add a badge to the icon. Currently only supports one badge at a time.
     #[arg(long)]
@@ -114,14 +114,16 @@ enum ColorSchemeOrAuto {
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
 pub enum SetIconUsing {
-    SetIcon,
+    Fileicon,
+    Osascript,
     Rez,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
 enum SetIconUsingOrAuto {
     Auto,
-    SetIcon,
+    Fileicon,
+    Osascript,
     Rez,
 }
 
@@ -133,6 +135,7 @@ pub struct Options {
     pub target: Option<PathBuf>,
     pub output_icns: Option<PathBuf>,
     pub output_iconset: Option<PathBuf>,
+    pub set_icon_using: SetIconUsing,
     pub show_progress: bool,
     pub badge: Option<Badge>,
     pub reveal: bool,
@@ -145,7 +148,7 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
 }
 
 fn known_mac_os_version(mac_os: &str) -> bool {
-    for prefix in ["13.", "12.", "11."] {
+    for prefix in ["14.", "13.", "12.", "11."] {
         if mac_os.starts_with(prefix) {
             return true;
         }
@@ -192,12 +195,17 @@ pub fn get_options() -> Options {
             exit(1)
         }
         if !known_mac_os_version(mac_os) {
-            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11.0 (Big Sur)");
+            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11 or later");
         }
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
     let verbose = args.verbose || debug;
     let show_progress = !args.no_progress && !args.verbose;
+    let set_icon_using = match args.set_icon_using {
+        Some(SetIconUsingOrAuto::Rez) => SetIconUsing::Rez,
+        Some(SetIconUsingOrAuto::Fileicon) => SetIconUsing::Fileicon,
+        _ => SetIconUsing::Osascript,
+    };
     Options {
         mask_path: mask,
         color_scheme: map_color_scheme_auto(args.color_scheme),
@@ -206,6 +214,7 @@ pub fn get_options() -> Options {
         output_icns: args.output_icns,
         output_iconset: args.output_iconset,
         badge: args.badge,
+        set_icon_using,
         show_progress,
         reveal: args.reveal,
         verbose,

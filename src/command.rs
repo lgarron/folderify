@@ -16,6 +16,9 @@ const IDENTIFY_COMMAND: &str = "identify";
 pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
 pub(crate) const OPEN_COMMAND: &str = "open";
 
+pub(crate) const OSASCRIPT_COMMAND: &str = "osascript";
+pub(crate) const FILEICON_COMMAND: &str = "fileicon";
+
 pub(crate) const SIPS_COMMAND: &str = "sips";
 pub(crate) const DEREZ_COMMAND: &str = "DeRez";
 pub(crate) const REZ_COMMAND: &str = "Rez";
