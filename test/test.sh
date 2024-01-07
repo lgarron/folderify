@@ -34,9 +34,9 @@ check_folder_icon "${TEMP_DIR}"
 rm -r "${TEMP_DIR}"
 
 TEMP_DIR_REZ=$(make_temp_folder)
-echo -e "\nAssign folder icon with --set-icon-using Rez."
-cargo run -- --set-icon-using Rez ./examples/src/apple.png "${TEMP_DIR_REZ}"
-echo -e "\nCheck folder icon assigned with --set-icon-using Rez."
+echo -e "\nAssign folder icon with --set-icon-using rez."
+cargo run -- --set-icon-using rez ./examples/src/apple.png "${TEMP_DIR_REZ}"
+echo -e "\nCheck folder icon assigned with --set-icon-using rez."
 check_folder_icon "${TEMP_DIR_REZ}"
 rm -r "${TEMP_DIR_REZ}"
 
