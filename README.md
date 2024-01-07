@@ -167,6 +167,11 @@ Options:
       --no-progress
           Don't show progress bars
 
+      --badge <BADGE>
+          Add a badge to the icon. Currently only supports one badge at a time
+          
+          [possible values: alias, locked]
+
   -v, --verbose
           Detailed output. Also sets `--no-progress`
 
