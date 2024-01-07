@@ -60,7 +60,7 @@ struct FolderifyArgs {
     no_progress: bool,
 
     /// Program used to set the icon. `osascript` should work in most circumstances, `fileicon` performs more checks, and `rez` produces smaller but less accurate icons.
-    #[arg(long)]
+    #[arg(long, hide(true))]
     set_icon_using: Option<SetIconUsingOrAuto>,
 
     /// Detailed output. Also sets `--no-progress`.
