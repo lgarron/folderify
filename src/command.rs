@@ -14,6 +14,7 @@ const DEBUG_PRINT_ARGS: bool = false;
 const CONVERT_COMMAND: &str = "convert";
 const IDENTIFY_COMMAND: &str = "identify";
 pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
+pub(crate) const FILEICON_COMMAND: &str = "fileicon";
 pub(crate) const OPEN_COMMAND: &str = "open";
 
 pub(crate) const SIPS_COMMAND: &str = "sips";

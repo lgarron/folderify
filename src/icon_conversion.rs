@@ -29,8 +29,8 @@ impl ProgressBarType {
 
 use crate::{
     command::{
-        run_command, run_convert, DEREZ_COMMAND, ICONUTIL_COMMAND, REZ_COMMAND, SETFILE_COMMAND,
-        SIPS_COMMAND,
+        run_command, run_convert, DEREZ_COMMAND, FILEICON_COMMAND, ICONUTIL_COMMAND, REZ_COMMAND,
+        SETFILE_COMMAND, SIPS_COMMAND,
     },
     convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
@@ -564,65 +564,12 @@ impl IconConversion {
                 target_path.display(),
             );
         }
-        let target_is_dir = metadata(target_path)
-            .expect("Target does not exist!")
-            .is_dir(); // TODO: Return `FolderifyError`
-
-        let target_resource_path = if target_is_dir {
-            target_path.join("Icon\r")
-        } else {
-            target_path.to_owned()
-        };
-
-        // sips: add an icns resource fork to the icns file
-        self.step("Adding resource fork to .icns file using sips");
+        self.step("Setting icns using `fileicon");
         let mut args = CommandArgs::new();
-        args.push("-i");
-        args.push_path(icns_path);
-        run_command(SIPS_COMMAND, &args, None)?;
-
-        // DeRez: export the icns resource from the icns file
-        self.step("Exporting .icns resource using DeRez");
-        let mut args = CommandArgs::new();
-        args.push("-only");
-        args.push("icns");
-        args.push_path(icns_path);
-        let derezzed = run_command(DEREZ_COMMAND, &args, None)?;
-        let derezzed_path = self.output_path("derezzed.data");
-        if fs::write(&derezzed_path, derezzed).is_err() {
-            return Err(FolderifyError::General(GeneralError {
-                message: "Could not write derezzed data".into(),
-            }));
-        }
-
-        // Rez: add exported icns resource to the resource fork of target/Icon^M
-        self.step("Add .icns resource target using Rez");
-        let mut args = CommandArgs::new();
-        args.push("-append");
-        args.push_path(&derezzed_path);
-        args.push("-o");
-        args.push_path(&target_resource_path);
-        run_command(REZ_COMMAND, &args, None)?;
-
-        // SetFile: set custom icon attribute
-        self.step("Setting custom icon attribute");
-        let mut args = CommandArgs::new();
-        args.push("-a");
-        args.push("-C");
+        args.push("set");
         args.push_path(target_path);
-        run_command(SETFILE_COMMAND, &args, None)?;
-
-        if target_is_dir {
-            self.step("Setting invisible file attribute");
-            // SetFile: set invisible file attribute
-            let mut args = CommandArgs::new();
-            args.push("-a");
-            args.push("-V");
-            args.push_path(&target_resource_path);
-            run_command(SETFILE_COMMAND, &args, None)?;
-        } else {
-            self.step("Skipping invisible file attribute for file target");
-        }
+        args.push_path(icns_path);
+        run_command(FILEICON_COMMAND, &args, None)?;
 
         self.step("");
 
