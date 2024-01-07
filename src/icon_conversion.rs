@@ -568,9 +568,9 @@ impl IconConversion {
         }
 
         let assignment_fn = match options.set_icon_using {
-            SetIconUsing::Fileicon => Self::assign_icns_using_rez,
+            SetIconUsing::Fileicon => Self::assign_icns_using_fileicon,
             SetIconUsing::Osascript => Self::assign_icns_using_osascript,
-            SetIconUsing::Rez => Self::assign_icns_using_fileicon,
+            SetIconUsing::Rez => Self::assign_icns_using_rez,
         };
         assignment_fn(self, options, icns_path, target_path)?;
 
