@@ -137,7 +137,7 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
 }
 
 fn known_mac_os_version(mac_os: &str) -> bool {
-    for prefix in ["13.", "12.", "11."] {
+    for prefix in ["14.", "13.", "12.", "11."] {
         if mac_os.starts_with(prefix) {
             return true;
         }
@@ -184,7 +184,7 @@ pub fn get_options() -> Options {
             exit(1)
         }
         if !known_mac_os_version(mac_os) {
-            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11.0 (Big Sur)");
+            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11 or later");
         }
     }
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
