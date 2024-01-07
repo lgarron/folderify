@@ -59,7 +59,7 @@ struct FolderifyArgs {
     #[arg(long)]
     no_progress: bool,
 
-    /// Legacy argument. Now ignored.
+    /// Program used to set the icon. `osascript` should work in most circumstances, `fileicon` performs more checks, and `rez` produces smaller but less accurate icons.
     #[arg(long)]
     set_icon_using: Option<SetIconUsingOrAuto>,
 
@@ -105,6 +105,7 @@ enum ColorSchemeOrAuto {
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
 pub enum SetIconUsing {
     Fileicon,
+    Osascript,
     Rez,
 }
 
@@ -112,6 +113,7 @@ pub enum SetIconUsing {
 enum SetIconUsingOrAuto {
     Auto,
     Fileicon,
+    Osascript,
     Rez,
 }
 
@@ -190,7 +192,8 @@ pub fn get_options() -> Options {
     let show_progress = !args.no_progress && !args.verbose;
     let set_icon_using = match args.set_icon_using {
         Some(SetIconUsingOrAuto::Rez) => SetIconUsing::Rez,
-        _ => SetIconUsing::Fileicon,
+        Some(SetIconUsingOrAuto::Fileicon) => SetIconUsing::Fileicon,
+        _ => SetIconUsing::Osascript,
     };
     Options {
         mask_path: mask,
