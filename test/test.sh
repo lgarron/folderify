@@ -58,6 +58,12 @@ cargo run -- --color-scheme dark ./examples/src/apple.png
 echo -e "\nTest that \`--no-progress\` is accepted."
 cargo run -- --no-progress ./examples/src/apple.png
 
+echo -e "\nTest that \`--badge alias\` is accepted."
+cargo run -- --badge alias ./examples/src/apple.png
+
+echo -e "\nTest that \`--badge locked\` is accepted."
+cargo run -- --badge locked ./examples/src/apple.png
+
 echo -e "\nTest that \`--output-icns\` is accepted."
 cargo run -- --output-icns ./examples/src/folder_outline_custom_path_1.icns ./examples/src/folder_outline.png
 check_file ./examples/src/folder_outline_custom_path_1.icns
