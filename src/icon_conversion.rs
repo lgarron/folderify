@@ -2,6 +2,7 @@ use std::{
     fmt::Display,
     fs::{self, create_dir_all, metadata},
     path::{Path, PathBuf},
+    process::exit,
 };
 
 use indicatif::{MultiProgress, ProgressBar, ProgressFinish, ProgressStyle};
@@ -609,6 +610,14 @@ impl IconConversion {
     ) -> Result<(), FolderifyError> {
         self.step("Using `osascript` to assign the `.icns` file.");
 
+        let target_metadata = match metadata(target_path) {
+            Ok(target_metadata) => target_metadata,
+            Err(_) => {
+                eprintln!("Error: target path does not exist!");
+                exit(1);
+            }
+        };
+
         // Adapted from:
         // - https://github.com/mklement0/fileicon/blob/9c41a44fac462f66a1194e223aa26e4c3b9b5ae3/bin/fileicon#L268-L276
         // - https://github.com/mklement0/fileicon/issues/32#issuecomment-1074124748
@@ -630,7 +639,20 @@ impl IconConversion {
         let args = CommandArgs::new();
         run_command(OSASCRIPT_COMMAND, &args, Some(stdin.as_bytes()))?;
 
-        // TODO: verify that the icon file exists
+        if target_metadata.is_dir() {
+            // TODO: check for network volume first, only then the appropriate path.
+            if metadata(target_path.join("Icon\r")).is_err()
+                && metadata(target_path.join(".VolumeIcon.icns")).is_err()
+            {
+                eprintln!("Icon was not successfully assigned to the target folder.");
+                exit(1);
+            }
+        } else {
+            // TODO: this is usually overwritten by the progress bars.
+            eprintln!(
+                "Target is not a folder. Please check manually if the icon was assigned correctly."
+            );
+        };
 
         Ok(())
     }
