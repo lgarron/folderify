@@ -613,6 +613,10 @@ impl IconConversion {
         // - https://github.com/mklement0/fileicon/blob/9c41a44fac462f66a1194e223aa26e4c3b9b5ae3/bin/fileicon#L268-L276
         // - https://github.com/mklement0/fileicon/issues/32#issuecomment-1074124748
         // - https://apple.stackexchange.com/a/161984
+        //
+        // In theory, we could try to call the Cocoa framework diretcly through
+        // bridging or linking. However, AppleScript is more likely to be
+        // portable across macOS versions.
         let stdin = format!("use framework \"Cocoa\"
 
             set sourcePath to \"{}\"
@@ -620,7 +624,7 @@ impl IconConversion {
             
             set imageData to (current application's NSImage's alloc()'s initWithContentsOfFile:sourcePath)
             (current application's NSWorkspace's sharedWorkspace()'s setIcon:imageData forFile:destPath options:2)",
-            icns_path.to_string_lossy(), target_path.to_string_lossy()
+            escape_path_for_applescript(&icns_path.to_string_lossy()), escape_path_for_applescript(&target_path.to_string_lossy())
         );
 
         let args = CommandArgs::new();
@@ -715,4 +719,9 @@ impl IconConversion {
 
         Ok(())
     }
+}
+
+pub fn escape_path_for_applescript(path: &str) -> String {
+    // Newlines don't need to be escaped.
+    path.replace('\\', "\\\\").replace('\"', "\\\"")
 }
