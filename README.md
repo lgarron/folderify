@@ -152,7 +152,7 @@ Options:
           Reveal either the target, `.icns`, or `.iconset` (in that order of preference) in Finder
 
       --macOS <MACOS_VERSION>
-          Version of the macOS folder icon, e.g. "10.13". Defaults to the version currently running
+          Version of the macOS folder icon, e.g. "14.2.1". Defaults to the version currently running
 
       --color-scheme <COLOR_SCHEME>
           Color scheme — auto matches the current system value

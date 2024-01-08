@@ -41,7 +41,7 @@ struct FolderifyArgs {
     #[clap(short, long)]
     reveal: bool,
 
-    /// Version of the macOS folder icon, e.g. "10.13".
+    /// Version of the macOS folder icon, e.g. "14.2.1".
     /// Defaults to the version currently running.
     #[clap(long = "macOS", alias = "osx", short_alias = 'x', id = "MACOS_VERSION")]
     mac_os: Option<String>, // TODO: enum, default?
