@@ -178,7 +178,7 @@ pub fn get_options() -> Options {
     if let Some(mac_os) = &args.mac_os {
         let mac_os: &str = mac_os;
         // macOS 11.0 reports itself as macOS 10.16 in some APIs. Someone might pass such a value on to `folderify`, so we can't just check for major version 10.
-        // Insstead, we denylist the versions that previously had different folder icons, so that we don't accidentally apply the Big Sur style when one of these versions was specified.
+        // Instead, we denylist the versions that previously had different folder icons, so that we don't accidentally apply the Big Sur style when one of these versions was specified.
         if matches!(
             mac_os,
             "10.5"
