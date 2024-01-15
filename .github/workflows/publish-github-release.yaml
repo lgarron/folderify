@@ -1,0 +1,13 @@
+name: Publish GitHub release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  Publish:
+    permissions:
+      contents: write
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: cubing/actions-workflows/.github/workflows/publish-github-release.yaml@main
