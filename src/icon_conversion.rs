@@ -13,18 +13,22 @@ const RETINA_SCALE: u32 = 2;
 pub enum ProgressBarType {
     Input,
     Conversion,
-    OutputWithAssignmentDefault,
-    OutputWithAssignmentUsingRez,
+    OutputWithAssignment,
     OutputIcns,
 }
 
 impl ProgressBarType {
-    pub fn num_steps(&self, includes_badge: bool) -> u64 {
+    pub fn num_steps(&self, options: &Options) -> u64 {
         match self {
             ProgressBarType::Input => 1,
-            ProgressBarType::Conversion => 13 + if includes_badge { 1 } else { 0 },
-            ProgressBarType::OutputWithAssignmentDefault => 2,
-            ProgressBarType::OutputWithAssignmentUsingRez => 7,
+            ProgressBarType::Conversion => 13 + if options.badge.is_some() { 1 } else { 0 },
+            ProgressBarType::OutputWithAssignment => {
+                2 + if matches!(options.set_icon_using, SetIconUsing::Rez) {
+                    7
+                } else {
+                    0
+                }
+            }
             ProgressBarType::OutputIcns => 1,
         }
     }
@@ -78,11 +82,11 @@ impl WorkingDir {
         progress_bar_type: ProgressBarType,
         stage_description: &str,
         multi_progress_bar: Option<MultiProgress>,
-        includes_badge: bool,
+        options: &Options,
     ) -> IconConversion {
         let progress_bar = match multi_progress_bar {
             Some(multi_progress_bar) => {
-                let progress_bar = ProgressBar::new(progress_bar_type.num_steps(includes_badge));
+                let progress_bar = ProgressBar::new(progress_bar_type.num_steps(options));
                 let progress_bar = match progress_bar_type {
                     ProgressBarType::Conversion => multi_progress_bar.insert(1, progress_bar),
                     _ => multi_progress_bar.insert_from_back(0, progress_bar),
@@ -468,7 +472,7 @@ impl IconConversion {
         badge: Badge,
         resolution: &IconResolution,
     ) -> Result<(), FolderifyError> {
-        self.step("Adding badge"); // TODO: increase maximum step counter.
+        self.step("Adding badge");
 
         let badge_icon = get_badge_icon(badge, resolution);
 

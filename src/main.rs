@@ -45,7 +45,7 @@ fn main() {
         icon_conversion::ProgressBarType::Input,
         "(Input)",
         multi_progress_bar.clone(),
-        false,
+        &options,
     );
     let full_mask_path = input_icon_conversion
         .full_mask(
@@ -65,7 +65,7 @@ fn main() {
             icon_conversion::ProgressBarType::Conversion,
             &resolution.to_string(),
             multi_progress_bar.clone(),
-            true,
+            &options,
         );
         let options = options.clone();
         let full_mask_path = full_mask_path.clone();
@@ -96,18 +96,15 @@ fn main() {
     };
 
     // Deduplicate this `match` with the one that happens after handle joining.
-    let output_progress_bar_type = match (output_iconset_only, &options.set_icon_using) {
-        (Some(_), _) => icon_conversion::ProgressBarType::OutputIcns,
-        (None, options::SetIconUsing::Rez) => {
-            icon_conversion::ProgressBarType::OutputWithAssignmentUsingRez
-        }
-        (None, _) => icon_conversion::ProgressBarType::OutputWithAssignmentDefault,
+    let output_progress_bar_type = match output_iconset_only {
+        Some(_) => icon_conversion::ProgressBarType::OutputIcns,
+        None => icon_conversion::ProgressBarType::OutputWithAssignment,
     };
     let output_icon_conversion = working_dir.icon_conversion(
         output_progress_bar_type,
         "(Output)",
         multi_progress_bar,
-        false,
+        &options,
     );
     output_icon_conversion.step_unincremented("Waiting…");
 
