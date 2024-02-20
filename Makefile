@@ -29,3 +29,7 @@ install:
 .PHONY: clean
 clean:
 	rm -rf ./target
+
+.PHONY: readme-cli-help
+readme-cli-help:
+	bun x readme-cli-help "cargo run -- --help"

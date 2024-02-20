@@ -118,7 +118,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ## Full options
 
-```
+````cli-help
 Generate a native-style macOS folder icon from a mask file.
 
 Usage: folderify [OPTIONS] [MASK] [TARGET]
@@ -189,7 +189,8 @@ Options:
 
   -V, --version
           Print version
-```
+
+````
 
 ## Example
 
