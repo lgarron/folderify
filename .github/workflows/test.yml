@@ -4,12 +4,12 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-12, macos-14]
+        os: [macos-12, macsos-13, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Install ImageMagick
-        run: brew install imagemagick
+        run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
       - name: make test
         run: make test
