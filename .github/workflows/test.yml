@@ -4,17 +4,13 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-12, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: "Debug: brew config"
-        run: brew config
-      - name: "Debug: brew update"
-        run: brew update
-      - name: "Debug: brew update (again)"
-        run: brew update
+      - name: Workaround # https://github.com/actions/runner-images/issues/9544#issuecomment-2013403876
+        run: brew link --overwrite python@3.11
       - name: Install ImageMagick
         run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
       - name: make test
