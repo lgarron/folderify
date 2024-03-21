@@ -11,6 +11,10 @@ jobs:
         uses: actions/checkout@v4
       - name: "Debug: brew doctor"
         run: brew doctor
+      - name: "Debug: brew update"
+        run: brew update
+      - name: "Debug: brew update (again)"
+        run: brew update
       - name: Install ImageMagick
         run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
       - name: make test
