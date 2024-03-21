@@ -11,6 +11,8 @@ jobs:
         uses: actions/checkout@v4
       - name: "Debug: brew doctor"
         run: brew doctor
+      - name: "Debug: brew config"
+        run: brew config
       - name: "Debug: brew update"
         run: brew update
       - name: "Debug: brew update (again)"
