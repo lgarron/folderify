@@ -51,7 +51,7 @@ struct FolderifyArgs {
     color_scheme: ColorSchemeOrAuto,
 
     /// Don't trim margins from the mask.
-    /// By default, transparent margins are trimmed from all 4 sides.
+    /// By default (i.e. without this flag), transparent margins are trimmed from all 4 sides.
     #[clap(long, verbatim_doc_comment)]
     no_trim: bool,
 
