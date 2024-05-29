@@ -162,7 +162,7 @@ Options:
 
       --no-trim
           Don't trim margins from the mask.
-          By default, transparent margins are trimmed from all 4 sides.
+          By default (i.e. without this flag), transparent margins are trimmed from all 4 sides.
 
       --no-progress
           Don't show progress bars
@@ -189,7 +189,6 @@ Options:
 
   -V, --version
           Print version
-
 ````
 
 ## Example
