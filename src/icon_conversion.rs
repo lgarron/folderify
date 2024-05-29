@@ -627,7 +627,7 @@ impl IconConversion {
         // - https://github.com/mklement0/fileicon/issues/32#issuecomment-1074124748
         // - https://apple.stackexchange.com/a/161984
         //
-        // In theory, we could try to call the Cocoa framework diretcly through
+        // In theory, we could try to call the Cocoa framework directly through
         // bridging or linking. However, AppleScript is more likely to be
         // portable across macOS versions.
         let stdin = format!("use framework \"Cocoa\"
