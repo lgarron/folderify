@@ -36,11 +36,11 @@ impl ProgressBarType {
 
 use crate::{
     command::{
-        run_command, run_convert, DEREZ_COMMAND, FILEICON_COMMAND, ICONUTIL_COMMAND,
+        run_command, run_magick, DEREZ_COMMAND, FILEICON_COMMAND, ICONUTIL_COMMAND,
         OSASCRIPT_COMMAND, REZ_COMMAND, SETFILE_COMMAND, SIPS_COMMAND,
     },
-    convert::{density, BlurDown, CommandArgs, CompositingOperation},
     error::{FolderifyError, GeneralError},
+    magick::{density, BlurDown, CommandArgs, CompositingOperation},
     options::{Badge, ColorScheme, Options, SetIconUsing},
     primitives::{Dimensions, Extent, Offset, RGBColor},
     resources::{get_badge_icon, get_folder_icon},
@@ -308,7 +308,7 @@ impl IconConversion {
         args.extent(&Extent::no_offset(centering_dimensions));
         let output_path = self.output_path("0.0_FULL_MASK.png");
         args.push_path(&output_path);
-        run_convert(&args, None)?;
+        run_magick(&args, None)?;
         self.step("");
         Ok(output_path)
     }
@@ -329,7 +329,7 @@ impl IconConversion {
         });
         let output_path = self.output_path("1.0_SIZED_MASK.png");
         args.push_path(&output_path);
-        run_convert(&args, None)?;
+        run_magick(&args, None)?;
         Ok(output_path)
     }
 
@@ -345,7 +345,7 @@ impl IconConversion {
         let file_name = format!("{}.png", output_filename);
         let output_path = self.output_path(&file_name);
         args.push_path(&output_path);
-        run_convert(&args, None)?;
+        run_magick(&args, None)?;
         Ok(output_path)
     }
 
@@ -462,7 +462,7 @@ impl IconConversion {
         args.push_path(&top_bezel);
         args.composite(&CompositingOperation::dissolve);
         args.push_path(output_path);
-        run_convert(&args, Some(template_icon))?;
+        run_magick(&args, Some(template_icon))?;
         Ok(())
     }
 
@@ -481,7 +481,7 @@ impl IconConversion {
         args.push("-");
         args.composite(&CompositingOperation::dissolve);
         args.push_path(icon_path);
-        run_convert(&args, Some(badge_icon))
+        run_magick(&args, Some(badge_icon))
     }
 
     // TODO

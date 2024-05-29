@@ -74,7 +74,7 @@ python3 -m folderify --macOS 10.5 path/to/icon.png
 
 ## Other installation options
 
-If you don't have Homebrew but you already have ImageMagick (the `convert`
+If you don't have Homebrew but you already have ImageMagick (the `magick`
 binary) on your system, you can use the following:
 
 ### Install using Rust
@@ -109,7 +109,7 @@ You should see a bunch of new `.iconset` folders and `.icns` files that were aut
 
 ### Dependencies
 
-- [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run <code>convert</code> and <code>identify</code> on the commandline).
+- [ImageMagick](https://www.imagemagick.org/) - for image processing (you should be able to run `magick` and `identify` on the commandline).
 - Included with macOS:
   - `iconutil`
 - Optional:

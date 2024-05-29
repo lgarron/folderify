@@ -1,16 +1,16 @@
 use std::thread::{self, JoinHandle};
 
 use command::{run_command, OPEN_COMMAND};
-use convert::CommandArgs;
 use icon_conversion::{IconInputs, IconResolution, WorkingDir};
 use indicatif::MultiProgress;
+use magick::CommandArgs;
 
 use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
 
 mod command;
-mod convert;
 mod error;
 mod icon_conversion;
+mod magick;
 mod options;
 mod output_paths;
 mod primitives;

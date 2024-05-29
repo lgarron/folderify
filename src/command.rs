@@ -3,15 +3,15 @@ use std::process::Command;
 use std::process::Stdio;
 use std::str::from_utf8;
 
-use crate::convert::CommandArgs;
 use crate::error::CommandFailedError;
 use crate::error::CommandInvalidError;
 use crate::error::FolderifyError;
 use crate::error::GeneralError;
+use crate::magick::CommandArgs;
 
 const DEBUG_PRINT_ARGS: bool = false;
 
-const CONVERT_COMMAND: &str = "convert";
+const MAGICK_COMMAND: &str = "magick";
 const IDENTIFY_COMMAND: &str = "identify";
 pub(crate) const ICONUTIL_COMMAND: &str = "iconutil";
 pub(crate) const OPEN_COMMAND: &str = "open";
@@ -77,8 +77,8 @@ pub(crate) fn run_command(
     Ok(output.stdout)
 }
 
-pub(crate) fn run_convert(args: &CommandArgs, stdin: Option<&[u8]>) -> Result<(), FolderifyError> {
-    run_command(CONVERT_COMMAND, args, stdin)?;
+pub(crate) fn run_magick(args: &CommandArgs, stdin: Option<&[u8]>) -> Result<(), FolderifyError> {
+    run_command(MAGICK_COMMAND, args, stdin)?;
     Ok(())
 }
 
