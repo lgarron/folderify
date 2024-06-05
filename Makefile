@@ -33,3 +33,8 @@ clean:
 .PHONY: readme-cli-help
 readme-cli-help:
 	bun x readme-cli-help "cargo run -- --help"
+
+
+.PHONY: check-readme-cli-help
+check-readme-cli-help:
+	bun x readme-cli-help --check-only "cargo run -- --help"

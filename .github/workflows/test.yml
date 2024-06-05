@@ -9,7 +9,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
       - name: Install ImageMagick
         run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
       - name: make test
         run: make test
+      - run: make check-readme-cli-help
