@@ -150,8 +150,10 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
 }
 
 fn known_mac_os_version(mac_os: &str) -> bool {
-    for prefix in ["15.", "14.", "13.", "12.", "11."] {
-        if mac_os.starts_with(prefix) {
+    for major_version_string in ["15", "14", "13", "12", "11"] {
+        if mac_os.starts_with(&format!("{}.", major_version_string))
+            || mac_os == major_version_string
+        {
             return true;
         }
     }
