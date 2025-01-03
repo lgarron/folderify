@@ -10,6 +10,7 @@ use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 #[command(author, version, about, long_about = None)]
 #[clap(name = "folderify")]
 struct FolderifyArgs {
+    #[allow(clippy::doc_lazy_continuation)] // We want concise text.
     /// Mask image file. For best results:
     /// - Use a .png mask.
     /// - Use a solid black design over a transparent background.
