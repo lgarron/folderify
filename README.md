@@ -68,6 +68,10 @@ Folder styles from OS X / macOS 10 are no longer supported by `folderify` as of 
 To generate these, please use `folderify` v2. For example:
 
 ```shell
+# Using `uvx`: https://docs.astral.sh/uv/guides/tools/
+uvx --from folderify folderify-v2 --macOS 10.5 path/to/icon.png
+
+# Using `pip`
 pip3 install folderify
 python3 -m folderify --macOS 10.5 path/to/icon.png
 ```
