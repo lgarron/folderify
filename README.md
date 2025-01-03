@@ -101,6 +101,7 @@ folderify --reveal examples/src/folder_outline.png .
 The repository folder should now have a custom icon.
 
 ```shell
+# bash
 for file in examples/src/*.png; do cargo run -- $file; done
 open examples/src/
 ```
