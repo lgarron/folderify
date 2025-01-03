@@ -1,4 +1,5 @@
 #[derive(Debug)]
+#[allow(dead_code)] // For debugging
 pub enum FolderifyError {
     CommandInvalid(CommandInvalidError),
     CommandFailed(CommandFailedError),
@@ -6,6 +7,7 @@ pub enum FolderifyError {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // For debugging
 pub struct CommandInvalidError {
     pub command_name: String,
 }
@@ -17,6 +19,7 @@ impl From<CommandInvalidError> for FolderifyError {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // For debugging
 pub struct CommandFailedError {
     pub command_name: String,
     pub stderr: Vec<u8>,
@@ -29,6 +32,7 @@ impl From<CommandFailedError> for FolderifyError {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // For debugging
 pub struct GeneralError {
     pub message: String,
 }
