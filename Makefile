@@ -12,8 +12,11 @@ format:
 	cargo fmt
 
 .PHONY: test
-test:
-	./test/test.sh
+test: test-behaviour lint check-readme-cli-help
+
+.PHONY: test-behaviour
+test-behaviour:
+	./test/test-behaviour.sh
 
 .PHONY: publish
 publish:

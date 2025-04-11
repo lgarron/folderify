@@ -1,5 +1,6 @@
 on: [push, pull_request]
 name: Test on macOS
+
 jobs:
   test:
     strategy:
@@ -12,6 +13,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - name: Install ImageMagick
         run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
-      - name: make test
-        run: make test
+      - run: make build
+      - run: make test-behaviour
+      - run: make lint
       - run: make check-readme-cli-help
