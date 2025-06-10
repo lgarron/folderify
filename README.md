@@ -1,6 +1,6 @@
 # folderify
 
-![mask.png + folder = folderified!](examples/png/explanation.png)
+![mask.png + folder = folderified!](examples/png/explanation-tahoe.png)
 
 Generate pixel-perfect macOS folder icons in the native style (including for macOS 26 Tahoe).
 
