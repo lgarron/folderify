@@ -159,6 +159,9 @@ Options:
       --macOS <MACOS_VERSION>
           Version of the macOS folder icon, e.g. "14.2.1". Defaults to the version currently running
 
+      --empty-folder
+          Render the folder as empty
+
       --color-scheme <COLOR_SCHEME>
           Color scheme — auto matches the current system value
           

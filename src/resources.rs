@@ -4,19 +4,34 @@ use include_dir::{include_dir, Dir};
 
 use crate::{
     icon_conversion::IconResolution,
-    options::{Badge, ColorScheme},
+    options::{Badge, ColorScheme, FolderStyle},
 };
 
 static RESOURCES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/src/resources");
 
-pub fn get_folder_icon(color_scheme: ColorScheme, resolution: &IconResolution) -> &'static [u8] {
+pub struct IconInputs {
+    pub folder_style: FolderStyle,
+    pub color_scheme: ColorScheme,
+    pub resolution: IconResolution,
+    pub empty_folder: bool,
+}
+
+pub fn get_folder_icon(icon_inputs: &IconInputs) -> &'static [u8] {
     let mut path = PathBuf::new();
     path.push("folders");
-    path.push(match color_scheme {
-        ColorScheme::Light => "GenericFolderIcon.BigSur.iconset",
-        ColorScheme::Dark => "GenericFolderIcon.BigSur.dark.iconset",
-    });
-    path.push(resolution.icon_file());
+    path.push(
+        match (
+            icon_inputs.color_scheme,
+            icon_inputs.folder_style,
+            icon_inputs.empty_folder,
+        ) {
+            (ColorScheme::Light, FolderStyle::BigSur, _) => "GenericFolderIcon.BigSur.iconset",
+            (ColorScheme::Dark, FolderStyle::BigSur, _) => "GenericFolderIcon.BigSur.dark.iconset",
+            (_, FolderStyle::Tahoe, true) => "GenericFolderIcon.empty.Tahoe.iconset",
+            (_, FolderStyle::Tahoe, false) => "GenericFolderIcon.non-empty.Tahoe.iconset",
+        },
+    );
+    path.push(icon_inputs.resolution.icon_file());
     RESOURCES_DIR.get_file(&path).unwrap().contents()
 }
 

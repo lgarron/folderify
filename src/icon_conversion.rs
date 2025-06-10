@@ -41,9 +41,9 @@ use crate::{
     },
     error::{FolderifyError, GeneralError},
     magick::{density, BlurDown, CommandArgs, CompositingOperation},
-    options::{Badge, ColorScheme, Options, SetIconUsing},
+    options::{Badge, ColorScheme, FolderStyle, Options, SetIconUsing},
     primitives::{Dimensions, Extent, Offset, RGBColor},
-    resources::{get_badge_icon, get_folder_icon},
+    resources::{get_badge_icon, get_folder_icon, IconInputs},
 };
 
 pub struct ScaledMaskInputs {
@@ -262,11 +262,6 @@ pub struct IconConversion {
     working_dir: PathBuf,
     resolution_prefix: String,
     pub progress_bar: Option<ProgressBar>,
-}
-
-pub struct IconInputs {
-    pub color_scheme: ColorScheme,
-    pub resolution: IconResolution,
 }
 
 impl IconConversion {
@@ -490,14 +485,14 @@ impl IconConversion {
         options: &Options,
         full_mask_path: &Path,
         output_path: &Path,
-        inputs: &IconInputs,
+        icon_inputs: &IconInputs,
     ) -> Result<(), FolderifyError> {
         // if options.verbose {
         //     println!("[Starting] {}", inputs.resolution);
         // }
 
-        let size = inputs.resolution.size();
-        let offset_y = inputs.resolution.offset_y();
+        let size = icon_inputs.resolution.size();
+        let offset_y = icon_inputs.resolution.offset_y();
 
         self.step_unincremented("Sizing mask");
         let sized_mask_path = self
@@ -515,11 +510,12 @@ impl IconConversion {
             .unwrap();
 
         // TODO
-        let template_icon = get_folder_icon(inputs.color_scheme, &inputs.resolution);
+        let template_icon = get_folder_icon(icon_inputs);
 
-        let fill_color = match inputs.color_scheme {
-            ColorScheme::Light => RGBColor::new(8, 134, 206),
-            ColorScheme::Dark => RGBColor::new(6, 111, 194),
+        let fill_color = match (icon_inputs.folder_style, icon_inputs.color_scheme) {
+            (FolderStyle::Tahoe, _) => RGBColor::new(74, 141, 172),
+            (_, ColorScheme::Light) => RGBColor::new(8, 134, 206),
+            (_, ColorScheme::Dark) => RGBColor::new(6, 111, 194),
         };
 
         let engraved = self.engrave(
@@ -539,20 +535,24 @@ impl IconConversion {
                 },
                 bottom_bezel: BezelInputs {
                     color: RGBColor::new(174, 225, 253),
-                    blur: inputs.resolution.bottom_bezel_blur_down(),
+                    blur: icon_inputs.resolution.bottom_bezel_blur_down(),
                     mask_operation: CompositingOperation::Dst_Out,
-                    opacity: inputs.resolution.bottom_bezel_alpha(),
+                    opacity: icon_inputs.resolution.bottom_bezel_alpha(),
                 },
             },
         );
         if let Some(badge) = options.badge {
-            self.badge_in_place(output_path, badge, &inputs.resolution)?;
+            self.badge_in_place(output_path, badge, &icon_inputs.resolution)?;
         };
 
         self.step("");
 
         if options.verbose {
-            println!("[{}] {}", options.mask_path.display(), inputs.resolution);
+            println!(
+                "[{}] {}",
+                options.mask_path.display(),
+                icon_inputs.resolution
+            );
         }
         engraved
     }

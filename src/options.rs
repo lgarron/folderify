@@ -3,6 +3,7 @@ use clap_complete::generator::generate;
 use clap_complete::{Generator, Shell};
 use std::io::stdout;
 use std::process::exit;
+use std::str::from_utf8;
 use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 
 /// Generate a native-style macOS folder icon from a mask file.
@@ -46,6 +47,10 @@ struct FolderifyArgs {
     /// Defaults to the version currently running.
     #[clap(long = "macOS", alias = "osx", short_alias = 'x', id = "MACOS_VERSION")]
     mac_os: Option<String>, // TODO: enum, default?
+
+    /// Render the folder as empty.
+    #[clap(long, default_value_t = false)]
+    empty_folder: bool,
 
     /// Color scheme — auto matches the current system value.
     #[clap(long, value_enum, default_value_t = ColorSchemeOrAuto::Auto)]
@@ -136,6 +141,8 @@ pub struct Options {
     pub color_scheme: ColorScheme,
     pub no_trim: bool,
     pub target: Option<PathBuf>,
+    pub folder_style: FolderStyle,
+    pub empty_folder: bool,
     pub output_icns: Option<PathBuf>,
     pub output_iconset: Option<PathBuf>,
     pub set_icon_using: SetIconUsing,
@@ -150,15 +157,39 @@ fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
     generate(generator, cmd, "folderify", &mut stdout());
 }
 
-fn known_mac_os_version(mac_os: &str) -> bool {
-    for major_version_string in ["15", "14", "13", "12", "11"] {
+fn is_major_macos_version_one_of(mac_os: &str, versions: &[&str]) -> bool {
+    for major_version_string in versions {
         if mac_os.starts_with(&format!("{}.", major_version_string))
-            || mac_os == major_version_string
+            || mac_os == *major_version_string
         {
             return true;
         }
     }
     false
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FolderStyle {
+    BigSur,
+    Tahoe,
+}
+
+impl Display for FolderStyle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FolderStyle::BigSur => write!(f, "Big Sur"),
+            FolderStyle::Tahoe => write!(f, "Tahoe"),
+        }
+    }
+}
+
+impl FolderStyle {
+    pub fn dark_mode_and_light_mode_are_identical(&self) -> bool {
+        match self {
+            FolderStyle::BigSur => false,
+            FolderStyle::Tahoe => true,
+        }
+    }
 }
 
 pub fn get_options() -> Options {
@@ -178,8 +209,12 @@ pub fn get_options() -> Options {
         }
     };
 
-    if let Some(mac_os) = &args.mac_os {
-        let mac_os: &str = mac_os;
+    let folder_style = {
+        let mac_os: String = args
+            .mac_os
+            .map(|s| s.to_owned())
+            .unwrap_or_else(current_macOS_version);
+        let mac_os = mac_os.as_str();
         // macOS 11.0 reports itself as macOS 10.16 in some APIs. Someone might pass such a value on to `folderify`, so we can't just check for major version 10.
         // Instead, we denylist the versions that previously had different folder icons, so that we don't accidentally apply the Big Sur style when one of these versions was specified.
         if matches!(
@@ -199,10 +234,21 @@ pub fn get_options() -> Options {
             eprintln!("Error: OS X / macOS 10 was specified. This is no longer supported by folderify v3.\nTo generate these icons, please use folderify v2: https://github.com/lgarron/folderify/tree/main#os-x-macos-10");
             exit(1)
         }
-        if !known_mac_os_version(mac_os) {
-            eprintln!("Warning: Unknown macOS version specified. Assuming macOS 11 or later");
+        if is_major_macos_version_one_of(mac_os, &["15", "14", "13", "12", "11"]) {
+            FolderStyle::BigSur
+        } else if is_major_macos_version_one_of(
+            mac_os,
+            &["26"], // Note: macOS 16 through 25 do not exist.
+        ) {
+            eprintln!("Warning: macOS Tahoe is still in beta. The icon may not match the final macOS 26 release.");
+            FolderStyle::Tahoe
+        } else {
+            eprintln!(
+                "Warning: Unknown macOS version specified. Assuming Big Sur (macOS 11 through 15)."
+            );
+            FolderStyle::BigSur
         }
-    }
+    };
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
     let verbose = args.verbose || debug;
     let show_progress = !args.no_progress && !args.verbose;
@@ -213,9 +259,11 @@ pub fn get_options() -> Options {
     };
     Options {
         mask_path: mask,
-        color_scheme: map_color_scheme_auto(args.color_scheme),
+        color_scheme: map_color_scheme_auto(args.color_scheme, folder_style),
         no_trim: args.no_trim,
         target: args.target,
+        folder_style,
+        empty_folder: args.empty_folder,
         output_icns: args.output_icns,
         output_iconset: args.output_iconset,
         badge: args.badge,
@@ -227,7 +275,20 @@ pub fn get_options() -> Options {
     }
 }
 
-fn map_color_scheme_auto(color_scheme: ColorSchemeOrAuto) -> ColorScheme {
+fn map_color_scheme_auto(
+    color_scheme: ColorSchemeOrAuto,
+    folder_style: FolderStyle,
+) -> ColorScheme {
+    if folder_style.dark_mode_and_light_mode_are_identical() {
+        match color_scheme {
+            ColorSchemeOrAuto::Auto => {}
+            _ => {
+                eprintln!("Dark and light mode folder icons are identical for the folder style of this macOS version. Ignoring the `--color-scheme` argument.");
+            }
+        }
+        return ColorScheme::Light;
+    }
+
     match color_scheme {
         ColorSchemeOrAuto::Dark => return ColorScheme::Dark,
         ColorSchemeOrAuto::Light => return ColorScheme::Light,
@@ -250,4 +311,19 @@ fn map_color_scheme_auto(color_scheme: ColorSchemeOrAuto) -> ColorScheme {
             ColorScheme::Light
         }
     }
+}
+
+const DEFAULT_MACOS_VERSION: &str = "15.0";
+
+#[allow(non_snake_case)]
+fn current_macOS_version() -> String {
+    let Ok(o) = Command::new("sw_vers").args(["-productVersion"]).output() else {
+        return DEFAULT_MACOS_VERSION.to_owned();
+    };
+
+    let Ok(stdout) = from_utf8(&o.stdout) else {
+        return DEFAULT_MACOS_VERSION.to_owned();
+    };
+
+    stdout.to_owned()
 }

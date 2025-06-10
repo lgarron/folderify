@@ -1,11 +1,11 @@
 use std::thread::{self, JoinHandle};
 
 use command::{run_command, OPEN_COMMAND};
-use icon_conversion::{IconInputs, IconResolution, WorkingDir};
+use icon_conversion::{IconResolution, WorkingDir};
 use indicatif::MultiProgress;
 use magick::CommandArgs;
 
-use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions};
+use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions, resources::IconInputs};
 
 mod command;
 mod error;
@@ -22,8 +22,9 @@ fn main() {
     let potential_output_paths = PotentialOutputPaths::new(&options);
 
     println!(
-        "[{}] Using folder style: BigSur",
-        options.mask_path.display()
+        "[{}] Using folder style: {}",
+        options.mask_path.display(),
+        options.folder_style
     );
     println!(
         "[{}] Using color scheme: {}",
@@ -77,8 +78,10 @@ fn main() {
                     &full_mask_path,
                     &output_path,
                     &IconInputs {
+                        folder_style: options.folder_style,
                         color_scheme: options.color_scheme,
                         resolution,
+                        empty_folder: options.empty_folder,
                     },
                 )
                 .unwrap();
