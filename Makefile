@@ -4,12 +4,13 @@ build:
 
 .PHONY: lint
 lint:
-	cargo clippy
+	cargo clippy -- --deny warnings
 	cargo fmt --check
 
 .PHONY: format
 format:
-	cargo fmt
+	cargo clippy
+	cargo fmt --check
 
 .PHONY: test
 test: test-behaviour lint check-readme-cli-help
