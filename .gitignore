@@ -1,2 +1,4 @@
 /target
 /Icon
+# Workaround for https://github.com/jj-vcs/jj/issues/6791
+/Icon*
