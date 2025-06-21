@@ -21,7 +21,8 @@ test-behaviour:
 
 .PHONY: publish
 publish:
-	cargo publish
+	# `--no-verify` is a workaround for https://github.com/rust-lang/cargo/issues/8407
+	cargo publish --no-verify
 
 .PHONY: install
 install:
