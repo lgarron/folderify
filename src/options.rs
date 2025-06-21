@@ -6,10 +6,12 @@ use std::process::exit;
 use std::str::from_utf8;
 use std::{env::var, fmt::Display, path::PathBuf, process::Command};
 
+use crate::build::CLAP_LONG_VERSION;
+
 /// Generate a native-style macOS folder icon from a mask file.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-#[clap(name = "folderify")]
+#[clap(name = "folderify", long_version = CLAP_LONG_VERSION )]
 struct FolderifyArgs {
     #[allow(clippy::doc_lazy_continuation)] // We want concise text.
     /// Mask image file. For best results:

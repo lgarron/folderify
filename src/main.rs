@@ -4,6 +4,7 @@ use command::{run_command, OPEN_COMMAND};
 use icon_conversion::{IconResolution, WorkingDir};
 use indicatif::MultiProgress;
 use magick::CommandArgs;
+use shadow_rs::shadow;
 
 use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions, resources::IconInputs};
 
@@ -15,6 +16,8 @@ mod options;
 mod output_paths;
 mod primitives;
 mod resources;
+
+shadow!(build);
 
 fn main() {
     let options = options::get_options();

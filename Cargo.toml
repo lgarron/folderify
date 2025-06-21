@@ -8,6 +8,7 @@ homepage = "https://github.com/lgarron/folderify"
 documentation = "https://github.com/lgarron/folderify"
 repository = "https://github.com/lgarron/folderify"
 keywords = ["macos", "icons"]
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,6 +18,10 @@ clap_complete = "4.2.0"
 include_dir = "0.7.3"
 indicatif = "0.17.5"
 mktemp = "0.5.0"
+shadow-rs = { version = "1.2.0", default-features = false }
+
+[build-dependencies]
+shadow-rs = "1.2.0"
 
 [[bin]]
 name = "folderify"
