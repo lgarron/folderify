@@ -12,7 +12,7 @@ mod command;
 mod error;
 mod icon_conversion;
 mod magick;
-mod options;
+mod args;
 mod output_paths;
 mod primitives;
 mod resources;
@@ -20,7 +20,7 @@ mod resources;
 shadow!(build);
 
 fn main() {
-    let options = options::get_options();
+    let options = args::get_options();
 
     let potential_output_paths = PotentialOutputPaths::new(&options);
 

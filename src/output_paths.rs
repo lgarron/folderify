@@ -1,6 +1,6 @@
 use std::{fs::create_dir_all, path::PathBuf};
 
-use crate::{icon_conversion::WorkingDir, options::Options};
+use crate::{args::Options, icon_conversion::WorkingDir};
 
 pub(crate) struct FinalOutputPaths {
     pub iconset_dir: PathBuf,

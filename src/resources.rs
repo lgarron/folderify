@@ -4,7 +4,7 @@ use include_dir::{include_dir, Dir};
 
 use crate::{
     icon_conversion::IconResolution,
-    options::{Badge, ColorScheme, FolderStyle},
+    args::{Badge, ColorScheme, FolderStyle},
 };
 
 static RESOURCES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/src/resources");

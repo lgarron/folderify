@@ -35,13 +35,13 @@ impl ProgressBarType {
 }
 
 use crate::{
+    args::{Badge, ColorScheme, FolderStyle, Options, SetIconUsing},
     command::{
         run_command, run_magick, DEREZ_COMMAND, FILEICON_COMMAND, ICONUTIL_COMMAND,
         OSASCRIPT_COMMAND, REZ_COMMAND, SETFILE_COMMAND, SIPS_COMMAND,
     },
     error::{FolderifyError, GeneralError},
     magick::{density, BlurDown, CommandArgs, CompositingOperation},
-    options::{Badge, ColorScheme, FolderStyle, Options, SetIconUsing},
     primitives::{Dimensions, Extent, Offset, RGBColor},
     resources::{get_badge_icon, get_folder_icon, IconInputs},
 };
