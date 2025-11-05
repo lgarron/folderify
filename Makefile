@@ -10,7 +10,7 @@ lint:
 .PHONY: format
 format:
 	cargo clippy
-	cargo fmt --check
+	cargo fmt
 
 .PHONY: test
 test: test-behaviour lint check-readme-cli-help
