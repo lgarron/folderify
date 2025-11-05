@@ -329,3 +329,16 @@ fn current_macOS_version() -> String {
 
     stdout.to_owned()
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::args::FolderifyArgs;
+
+    // https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html#testing
+    #[test]
+    fn test_clap_args() {
+        use clap::CommandFactory;
+
+        FolderifyArgs::command().debug_assert();
+    }
+}

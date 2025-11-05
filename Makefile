@@ -12,8 +12,12 @@ format:
 	cargo clippy
 	cargo fmt
 
-.PHONY: test
+.PHONY: cargo-test test
 test: test-behaviour lint check-readme-cli-help
+
+.PHONY: cargo-test
+cargo-test:
+	cargo test
 
 .PHONY: test-behaviour
 test-behaviour:
