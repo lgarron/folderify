@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use include_dir::{include_dir, Dir};
 
 use crate::{
-    icon_conversion::IconResolution,
     args::{Badge, ColorScheme, FolderStyle},
+    icon_conversion::IconResolution,
 };
 
 static RESOURCES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/src/resources");

@@ -8,11 +8,11 @@ use shadow_rs::shadow;
 
 use crate::{output_paths::PotentialOutputPaths, primitives::Dimensions, resources::IconInputs};
 
+mod args;
 mod command;
 mod error;
 mod icon_conversion;
 mod magick;
-mod args;
 mod output_paths;
 mod primitives;
 mod resources;
