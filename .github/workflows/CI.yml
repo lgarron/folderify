@@ -1,8 +1,8 @@
 on: [push, pull_request]
-name: Test on macOS
+name: CI
 
 jobs:
-  test:
+  check:
     strategy:
       matrix:
         os: [macos-14, macos-15, macos-26]
@@ -16,6 +16,5 @@ jobs:
       - name: Print macOS info
         run: system_profiler SPSoftwareDataType
       - run: make build
-      - run: make test-behaviour
       - run: make lint
-      - run: make check-readme-cli-help
+      - run: make test
