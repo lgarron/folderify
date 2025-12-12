@@ -11,27 +11,32 @@ lint: setup-js
 	cargo clippy -- --deny warnings
 	cargo fmt --check
 	bun x readme-cli-help check
+	bun x @biomejs/biome check
 
 .PHONY: format
 format: setup-js
 	cargo clippy
 	cargo fmt
 	bun x readme-cli-help update
+	bun x @biomejs/biome check --write
+
+.PHONY: setup
+setup: setup-js
 
 .PHONY: setup-js
 setup-js:
 	bun install --frozen-lockfile
 
-.PHONY: cargo-test test
-test: test-behaviour lint
+.PHONY: test
+test: cargo-test test-behaviour
 
 .PHONY: cargo-test
 cargo-test:
 	cargo test
 
 .PHONY: test-behaviour
-test-behaviour:
-	./test/test-behaviour.sh
+test-behaviour: setup-js
+	bun test --timeout 15000
 
 .PHONY: publish
 publish:

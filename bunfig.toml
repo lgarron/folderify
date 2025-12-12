@@ -1,3 +1,6 @@
 [install]
 auto = "disable"
 linker = "isolated"
+
+[test]
+timeout = 15000
