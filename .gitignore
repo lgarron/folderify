@@ -1,4 +1,6 @@
+/node_modules
 /target
-/Icon
+/Icon
+
 # Workaround for https://github.com/jj-vcs/jj/issues/6791
 /Icon*
