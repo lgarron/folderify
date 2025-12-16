@@ -608,7 +608,7 @@ impl IconConversion {
 
     pub fn assign_icns_using_osascript(
         &self,
-        _options: &Options,
+        options: &Options,
         icns_path: &Path,
         target_path: &Path,
     ) -> Result<(), FolderifyError> {
@@ -651,7 +651,7 @@ impl IconConversion {
                 eprintln!("Icon was not successfully assigned to the target folder.");
                 exit(1);
             }
-        } else {
+        } else if options.target.is_some() {
             // TODO: this is usually overwritten by the progress bars.
             eprintln!(
                 "Target is not a folder. Please check manually if the icon was assigned correctly."
