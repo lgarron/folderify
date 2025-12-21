@@ -10,15 +10,15 @@ check: lint test build
 lint: setup-js
 	cargo clippy -- --deny warnings
 	cargo fmt --check
-	bun x readme-cli-help check
-	bun x @biomejs/biome check
+	bun x -- bun-dx --package readme-cli-help readme-cli-help -- check
+	bun x -- bun-dx --package @biomejs/biome biome -- check
 
 .PHONY: format
 format: setup-js
 	cargo clippy
 	cargo fmt
-	bun x readme-cli-help update
-	bun x @biomejs/biome check --write
+	bun x -- bun-dx --package readme-cli-help readme-cli-help -- update
+	bun x -- bun-dx --package @biomejs/biome biome -- check --write
 
 .PHONY: setup
 setup: setup-js
