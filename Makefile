@@ -7,11 +7,27 @@ build:
 check: lint test build
 
 .PHONY: lint
-lint: setup-js
+lint: lint-clippy lint-cargo-fmt lint-readme-cli-help lint-biome lint-typescript
+
+.PHONY: lint-clippy
+lint-clippy: setup-js
 	cargo clippy -- --deny warnings
+
+.PHONY: lint-cargo-fmt
+lint-cargo-fmt: setup-js
 	cargo fmt --check
+
+.PHONY: lint-readme-cli-help
+lint-readme-cli-help: setup-js
 	bun x -- bun-dx --package readme-cli-help readme-cli-help -- check
+
+.PHONY: lint-biome
+lint-biome: setup-js
 	bun x -- bun-dx --package @biomejs/biome biome -- check
+
+.PHONY: lint-typescript
+lint-typescript:
+	bun x -- bun-dx --package typescript tsc -- --project ./tsconfig.json
 
 .PHONY: format
 format: setup-js
@@ -58,4 +74,4 @@ clean:
 
 .PHONY: reset
 reset: clean
-	${RM_RF} ./target/
+	${RM_RF} ./node_modules/ ./target/

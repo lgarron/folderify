@@ -25,6 +25,17 @@ async function shellOut(
   return (await cmd(args)).shellOut();
 }
 
+// TODO: the success/failure of the command is ignored.
+async function cmdStderr(
+  args: ConstructorParameters<typeof PrintableShellCommand>[1],
+) {
+  const { stderr } = (await cmd(args))
+    .print()
+    .spawn({ stdio: ["ignore", "ignore", "pipe"] });
+  // biome-ignore lint/suspicious/noExplicitAny: TODO: types are borked?
+  return new Response(Readable.from(stderr) as any).text();
+}
+
 test("Help flag", async () => {
   await shellOut(["--help"]);
 });
@@ -152,12 +163,10 @@ test("Test that `--output-icns …` and `--output-iconset …` can be used toget
 for (const macOSVersion of ["10.5", "10.8", "10.15"]) {
   test(`Test that known macOS ${macOSVersion} is rejected`, async () => {
     expect(
-      await (async () => {
-        const { stderr } = (
-          await cmd([["--macOS", macOSVersion], EXAMPLES.join("src/apple.png")])
-        ).spawn({ stdio: ["ignore", "ignore", "pipe"] });
-        return new Response(Readable.from(stderr)).text();
-      })(),
+      await cmdStderr([
+        ["--macOS", macOSVersion],
+        EXAMPLES.join("src/apple.png"),
+      ]),
     ).toMatch(
       "Error: OS X / macOS 10 was specified. This is no longer supported by folderify v3.",
     );
@@ -167,12 +176,10 @@ for (const macOSVersion of ["10.5", "10.8", "10.15"]) {
 for (const macOSVersion of ["10.16", "99.0"]) {
   test(`Test that known macOS ${macOSVersion} is accepted with a warning`, async () => {
     expect(
-      await (async () => {
-        const { stderr } = (
-          await cmd([["--macOS", macOSVersion], EXAMPLES.join("src/apple.png")])
-        ).spawn({ stdio: ["ignore", "ignore", "pipe"] });
-        return new Response(Readable.from(stderr)).text();
-      })(),
+      await cmdStderr([
+        ["--macOS", macOSVersion],
+        EXAMPLES.join("src/apple.png"),
+      ]),
     ).toMatch("Warning: Unknown macOS version specified.");
   });
 }
@@ -180,14 +187,10 @@ for (const macOSVersion of ["10.16", "99.0"]) {
 for (const macOSVersion of ["11.0", "12.1", "14.2.1", "26"]) {
   test(`Test that known macOS ${macOSVersion} is accepted without a warning`, async () => {
     expect(
-      await (async () => {
-        const { stderr } = (
-          await cmd([["--macOS", macOSVersion], EXAMPLES.join("src/apple.png")])
-        )
-          .print()
-          .spawn({ stdio: ["ignore", "ignore", "pipe"] });
-        return new Response(Readable.from(stderr)).text();
-      })(),
+      await cmdStderr([
+        ["--macOS", macOSVersion],
+        EXAMPLES.join("src/apple.png"),
+      ]),
     ).not.toMatch("Warning: Unknown macOS version specified.");
   });
 }

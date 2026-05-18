@@ -16,5 +16,9 @@ jobs:
       - name: Print macOS info
         run: system_profiler SPSoftwareDataType
       - run: make build
-      - run: make lint
+      - run: make lint-clippy
+      - run: make lint-cargo-fmt
+      - run: make lint-readme-cli-help
+      - run: make lint-biome
+      - run: make lint-typescript
       - run: make test
