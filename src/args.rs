@@ -156,7 +156,7 @@ pub struct Options {
 }
 
 fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
-    generate(generator, cmd, "folderify", &mut stdout());
+    generate(generator, cmd, cmd.get_name().to_owned(), &mut stdout());
 }
 
 fn is_major_macos_version_one_of(mac_os: &str, versions: &[&str]) -> bool {
