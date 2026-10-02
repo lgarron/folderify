@@ -253,7 +253,7 @@ pub fn get_options() -> Options {
         // Instead, we denylist the versions that previously had different folder icons, so that we don't accidentally apply the Big Sur style when one of these versions was specified.
         if matches!(
             mac_os,
-            "10.5"
+            "10" | "10.5"
                 | "10.6"
                 | "10.7"
                 | "10.8"
@@ -272,15 +272,14 @@ pub fn get_options() -> Options {
             FolderStyle::BigSur
         } else if is_major_macos_version_one_of(
             mac_os,
-            &["26"], // Note: macOS 16 through 25 do not exist.
+            &["26", "27"], // Note: macOS 16 through 25 do not exist.
         ) {
-            eprintln!("Warning: macOS Tahoe is still in beta. The icon may not match the final macOS 26 release.");
             FolderStyle::Tahoe
         } else {
             eprintln!(
-                "Warning: Unknown macOS version specified. Assuming Big Sur (macOS 11 through 15)."
+                "Warning: Unknown macOS version specified. Assuming Tahoe (macOS 26 and above)."
             );
-            FolderStyle::BigSur
+            FolderStyle::Tahoe
         }
     };
     let debug = var("FOLDERIFY_DEBUG") == Ok("1".into());
