@@ -8,5 +8,9 @@
     "printable-shell-command": "^5.3.1",
     "readme-cli-help": ">=0.5.1",
     "typescript": "^7.0.2"
+  },
+  "patchedDependencies": {
+    "bun-types@1.3.14": "patches/bun-types@1.3.14.patch",
+    "undici-types@7.24.6": "patches/undici-types@7.24.6.patch"
   }
 }
