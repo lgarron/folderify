@@ -86,6 +86,17 @@ struct FolderifyArgs {
     ///  source <(folderify --completions zsh) # zsh
     #[clap(long, verbatim_doc_comment, id = "SHELL")]
     completions: Option<Shell>,
+
+    /// Binary name for `--completions` (not used otherwise).
+    /// Due to `clap_complete` limitations, the accepted name is heavily restricted. Only the following characters are allowed:
+    ///
+    /// - Alphanumeric characters.
+    /// - `_` (underscore)
+    /// - `-` (dash)
+    /// - `.` (period)
+    // TODO: why does `requires("completions")` cause `cargo test` to fail?
+    #[clap(long, verbatim_doc_comment, requires("completions"))]
+    bin_name: Option<String>,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq, Copy)]
@@ -155,8 +166,17 @@ pub struct Options {
     pub debug: bool,
 }
 
-fn completions_for_shell(cmd: &mut clap::Command, generator: impl Generator) {
-    generate(generator, cmd, cmd.get_name().to_owned(), &mut stdout());
+fn completions_for_shell(
+    cmd: &mut clap::Command,
+    generator: impl Generator,
+    bin_name: Option<String>,
+) {
+    generate(
+        generator,
+        cmd,
+        bin_name.unwrap_or_else(|| cmd.get_name().to_owned()),
+        &mut stdout(),
+    );
 }
 
 fn is_major_macos_version_one_of(mac_os: &str, versions: &[&str]) -> bool {
@@ -199,8 +219,20 @@ pub fn get_options() -> Options {
 
     let args = FolderifyArgs::parse();
     if let Some(shell) = args.completions {
-        completions_for_shell(&mut command, shell);
+        if let Some(bin_name) = &args.bin_name {
+            for char in bin_name.chars() {
+                // TODO: figure out what is safe to pass to `clap_complete`.
+                if !char.is_alphanumeric() && char != '-' && char != '_' && char != '.' {
+                    eprintln!("Error: unsupported character in `--bin-name` arg.");
+                    exit(1);
+                }
+            }
+        }
+        completions_for_shell(&mut command, shell, args.bin_name);
         exit(0);
+    } else if args.bin_name.is_some() {
+        eprintln!("Error: `--bin-name` arg passed without `--completions`.");
+        exit(1);
     }
 
     let mask = match args.mask {

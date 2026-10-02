@@ -194,3 +194,8 @@ for (const macOSVersion of ["11.0", "12.1", "14.2.1", "26"]) {
     ).not.toMatch("Warning: Unknown macOS version specified.");
   });
 }
+
+test("Test `--completions``.", async () => {
+  await shellOut(["--completions", "fish"]);
+  await shellOut(["--completions", "fish", "--bin-name", "folderify-HEAD"]);
+});
