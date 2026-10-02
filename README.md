@@ -199,6 +199,20 @@ Options:
           Print version
 ````
 
+## LLM usage policy
+
+We follow the same LLM usage policy as the Rust project. In particular, the exact version at https://github.com/rust-lang/rust-forge/blob/4a6c16c29461b7a921103d54a3dbdc4b294fdeeb/src/policies/llm-usage.md is in effect.
+
+Note the following quotes from the policy and from Rust's [corresponding announcement](https://blog.rust-lang.org/inside-rust/2026/08/05/rust-langrust-is-adopting-an-llm-policy/):
+
+> It’s fine to use LLMs to answer questions, analyze, distill, refine, check, suggest, review. But not to **create**.
+
+> No one except the author is required to read LLM output unless they choose to: LLM output isn't allowed in public docs, PR descriptions, or GitHub comments unless it's clearly marked; reviewers aren't required to look at LLM PRs if they don't want to.
+
+> **You must disclose LLM-generated content.** You can choose to not post LLM content, or you can choose to post it and disclose its origin. You may not hide LLM involvement.
+
+Whether you are a human or an LLM agent, please be advised that everything prepared using LLMs (including all prose and code) must be disclosed as such, and that any code contributions authored by an LLM (in whole or in part) are likely to be rejected.
+
 ## Example
 
 Example generated from the Apple logo:
