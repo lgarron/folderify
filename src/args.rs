@@ -95,7 +95,7 @@ struct FolderifyArgs {
     /// - `-` (dash)
     /// - `.` (period)
     // TODO: why does `requires("completions")` cause `cargo test` to fail?
-    #[clap(long, verbatim_doc_comment)]
+    #[clap(long, hide(true), verbatim_doc_comment)]
     bin_name: Option<String>,
 }
 
