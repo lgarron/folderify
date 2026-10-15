@@ -1,5 +1,6 @@
 {
   "$schema": "../node_modules/readme-cli-help/schema.json",
+  "root": "../",
   "files": {
     "./README.md": {
       "codeFences": [
