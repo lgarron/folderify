@@ -6,7 +6,7 @@
     "bun-dx": "^0.1.4",
     "path-class": ">=0.15.1",
     "printable-shell-command": "^5.3.1",
-    "readme-cli-help": ">=0.5.1",
+    "readme-cli-help": ">=0.5.2",
     "typescript": "^7.0.2"
   },
   "patchedDependencies": {
