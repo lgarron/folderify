@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "^2.4.15",
-    "@cubing/dev-config": "^0.9.5",
+    "@biomejs/biome": "^2.5.15",
+    "@cubing/dev-config": "^0.11.5",
     "@types/bun": "^1.3.14",
     "bun-dx": "^0.1.4",
     "path-class": ">=0.15.1",

@@ -1,5 +1,8 @@
 {
-  "extends": "./node_modules/@cubing/dev-config/ts/es2022-types/tsconfig.json",
+  "extends": [
+    "./node_modules/@cubing/dev-config/ts/es2022-types/tsconfig.json",
+    "./node_modules/@cubing/dev-config/erasable/ts/tsconfig.json"
+  ],
   "compilerOptions": {
     "noEmit": true,
     "types": ["bun"]
