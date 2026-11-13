@@ -9,8 +9,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
+        uses: actions/checkout@v4.4.0
+      - uses: oven-sh/setup-bun@v1.2.2
       - name: Install ImageMagick
         run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install imagemagick
       - name: Print macOS info
