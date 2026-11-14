@@ -37,11 +37,15 @@ format: setup-js
 	bun x -- bun-dx --package @biomejs/biome biome -- check --write
 
 .PHONY: setup
-setup: setup-js
+setup: setup-js setup-rust
 
 .PHONY: setup-js
 setup-js:
 	bun install --frozen-lockfile
+
+.PHONY: setup-rust
+setup-rust:
+	cargo fetch
 
 .PHONY: test
 test: cargo-test test-behaviour
